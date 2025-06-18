@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quickbill/views/commons/common_form_card.dart';
+import 'package:quickbill/views/commons/common_page_header.dart';
 
 class AddClient extends StatefulWidget {
   const AddClient({super.key});
@@ -17,8 +18,6 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
 
   late AnimationController submitController;
   late Animation<double> submitScale;
-
-
 
   @override
   void initState() {
@@ -38,17 +37,16 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
       end: 1.0,
     ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
 
-
     submitController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 150),
       reverseDuration: Duration(milliseconds: 150),
     );
 
-    submitScale = Tween<double>(begin: 1.0, end: 0.92).animate(
-      CurvedAnimation(parent: submitController, curve: Curves.easeOut),
-    );
-
+    submitScale = Tween<double>(
+      begin: 1.0,
+      end: 0.92,
+    ).animate(CurvedAnimation(parent: submitController, curve: Curves.easeOut));
 
     controller.forward();
   }
@@ -72,72 +70,18 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
                 position: slideAnimation,
                 child: FadeTransition(
                   opacity: fadeAnimation,
-                  child: Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Container(
-                      width: Get.width,
-                      height: 80,
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        color: Color(0xff8845ec),
-                        border: Border.all(color: Color(0xffad78fa), width: 2),
-                      ),
-                      child: Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Get.back();
-                            },
-                            child: Card(
-                              elevation: 5,
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(24),
-                                ),
-                                child: Icon(
-                                  Icons.chevron_left_rounded,
-                                  size: 28,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 20),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Client",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                "Add New Client",
-                                style: TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                  child: CommonPageHeader(
+                    mainHeading: "Client",
+                    subHeading: "Add New Client",
+                    icon: Icons.chevron_left_rounded,
+                    onTap: () {
+                      Get.back();
+                    },
                   ),
                 ),
               ),
 
-              SizedBox(height: 20,),
+              SizedBox(height: 20),
               Expanded(
                 child: SizedBox(
                   child: SingleChildScrollView(
@@ -146,44 +90,38 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
                         Card(
                           elevation: 5,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(22),
                           ),
                           child: Container(
                             width: Get.width,
                             padding: EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(22),
                               color: Colors.white,
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                CommonFromHeading(
-                                  data: "Company Name",
-                                ),
+                                CommonFromHeading(data: "Company Name"),
                                 SizedBox(height: 10),
                                 CommonTextField(
                                   autofocus: true,
                                   hintText: "Company Name",
                                 ),
 
-                                SizedBox(height: 15,),
+                                SizedBox(height: 15),
 
-                                CommonFromHeading(
-                                  data: "Client Name",
-                                ),
+                                CommonFromHeading(data: "Client Name"),
                                 SizedBox(height: 10),
                                 CommonTextField(
                                   autofocus: false,
                                   hintText: "Client Name",
                                 ),
 
-                                SizedBox(height: 15,),
+                                SizedBox(height: 15),
 
-                                CommonFromHeading(
-                                  data: "Contact",
-                                ),
+                                CommonFromHeading(data: "Contact"),
                                 SizedBox(height: 10),
                                 CommonTextField(
                                   autofocus: false,
@@ -199,33 +137,29 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
                         Card(
                           elevation: 5,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(22),
                           ),
                           child: Container(
                             width: Get.width,
                             padding: EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(22),
                               color: Colors.white,
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                CommonFromHeading(
-                                  data: "GST NO.",
-                                ),
+                                CommonFromHeading(data: "GST NO."),
                                 SizedBox(height: 10),
                                 CommonTextField(
                                   autofocus: false,
                                   hintText: "GST NO.",
                                 ),
 
-                                SizedBox(height: 15,),
+                                SizedBox(height: 15),
 
-                                CommonFromHeading(
-                                  data: "Address",
-                                ),
+                                CommonFromHeading(data: "Address"),
                                 SizedBox(height: 10),
                                 CommonTextField(
                                   autofocus: false,
@@ -247,17 +181,29 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
                             scale: submitScale,
                             child: Card(
                               elevation: 5,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(22),
+                              ),
                               child: Container(
                                 width: Get.width,
                                 padding: EdgeInsets.all(16),
                                 alignment: Alignment.center,
-                                decoration: BoxDecoration(color: Color(0xff8845ec),borderRadius: BorderRadius.circular(24)),
-                                child: Text("Submit", style: TextStyle(color: Colors.black, fontSize: 18,fontWeight: FontWeight.bold),),
+                                decoration: BoxDecoration(
+                                  color: Color(0xff8845ec),
+                                  borderRadius: BorderRadius.circular(22),
+                                ),
+                                child: Text(
+                                  "Submit",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:quickbill/views/add_client.dart';
+import 'package:quickbill/views/commons/common_page_header.dart';
 
 import 'add_invoice.dart';
 
@@ -198,7 +199,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             )
             .toList();
 
-    listSlideAnimation = entranceControllers.asMap().entries.map((entry) {
+    listSlideAnimation =
+        entranceControllers.asMap().entries.map((entry) {
           var controller = entry.value;
           return Tween<Offset>(begin: Offset(0, 0.2), end: Offset.zero).animate(
             CurvedAnimation(
@@ -277,71 +279,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     position: slideAnimation,
                     child: FadeTransition(
                       opacity: fadeAnimation,
-                      child: Card(
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: Container(
-                          width: Get.width,
-                          height: 80,
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            color: Color(0xff8845ec),
-                            border: Border.all(
-                              color: Color(0xffad78fa),
-                              width: 2,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() => isDrawerOpen = true);
-                                  drawerController.forward();
-                                },
-                                child: Card(
-                                  elevation: 5,
-                                  child: Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(24),
-                                    ),
-                                    child: Icon(
-                                      Icons.drag_handle_rounded,
-                                      size: 28,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 20),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "${getGreeting()}! Harsh",
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    formattedDate,
-                                    style: TextStyle(
-                                      color: Colors.black54,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                      child: CommonPageHeader(
+                        mainHeading: "${getGreeting()}! Harsh",
+                        subHeading: formattedDate,
+                        onTap: () {
+                          setState(() => isDrawerOpen = true);
+                          drawerController.forward();
+                        },
+                        icon: Icons.drag_handle_rounded,
                       ),
                     ),
                   ),
@@ -373,23 +318,30 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   await bounceControllers[index].forward();
                                   await bounceControllers[index].reverse();
 
-                                  if(index == 0){
-                                    Get.to(() => AddInvoice(),transition: Transition.fadeIn);
-                                  } else if(index == 1){
-                                    Get.to(() => AddClient(),transition: Transition.fadeIn);
-                                  } else if(index == 2){} else if (index ==3){}
+                                  if (index == 0) {
+                                    Get.to(
+                                      () => AddInvoice(),
+                                      transition: Transition.fadeIn,
+                                    );
+                                  } else if (index == 1) {
+                                    Get.to(
+                                      () => AddClient(),
+                                      transition: Transition.fadeIn,
+                                    );
+                                  } else if (index == 2) {
+                                  } else if (index == 3) {}
                                 },
                                 child: ScaleTransition(
                                   scale: bounceAnimations[index],
                                   child: Card(
                                     elevation: 5,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(24),
+                                      borderRadius: BorderRadius.circular(22),
                                     ),
                                     child: Container(
                                       decoration: BoxDecoration(
                                         color: Colors.white,
-                                        borderRadius: BorderRadius.circular(24),
+                                        borderRadius: BorderRadius.circular(22),
                                       ),
                                       alignment: Alignment.center,
                                       child: Column(
@@ -438,14 +390,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                               child: Card(
                                 elevation: 5,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(24),
+                                  borderRadius: BorderRadius.circular(22),
                                 ),
                                 child: Container(
                                   width: Get.width / 2.2,
                                   height: Get.height / 6,
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(24),
+                                    borderRadius: BorderRadius.circular(22),
                                   ),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -486,14 +438,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                               child: Card(
                                 elevation: 5,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(24),
+                                  borderRadius: BorderRadius.circular(22),
                                 ),
                                 child: Container(
                                   width: Get.width / 2.2,
                                   height: Get.height / 6,
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(24),
+                                    borderRadius: BorderRadius.circular(22),
                                   ),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -611,7 +563,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     child: Card(
                       elevation: 5,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(22),
                       ),
                       child: Container(
                         height: 80,
@@ -619,7 +571,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(22),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -630,7 +582,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Company Name",
+                                  "Bill No.",
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 16,
@@ -638,7 +590,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   ),
                                 ),
                                 Text(
-                                  "Client Name",
+                                  "Company Name",
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
@@ -648,6 +600,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             ),
 
                             Spacer(),
+
+                            Text(
+                              '16-6-25',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+
+                            SizedBox(width: 15),
 
                             Text(
                               '₹10000',
@@ -679,18 +642,20 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     return Card(
       elevation: 5,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(
-        bottomRight: Radius.circular(24),
-        topRight: Radius.circular(24),
-      )),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          bottomRight: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+      ),
       child: Container(
         width: Get.width / 1.5,
         height: Get.height / 1.5,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
-            bottomRight: Radius.circular(24),
-            topRight: Radius.circular(24),
+            bottomRight: Radius.circular(22),
+            topRight: Radius.circular(22),
           ),
         ),
       ),
