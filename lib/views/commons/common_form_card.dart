@@ -36,14 +36,12 @@ class CommonTextField extends StatelessWidget {
         onChanged: onChanged,
         readOnly: readOnly ?? false,
         decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           hintStyle: TextStyle(color: Colors.grey),
           suffixIcon: suffixIcon,
           suffixIconColor: Colors.black,
           hintText: hintText,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(22),
-            borderSide: BorderSide(color: Colors.black),
-          ),
+          enabledBorder: InputBorder.none,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(22),
             borderSide: BorderSide(color: Color(0xff3f009e)),

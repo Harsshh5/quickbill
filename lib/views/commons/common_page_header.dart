@@ -21,8 +21,7 @@ class CommonPageHeader extends StatelessWidget {
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          color: Color(0xff8845ec),
-          border: Border.all(color: Color(0xffad78fa), width: 2),
+          gradient: LinearGradient(colors: [Color(0xff3f009e),Color(0xff8845ec),Color(0xffbea0f2)], begin: Alignment.bottomLeft,end: Alignment.topRight),
         ),
         child: Row(
           children: [
@@ -53,7 +52,7 @@ class CommonPageHeader extends StatelessWidget {
                 Text(
                   mainHeading,
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -61,7 +60,7 @@ class CommonPageHeader extends StatelessWidget {
                 Text(
                   subHeading,
                   style: TextStyle(
-                    color: Colors.black54,
+                    color: Colors.white60,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),

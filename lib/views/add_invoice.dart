@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quickbill/views/commons/common_form_card.dart';
 import 'package:quickbill/views/commons/common_page_header.dart';
+import 'package:quickbill/views/commons/common_submit.dart';
 
 class DesignCardData {
   final TextEditingController category = TextEditingController();
@@ -101,6 +102,7 @@ class _AddInvoiceState extends State<AddInvoice> with TickerProviderStateMixin {
     return Card(
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      margin: EdgeInsets.symmetric(vertical: 10,horizontal: 5),
       child: Container(
         width: Get.width,
         padding: const EdgeInsets.all(10),
@@ -114,7 +116,7 @@ class _AddInvoiceState extends State<AddInvoice> with TickerProviderStateMixin {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Design #${index + 1}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text("Design ${index + 1}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 if (designCardList.length > 1)
                   GestureDetector(
                     onTap: () {
@@ -329,21 +331,10 @@ class _AddInvoiceState extends State<AddInvoice> with TickerProviderStateMixin {
                         onTap: () async {
                           await submitController.forward();
                           await submitController.reverse();
-                          // Handle submit logic
                         },
                         child: ScaleTransition(
                           scale: submitScale,
-                          child: Card(
-                            elevation: 5,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                            child: Container(
-                              width: Get.width,
-                              padding: const EdgeInsets.all(16),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(color: const Color(0xff8845ec), borderRadius: BorderRadius.circular(24)),
-                              child: const Text("Submit", style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
-                            ),
-                          ),
+                          child: CommonSubmit()
                         ),
                       ),
                       const SizedBox(height: 40),

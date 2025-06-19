@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:quickbill/views/add_client.dart';
 import 'package:quickbill/views/commons/common_page_header.dart';
+import 'package:quickbill/views/payments.dart';
 
 import 'add_invoice.dart';
 
@@ -329,6 +330,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                       transition: Transition.fadeIn,
                                     );
                                   } else if (index == 2) {
+                                    Get.to(() => Payments(), transition: Transition.fadeIn);
                                   } else if (index == 3) {}
                                 },
                                 child: ScaleTransition(

@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:quickbill/views/commons/common_form_card.dart';
 import 'package:quickbill/views/commons/common_page_header.dart';
 
+import 'commons/common_submit.dart';
+
 class AddClient extends StatefulWidget {
   const AddClient({super.key});
 
@@ -179,29 +181,7 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
                           },
                           child: ScaleTransition(
                             scale: submitScale,
-                            child: Card(
-                              elevation: 5,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(22),
-                              ),
-                              child: Container(
-                                width: Get.width,
-                                padding: EdgeInsets.all(16),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Color(0xff8845ec),
-                                  borderRadius: BorderRadius.circular(22),
-                                ),
-                                child: Text(
-                                  "Submit",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
+                            child: CommonSubmit()
                           ),
                         ),
                       ],
