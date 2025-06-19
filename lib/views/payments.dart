@@ -199,7 +199,32 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
                             await calendarController.reverse();
                             await calendarController.forward();
 
-                            DateTimeRange? picked = await showAnimatedDateRangePicker(context, selectedDateRange);
+                            DateTimeRange? picked = await showDateRangePicker(
+                              currentDate: DateTime.now(),
+                              // ignore: use_build_context_synchronously
+                              context: context,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                              initialDateRange: selectedDateRange,
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    colorScheme: ColorScheme.light(
+                                      primary: Color(0xff3f009e),
+                                      onPrimary: Colors.white,
+                                      secondary: Color(0xff8845ec),
+                                    ),
+                                    textButtonTheme: TextButtonThemeData(
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Color(0xff3f009e),
+                                      ),
+                                    ),
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+
                             if (!context.mounted) return;
 
                             if (picked != null) {
@@ -387,7 +412,7 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
                         width: Get.width,
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.purple[50] : Colors.white,
+                          color: isSelected ? Color(0xffe6dbf8) : Colors.white,
                           borderRadius: BorderRadius.circular(22),
                         ),
                         child: Row(
@@ -465,61 +490,6 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
           },
         ),
       ),
-    );
-  }
-
-  Future<DateTimeRange?> showAnimatedDateRangePicker(BuildContext context, DateTimeRange? initialRange) {
-    return showGeneralDialog<DateTimeRange>(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: "DateRangePicker",
-      transitionDuration: Duration(milliseconds: 300),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return Center(); // fallback, won't be used due to transitionBuilder
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(parent: animation, curve: Curves.easeInOut);
-
-        return ScaleTransition(
-          scale: curved,
-          child: Opacity(
-            opacity: animation.value,
-            child: Builder(
-              builder: (dialogContext) {
-                return AlertDialog(
-                  contentPadding: EdgeInsets.zero,
-                  backgroundColor: Colors.transparent,
-                  content: SizedBox(
-                    height: 500,
-                    child: Theme(
-                      data: Theme.of(dialogContext).copyWith(
-                        colorScheme: ColorScheme.light(
-                          primary: Color(0xff3f009e),
-                          onPrimary: Colors.white,
-                          secondary: Color(0xff8845ec),
-                        ),
-                        textButtonTheme: TextButtonThemeData(
-                          style: TextButton.styleFrom(
-                            foregroundColor: Color(0xff3f009e),
-                          ),
-                        ),
-                      ),
-                      child: Builder(
-                        builder: (innerContext) => DateRangePickerDialog(
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                          currentDate: DateTime.now(),
-                          initialDateRange: initialRange,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
     );
   }
 
