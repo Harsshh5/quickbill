@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:quickbill/views/commons/common_form_card.dart';
-import 'package:quickbill/views/commons/common_submit.dart';
+import 'package:quickbill/views/commons/card_container.dart';
+import 'package:quickbill/views/commons/card_text_field.dart';
+import 'package:quickbill/views/commons/gradient.dart';
+import 'package:quickbill/views/commons/submit_button.dart';
 
-import 'commons/common_page_header.dart';
+import '../../config/app_colors.dart';
+import '../commons/page_header.dart';
+import '../commons/text_style.dart';
 
 class Payments extends StatefulWidget {
   const Payments({super.key});
@@ -50,7 +54,6 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
       setState(() {});
     });
 
-
     calendarController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 150),
@@ -64,7 +67,6 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
       reverseCurve: Curves.easeInOut,
     );
     calendarController.value = 1.0;
-
 
     controller = AnimationController(
       duration: const Duration(milliseconds: 400),
@@ -129,9 +131,14 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
       ),
     );
 
-    listFadeAnimation =entranceControllers
-            .map((c) => Tween<double>(begin: 0.0,end: 1.0)
-            .animate(CurvedAnimation(parent: c, curve: Curves.easeIn)))
+    listFadeAnimation =
+        entranceControllers
+            .map(
+              (c) => Tween<double>(
+                begin: 0.0,
+                end: 1.0,
+              ).animate(CurvedAnimation(parent: c, curve: Curves.easeIn)),
+            )
             .toList();
 
     listSlideAnimation =
@@ -164,7 +171,7 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
         children: [
           SafeArea(
             child: Padding(
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.only(top: 10, left: 10, right: 10),
               child: Column(
                 children: [
                   SlideTransition(
@@ -210,13 +217,13 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
                                 return Theme(
                                   data: Theme.of(context).copyWith(
                                     colorScheme: ColorScheme.light(
-                                      primary: Color(0xff3f009e),
+                                      primary: AppColors.dark,
                                       onPrimary: Colors.white,
-                                      secondary: Color(0xff8845ec),
+                                      secondary: AppColors.medium,
                                     ),
                                     textButtonTheme: TextButtonThemeData(
                                       style: TextButton.styleFrom(
-                                        foregroundColor: Color(0xff3f009e),
+                                        foregroundColor: AppColors.dark,
                                       ),
                                     ),
                                   ),
@@ -233,30 +240,18 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
                               });
                             }
 
-
                             if (picked != null) {
                               setState(() {
                                 selectedDateRange = picked;
                               });
                             }
                           },
-                          child: Card(
-                            elevation: 5,
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                Icons.calendar_month_rounded,
-                                color: Colors.black,
-                              ),
+                          child: CommonIconCardContainer(
+                            width: 50,
+                            height: 50,
+                            child: Icon(
+                              Icons.calendar_month_rounded,
+                              color: Colors.black,
                             ),
                           ),
                         ),
@@ -279,29 +274,14 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
                       indicatorPadding: EdgeInsets.all(5),
                       splashBorderRadius: BorderRadius.circular(18),
                       dividerColor: Colors.transparent,
-                      labelStyle: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "quicksand",
-                      ),
-                      unselectedLabelStyle: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "quicksand",
-                      ),
+                      indicatorAnimation: TabIndicatorAnimation.elastic,
+                      labelStyle: appTextStyle(color: Colors.white, fontSize: 16),
+                      unselectedLabelStyle: appTextStyle(fontSize: 16),
                       indicator: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        gradient: LinearGradient(
-                          colors: [
-                            Color(0xff3f009e),
-                            Color(0xff8845ec),
-                            Color(0xffbea0f2),
-                          ],
-                          begin: Alignment.bottomLeft,
-                          end: Alignment.topRight,
-                        ),
+                        gradient: appGradient1
                       ),
-                      indicatorAnimation: TabIndicatorAnimation.elastic,
+
                     ),
                   ),
 
@@ -313,13 +293,9 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
                       children: [
                         Text(
                           "${DateFormat('dd MMM yyyy').format(selectedDateRange!.start)}"
-                              " - "
-                              "${DateFormat('dd MMM yyyy').format(selectedDateRange!.end)}",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
+                          " - "
+                          "${DateFormat('dd MMM yyyy').format(selectedDateRange!.end)}",
+                          style: appTextStyle(),
                         ),
                         SizedBox(width: 10),
                         GestureDetector(
@@ -339,17 +315,15 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
             ),
           ),
 
-          if(isSelectionMode)
+          if (isSelectionMode)
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Container(
-                  margin: EdgeInsets.all(10),
-                    child: CommonSubmit()),
+                Container(margin: EdgeInsets.all(10), child: CommonSubmit()),
               ],
-            )
+            ),
         ],
-      )
+      ),
     );
   }
 
@@ -357,7 +331,7 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
     return Expanded(
       child: RefreshIndicator(
         backgroundColor: Colors.white,
-        color: Color(0xff3f009e),
+        color: AppColors.dark,
         onRefresh: () {
           return Future(() {}); // Your refresh logic
         },
@@ -402,87 +376,71 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
                         // Navigate to invoice details or another action
                       }
                     },
-                    child: Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: Container(
-                        height: 80,
-                        width: Get.width,
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: isSelected ? Color(0xffe6dbf8) : Colors.white,
-                          borderRadius: BorderRadius.circular(22),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            if (isSelectionMode)
-                              Checkbox(
-                                value: isSelected,
-                                onChanged: (val) {
-                                  setState(() {
-                                    if (val!) {
-                                      selectedIndexes.add(index);
-                                    } else {
-                                      selectedIndexes.remove(index);
-                                      if (selectedIndexes.isEmpty) {
-                                        isSelectionMode = false;
-                                      }
+                    child: CommonCardContainer(
+                      height: 80,
+                      width: Get.width,
+                      padding: EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (isSelectionMode)
+                            Checkbox(
+                              value: isSelected,
+                              onChanged: (val) {
+                                setState(() {
+                                  if (val!) {
+                                    selectedIndexes.add(index);
+                                  } else {
+                                    selectedIndexes.remove(index);
+                                    if (selectedIndexes.isEmpty) {
+                                      isSelectionMode = false;
                                     }
-                                  });
-                                },
-                              ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Bill No.",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  }
+                                });
+                              },
+                            ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Bill No.",
+                                style: appTextStyle(
+                                  fontSize: 16,
                                 ),
-                                Text(
-                                  "Company Name",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                  ),
+                              ),
+                              Text(
+                                "Company Name",
+                                style: appTextStyle(
+                                  fontSize: 14,
                                 ),
-                              ],
-                            ),
-                            Spacer(),
-                            Text(
-                              '16-6-25',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
                               ),
+                            ],
+                          ),
+                          Spacer(),
+                          Text(
+                            '16-6-25',
+                            style: appTextStyle(
+                              fontSize: 16,
                             ),
-                            SizedBox(width: 15),
-                            Text(
-                              '₹10,000',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color:
-                                    tabController.index == 0
-                                        ? Colors.red[600]
-                                        : Colors.green[700],
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          SizedBox(width: 15),
+
+                          Text(
+                            '₹10,000',
+                            style: appTextStyle(
+                              fontSize: 16,
+                              color: tabController.index == 0
+                                  ? Colors.red[600]!
+                                  : Colors.green[700]!,
                             ),
-                            SizedBox(width: 10),
-                            Icon(Icons.chevron_right_rounded),
-                          ],
-                        ),
+                          ),
+                          SizedBox(width: 10),
+                          Icon(Icons.chevron_right_rounded),
+                        ],
                       ),
-                    ),
+                    )
                   ),
                 ),
               ),
@@ -492,5 +450,4 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
       ),
     );
   }
-
 }

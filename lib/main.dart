@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:quickbill/views/home.dart';
+import 'package:quickbill/views/masters/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +8,14 @@ SharedPreferences? pref;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   pref = await SharedPreferences.getInstance();
+
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent, // Or any color you want
+    statusBarIconBrightness: Brightness.dark, // This makes icons dark
+  ));
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]).then((_) {

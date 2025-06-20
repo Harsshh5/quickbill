@@ -3,12 +3,18 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:quickbill/views/add_client.dart';
-import 'package:quickbill/views/commons/common_page_header.dart';
-import 'package:quickbill/views/payments.dart';
-import 'package:quickbill/views/stats.dart';
+import 'package:quickbill/config/app_colors.dart';
+import 'package:quickbill/views/commons/card_container.dart';
+import 'package:quickbill/views/commons/gradient.dart';
+import 'package:quickbill/views/commons/page_header.dart';
+import 'package:quickbill/views/commons/text_style.dart';
+import 'package:quickbill/views/masters/all_clients.dart';
+import 'package:quickbill/views/masters/payments.dart';
+import 'package:quickbill/views/masters/stats.dart';
 
+import 'add_client.dart';
 import 'add_invoice.dart';
+import 'all_invoices.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -215,13 +221,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     //drawer
     drawerController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 200),
+      duration: Duration(milliseconds: 300),
     );
 
     drawerSlideAnimation = Tween<Offset>(
       begin: Offset(-1.0, 0.0), // Slide in from left
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: drawerController, curve: Curves.easeOut));
+    ).animate(CurvedAnimation(parent: drawerController, curve: Curves.easeInOut));
 
     controller.forward();
   }
@@ -241,11 +247,15 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   void _onTapTotalInvoice() async {
     await invoiceController.forward();
     await invoiceController.reverse();
+
+    Get.to(() => AllInvoices(), transition: Transition.fadeIn);
   }
 
   void _onTapTotalClients() async {
     await clientController.forward();
     await clientController.reverse();
+
+    Get.to(() => AllClients(), transition: Transition.fadeIn);
   }
 
   @override
@@ -259,21 +269,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             height: Get.height,
             width: Get.width,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xff3f009e),
-                  Color(0xff9260e9),
-                  Colors.white,
-                  Colors.white,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+              gradient: appGradient2,
             ),
           ),
 
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.only(top: 10, left: 10, right: 10),
             child: SafeArea(
               child: Column(
                 children: [
@@ -338,35 +339,22 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 },
                                 child: ScaleTransition(
                                   scale: bounceAnimations[index],
-                                  child: Card(
-                                    elevation: 5,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(22),
-                                    ),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(22),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            boxIcons[index],
-                                            color: Color(0xff3f009e),
-                                          ),
-                                          SizedBox(height: 5),
-                                          Text(
-                                            boxTexts[index],
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                  child: CommonCardContainer(
+                                    alignment: Alignment.center,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          boxIcons[index],
+                                          color: AppColors.dark,
+                                        ),
+                                        SizedBox(height: 5),
+                                        Text(
+                                          boxTexts[index],
+                                          style: appTextStyle(fontSize: 15)
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -392,40 +380,22 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             onTap: _onTapTotalInvoice,
                             child: ScaleTransition(
                               scale: invoiceScale,
-                              child: Card(
-                                elevation: 5,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(22),
-                                ),
-                                child: Container(
-                                  width: Get.width / 2.2,
-                                  height: Get.height / 6,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(22),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "10",
-                                        style: TextStyle(
-                                          color: Color(0xff3f009e),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 28,
-                                        ),
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        "Total Invoices",
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                              child: CommonCardContainer(
+                                width: Get.width / 2.2,
+                                height: Get.height / 6,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "10",
+                                      style: appTextStyle(fontSize: 28, color: AppColors.dark),
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      "Total Invoices",
+                                      style: appTextStyle(),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -440,40 +410,22 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             onTap: _onTapTotalClients,
                             child: ScaleTransition(
                               scale: clientScale,
-                              child: Card(
-                                elevation: 5,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(22),
-                                ),
-                                child: Container(
-                                  width: Get.width / 2.2,
-                                  height: Get.height / 6,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(22),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "10",
-                                        style: TextStyle(
-                                          color: Color(0xff3f009e),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 28,
-                                        ),
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        "Total Clients",
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                              child: CommonCardContainer(
+                                width: Get.width / 2.2,
+                                height: Get.height / 6,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "10",
+                                      style: appTextStyle(color: AppColors.dark, fontSize: 28),
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      "Total Clients",
+                                      style: appTextStyle(),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -491,12 +443,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Recents",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
+                          "Recent",
+                          style: appTextStyle(),
                         ),
                       ],
                     ),
@@ -544,7 +492,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     return Expanded(
       child: RefreshIndicator(
         backgroundColor: Colors.white,
-        color: Color(0xff3f009e),
+        color: AppColors.dark,
         onRefresh: () {
           return Future(() {});
         },
@@ -565,72 +513,47 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   },
                   child: ScaleTransition(
                     scale: listAnimations[index],
-                    child: Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: Container(
-                        height: 80,
-                        width: Get.width,
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(22),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Bill No.",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  "Company Name",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            Spacer(),
-
-                            Text(
-                              '16-6-25',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
+                    child: CommonCardContainer(
+                      height: 80,
+                      width: Get.width,
+                      padding: EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Bill No.",
+                                style: appTextStyle(fontSize: 16),
                               ),
-                            ),
-
-                            SizedBox(width: 15),
-
-                            Text(
-                              '₹10000',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: amountColor,
-                                fontWeight: FontWeight.bold,
+                              Text(
+                                "Company Name",
+                                style: appTextStyle(fontSize: 14),
                               ),
-                            ),
+                            ],
+                          ),
 
-                            SizedBox(width: 10),
+                          Spacer(),
 
-                            Icon(Icons.chevron_right_rounded),
-                          ],
-                        ),
+                          Text(
+                            '16-6-25',
+                            style: appTextStyle(fontSize: 16),
+                          ),
+
+                          SizedBox(width: 15),
+
+                          Text(
+                            '₹10000',
+                            style: appTextStyle(fontSize: 16, color: amountColor),
+                          ),
+
+                          SizedBox(width: 10),
+
+                          Icon(Icons.chevron_right_rounded),
+                        ],
                       ),
                     ),
                   ),
@@ -649,8 +572,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          bottomRight: Radius.circular(24),
-          topRight: Radius.circular(24),
+          bottomRight: Radius.circular(22),
+          topRight: Radius.circular(22),
         ),
       ),
       child: Container(
@@ -662,6 +585,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             bottomRight: Radius.circular(22),
             topRight: Radius.circular(22),
           ),
+        ),
+        child: Column(
+          children: [
+
+          ],
         ),
       ),
     );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quickbill/config/app_colors.dart';
+import 'package:quickbill/views/commons/text_style.dart';
 
 class CommonTextField extends StatelessWidget {
 
@@ -24,7 +26,7 @@ class CommonTextField extends StatelessWidget {
         autofocus: autofocus ?? false,
         controller: controller,
         autocorrect: true,
-        cursorColor: Color(0xff3f009e),
+        cursorColor: AppColors.dark,
         focusNode: focusNode,
         obscureText: obscureText ?? false,
         keyboardType: keyboardType,
@@ -37,14 +39,14 @@ class CommonTextField extends StatelessWidget {
         readOnly: readOnly ?? false,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          hintStyle: TextStyle(color: Colors.grey),
+          hintStyle: appTextStyle(color: Colors.grey, fontSize: 16),
           suffixIcon: suffixIcon,
           suffixIconColor: Colors.black,
           hintText: hintText,
           enabledBorder: InputBorder.none,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(22),
-            borderSide: BorderSide(color: Color(0xff3f009e)),
+            borderSide: BorderSide(color: AppColors.dark),
           ),
         ),
       ),
@@ -60,11 +62,7 @@ class CommonFromHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       data,
-      style: TextStyle(
-        fontSize: 16,
-        color: Colors.black,
-        fontWeight: FontWeight.bold,
-      ),
+      style: appTextStyle(fontSize: 16),
     );
   }
 }
