@@ -1,5 +1,5 @@
 name: quickbill
-description: "A new Flutter project."
+description: "Generate invoice and keep track of payments and clients."
 publish_to: 'none'
 
 version: 1.0.0+1

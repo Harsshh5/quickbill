@@ -8,7 +8,7 @@ LinearGradient appGradient1 = LinearGradient(
 );
 
 LinearGradient appGradient2 = LinearGradient(
-  colors: [AppColors.dark,AppColors.medium,Colors.white, Colors.white],
+  colors: [AppColors.dark,AppColors.medium,AppColors.backGround, AppColors.backGround],
   begin: Alignment.topCenter,
   end: Alignment.bottomCenter,
 );

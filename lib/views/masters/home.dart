@@ -160,13 +160,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     ).animate(CurvedAnimation(parent: clientController, curve: Curves.easeOut));
 
     //list
-    for (int i = 0; i < itemCount; i++) {
-      Future.delayed(Duration(milliseconds: 100 * i), () {
-        entranceControllers[i].forward();
-      });
-    }
-
-    listControllers = List.generate(
+        listControllers = List.generate(
       itemCount,
       (index) => AnimationController(
         vsync: this,
@@ -217,6 +211,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             ),
           );
         }).toList();
+
+    for (int i = 0; i < itemCount; i++) {
+      Future.delayed(Duration(milliseconds: 100 * i), () {
+        entranceControllers[i].forward();
+      });
+    }
 
     //drawer
     drawerController = AnimationController(

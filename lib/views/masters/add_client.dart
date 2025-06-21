@@ -165,6 +165,8 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
                             child: CommonSubmit()
                           ),
                         ),
+
+                        const SizedBox(height: 20)
                       ],
                     ),
                   ),

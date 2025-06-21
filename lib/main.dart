@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:quickbill/config/app_colors.dart';
 import 'package:quickbill/views/masters/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +13,8 @@ Future<void> main() async {
   pref = await SharedPreferences.getInstance();
 
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent, // Or any color you want
-    statusBarIconBrightness: Brightness.dark, // This makes icons dark
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark
   ));
 
   SystemChrome.setPreferredOrientations([
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           fontFamily: 'quicksand',
           useMaterial3: true,
-          scaffoldBackgroundColor: Colors.white,
+          scaffoldBackgroundColor: AppColors.backGround,
         ),
         home: Home(),
       );

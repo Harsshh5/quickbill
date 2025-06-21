@@ -157,14 +157,14 @@ class _AllInvoicesState extends State<AllInvoices>
                     ),
                   ),
 
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   CommonTextField(
                     hintText: "Search",
                     suffixIcon: Icon(Icons.search, color: Colors.black),
                   ),
 
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   invoiceList(),
                 ],
@@ -239,7 +239,7 @@ class _AllInvoicesState extends State<AllInvoices>
                     child: CommonCardContainer(
                       height: 80,
                       width: Get.width,
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -274,7 +274,7 @@ class _AllInvoicesState extends State<AllInvoices>
                               ),
                             ],
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Text(
                             '16-6-25',
                             style: appTextStyle(fontSize: 16),
