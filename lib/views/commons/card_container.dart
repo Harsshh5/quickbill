@@ -37,7 +37,8 @@ class CommonIconCardContainer extends StatelessWidget {
   final double? width;
   final double? height;
   final Widget? child;
-  const CommonIconCardContainer({super.key, this.width, this.height, this.child});
+  final AlignmentGeometry? alignment;
+  const CommonIconCardContainer({super.key, this.width, this.height, this.child, this.alignment});
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +48,7 @@ class CommonIconCardContainer extends StatelessWidget {
       child: Container(
         width: width,
         height: height,
+        alignment: alignment,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),

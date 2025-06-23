@@ -16,6 +16,8 @@ dependencies:
   get: ^4.7.2
   intl: ^0.20.2
   fl_chart: ^1.0.0
+  http: ^1.4.0
+  skeletonizer: ^1.4.3
 
 dev_dependencies:
   flutter_test:

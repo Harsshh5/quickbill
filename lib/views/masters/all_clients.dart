@@ -1,8 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quickbill/views/commons/card_container.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../config/app_colors.dart';
+import '../../controller/client_controller/client_list.dart';
 import '../commons/card_text_field.dart';
 import '../commons/page_header.dart';
 import '../commons/text_style.dart';
@@ -15,6 +19,9 @@ class AllClients extends StatefulWidget {
 }
 
 class _AllClientsState extends State<AllClients> with TickerProviderStateMixin{
+
+  final ClientListController clientListController = Get.put(ClientListController());
+
   late AnimationController controller;
   late Animation<Offset> slideAnimation;
   late Animation<double> fadeAnimation;
@@ -134,6 +141,9 @@ class _AllClientsState extends State<AllClients> with TickerProviderStateMixin{
             CommonTextField(
               hintText: "Search",
               suffixIcon: Icon(Icons.search, color: Colors.black),
+              onChanged: (p0) {
+                clientListController.filterItems(p0);
+              },
             ),
 
             SizedBox(height: 20),
@@ -147,74 +157,76 @@ class _AllClientsState extends State<AllClients> with TickerProviderStateMixin{
 
 
   invoiceList() {
-    return Expanded(
-      child: RefreshIndicator(
-        backgroundColor: Colors.white,
-        color: AppColors.dark,
-        onRefresh: () {
-          return Future(() {});
-        },
-        child: ListView.builder(
-          itemCount: 30,
-          shrinkWrap: true,
-          physics: AlwaysScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            return SlideTransition(
-              position: listSlideAnimation[index],
-              child: FadeTransition(
-                opacity: listFadeAnimation[index],
-                child: ScaleTransition(
-                  scale: listAnimations[index],
-                  child: GestureDetector(
-                    onTap: () async {
-                      await listControllers[index].reverse();
-                      await listControllers[index].forward();
-                    },
-                    child: CommonCardContainer(
-                      height: 80,
-                      width: Get.width,
-                      padding: EdgeInsets.all(10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Company Name",
-                                style: appTextStyle(fontSize: 16),
-                              ),
-                              Text(
-                                "Contact",
-                                style: appTextStyle(fontSize: 14),
-                              ),
-                            ],
-                          ),
-                          Spacer(),
-                          Container(
-                            height: 30,
-                            width: 30,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(color: AppColors.dark,shape: BoxShape.circle),
-                            child: Text(
-                              '10',
-                              style: appTextStyle(fontSize: 14,color: Colors.white),
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Icon(Icons.chevron_right_rounded),
-                        ],
-                      ),
-                    )
-                  ),
-                ),
-              ),
-            );
+    return Obx((){
+      return Expanded(
+        child: RefreshIndicator(
+          backgroundColor: Colors.white,
+          color: AppColors.dark,
+          onRefresh: () {
+            return clientListController.getClientList();
           },
+          child: Skeletonizer(
+            enabled: clientListController.isLoading.value,
+            child: ListView.builder(
+              itemCount: clientListController.filteredList.length,
+              shrinkWrap: true,
+              physics: AlwaysScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                var client = clientListController.filteredList[index];
+                String? clientId = client["id"];
+
+                return SlideTransition(
+                  position: listSlideAnimation[index],
+                  child: FadeTransition(
+                    opacity: listFadeAnimation[index],
+                    child: ScaleTransition(
+                      scale: listAnimations[index],
+                      child: GestureDetector(
+                          onTap: () async {
+                            await listControllers[index].reverse();
+                            await listControllers[index].forward();
+
+                            log(clientId!);
+                          },
+                          child: CommonCardContainer(
+                            width: Get.width,
+                            padding: EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "${client["companyName"]}",
+                                      style: appTextStyle(fontSize: 16),
+                                    ),
+                                    Text(
+                                      "${client["clientName"]}",
+                                      style: appTextStyle(fontSize: 14, color: Colors.black54),
+                                    ),
+                                    Text(
+                                      "Contact : ${client["contact"]}",
+                                      style: appTextStyle(fontSize: 14, color: Colors.black54),
+                                    ),
+                                  ],
+                                ),
+                                Spacer(),
+                                Icon(Icons.chevron_right_rounded),
+                              ],
+                            ),
+                          )
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

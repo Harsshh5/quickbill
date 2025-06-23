@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:quickbill/controller/client_controller/register_client.dart';
+import 'package:quickbill/views/commons/capitalize_text.dart';
 import 'package:quickbill/views/commons/card_container.dart';
 import 'package:quickbill/views/commons/card_text_field.dart';
 import 'package:quickbill/views/commons/page_header.dart';
@@ -21,6 +24,10 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
 
   late AnimationController submitController;
   late Animation<double> submitScale;
+
+  final RegisterClientController registerClientController = Get.put(
+    RegisterClientController(),
+  );
 
   @override
   void initState() {
@@ -61,6 +68,64 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
     super.dispose();
   }
 
+
+  _submitOnTap() async {
+      await submitController.forward();
+      await submitController.reverse();
+
+      String companyName = capitalizeEachWord(registerClientController.companyName.text.trim());
+      String clientName = capitalizeEachWord(registerClientController.clientName.text.trim());
+      String contact = registerClientController.contact.text.trim();
+      String address = capitalizeEachWord(registerClientController.address.text.trim());
+      String gstNo = registerClientController.gstNo.text.trim();
+
+      registerClientController.companyError.value = '';
+      registerClientController.clientError.value = '';
+      registerClientController.contactError.value = '';
+      registerClientController.addressError.value = '';
+      registerClientController.gstError.value = '';
+
+      if (companyName.isEmpty) {
+        registerClientController.companyError.value = "Enter company name.";
+        registerClientController.companyFocus.requestFocus();
+        return;
+      }
+
+      if (clientName.isEmpty) {
+        registerClientController.clientError.value = "Enter client name.";
+        registerClientController.clientFocus.requestFocus();
+        return;
+      }
+
+      if (contact.isEmpty) {
+        registerClientController.contactError.value = "Enter contact.";
+        registerClientController.contactFocus.requestFocus();
+        return;
+      }
+
+      if (address.isEmpty) {
+        registerClientController.addressError.value = "Enter address.";
+        registerClientController.addressFocus.requestFocus();
+        return;
+      }
+
+      if (gstNo.isEmpty) {
+        registerClientController.gstError.value = "Enter GST number.";
+        registerClientController.gstFocus.requestFocus();
+        return;
+      }
+
+      registerClientController.registerClient(
+        companyName,
+        clientName,
+        contact,
+        address,
+        gstNo,
+      );
+
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,28 +164,61 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
                             children: [
                               CommonFromHeading(data: "Company Name"),
                               SizedBox(height: 10),
-                              CommonTextField(
+                              Obx(() => CommonTextField(
                                 autofocus: true,
                                 hintText: "Company Name",
-                              ),
+                                controller: registerClientController.companyName,
+                                focusNode: registerClientController.companyFocus,
+                                errorText: registerClientController.companyError.value.isEmpty
+                                    ? null
+                                    : registerClientController.companyError.value,
+                                onChanged: (value) {
+                                  if (value.trim().isNotEmpty) {
+                                    registerClientController.companyError.value = '';
+                                  }
+                                },
+                              )),
 
                               SizedBox(height: 15),
 
                               CommonFromHeading(data: "Client Name"),
                               SizedBox(height: 10),
-                              CommonTextField(
+                              Obx(() => CommonTextField(
                                 autofocus: false,
                                 hintText: "Client Name",
-                              ),
+                                controller: registerClientController.clientName,
+                                focusNode: registerClientController.clientFocus,
+                                errorText: registerClientController.clientError.value.isEmpty
+                                    ? null
+                                    : registerClientController.clientError.value,
+                                onChanged: (value) {
+                                  if (value.trim().isNotEmpty) {
+                                    registerClientController.clientError.value = '';
+                                  }
+                                },
+                              )),
 
                               SizedBox(height: 15),
 
                               CommonFromHeading(data: "Contact"),
                               SizedBox(height: 10),
-                              CommonTextField(
+                              Obx(() => CommonTextField(
                                 autofocus: false,
                                 hintText: "Contact",
-                              ),
+                                maxLength: 10,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                controller: registerClientController.contact,
+                                focusNode: registerClientController.contactFocus,
+                                errorText: registerClientController.contactError.value.isEmpty
+                                ? null
+                                : registerClientController.contactError.value,
+                                onChanged: (value) {
+                                  if (value.trim().isNotEmpty) {
+                                    registerClientController.contactError.value = '';
+                                  }
+                                },
+                              )),
                             ],
                           ),
                         ),
@@ -136,19 +234,39 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
                             children: [
                               CommonFromHeading(data: "GST NO."),
                               SizedBox(height: 10),
-                              CommonTextField(
+                              Obx(() => CommonTextField(
                                 autofocus: false,
                                 hintText: "GST NO.",
-                              ),
+                                controller: registerClientController.gstNo,
+                                focusNode: registerClientController.gstFocus,
+                                errorText: registerClientController.gstError.value.isEmpty
+                                ? null
+                                : registerClientController.gstError.value,
+                                onChanged: (value) {
+                                  if (value.trim().isNotEmpty) {
+                                    registerClientController.gstError.value = '';
+                                  }
+                                },
+                              )),
 
                               SizedBox(height: 15),
 
                               CommonFromHeading(data: "Address"),
                               SizedBox(height: 10),
-                              CommonTextField(
+                              Obx(() => CommonTextField(
                                 autofocus: false,
                                 hintText: "Address",
-                              ),
+                                controller: registerClientController.address,
+                                focusNode: registerClientController.addressFocus,
+                                errorText: registerClientController.addressError.value.isEmpty
+                                ? null
+                                : registerClientController.addressError.value,
+                                onChanged: (value) {
+                                  if (value.trim().isNotEmpty) {
+                                    registerClientController.addressError.value = '';
+                                  }
+                                },
+                              )),
                             ],
                           ),
                         ),
@@ -156,17 +274,14 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
                         SizedBox(height: 20),
 
                         GestureDetector(
-                          onTap: () async {
-                            await submitController.forward();
-                            await submitController.reverse();
-                          },
+                          onTap: _submitOnTap,
                           child: ScaleTransition(
                             scale: submitScale,
-                            child: CommonSubmit()
+                            child: CommonSubmit(),
                           ),
                         ),
 
-                        const SizedBox(height: 20)
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),

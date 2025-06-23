@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quickbill/config/app_colors.dart';
 import 'package:quickbill/views/commons/card_container.dart';
 import 'package:quickbill/views/commons/text_style.dart';
 
@@ -50,6 +51,13 @@ class CommonPageHeader extends StatelessWidget {
                 style: appTextStyle(color: Colors.white60,fontSize: 15)
               ),
             ],
+          ),
+          Spacer(),
+          CommonIconCardContainer(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            child: Text("AN", style: appTextStyle(color: AppColors.dark),)
           ),
         ],
       ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:quickbill/config/app_colors.dart';
+import 'package:quickbill/controller/client_controller/client_count.dart';
 import 'package:quickbill/views/commons/card_container.dart';
 import 'package:quickbill/views/commons/gradient.dart';
 import 'package:quickbill/views/commons/page_header.dart';
@@ -11,6 +12,7 @@ import 'package:quickbill/views/commons/text_style.dart';
 import 'package:quickbill/views/masters/all_clients.dart';
 import 'package:quickbill/views/masters/payments.dart';
 import 'package:quickbill/views/masters/stats.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import 'add_client.dart';
 import 'add_invoice.dart';
@@ -24,6 +26,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with TickerProviderStateMixin {
+
+  final ClientCountController clientCountController = Get.put(ClientCountController());
+
   List<IconData> boxIcons = <IconData>[
     Icons.add,
     Icons.person_add,
@@ -416,10 +421,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(
-                                      "10",
-                                      style: appTextStyle(color: AppColors.dark, fontSize: 28),
-                                    ),
+                                    Obx(() => Skeletonizer(
+                                      enabled: clientCountController.isLoading.value,
+                                      child: Text(
+                                        clientCountController.count.value.toString(),
+                                        style: appTextStyle(color: AppColors.dark, fontSize: 28),
+                                      ),
+                                    )),
                                     SizedBox(height: 10),
                                     Text(
                                       "Total Clients",
