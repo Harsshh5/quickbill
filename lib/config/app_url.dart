@@ -6,4 +6,6 @@ class AppUrl {
   static const String registerClient = "$mainUrl/client/register";
   static const String totalClients = "$mainUrl/client/total";
 
+  //passwords
+  static const String checkPassword = "$mainUrl/passwords/check";
 }

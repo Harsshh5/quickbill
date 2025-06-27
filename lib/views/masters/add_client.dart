@@ -9,70 +9,14 @@ import 'package:quickbill/views/commons/page_header.dart';
 
 import '../commons/submit_button.dart';
 
-class AddClient extends StatefulWidget {
-  const AddClient({super.key});
-
-  @override
-  State<AddClient> createState() => _AddClientState();
-}
-
-class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
-  late AnimationController controller;
-
-  late Animation<Offset> slideAnimation;
-  late Animation<double> fadeAnimation;
-
-  late AnimationController submitController;
-  late Animation<double> submitScale;
+class AddClient extends StatelessWidget {
+  AddClient({super.key});
 
   final RegisterClientController registerClientController = Get.put(
     RegisterClientController(),
   );
 
-  @override
-  void initState() {
-    super.initState();
-    controller = AnimationController(
-      duration: Duration(milliseconds: 500),
-      vsync: this,
-    );
-
-    slideAnimation = Tween<Offset>(
-      begin: Offset(0.0, -1.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
-
-    fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
-
-    submitController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 150),
-      reverseDuration: Duration(milliseconds: 150),
-    );
-
-    submitScale = Tween<double>(
-      begin: 1.0,
-      end: 0.92,
-    ).animate(CurvedAnimation(parent: submitController, curve: Curves.easeOut));
-
-    controller.forward();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    submitController.dispose();
-    super.dispose();
-  }
-
-
-  _submitOnTap() async {
-      await submitController.forward();
-      await submitController.reverse();
-
+  _submitOnTap() {
       String companyName = capitalizeEachWord(registerClientController.companyName.text.trim());
       String clientName = capitalizeEachWord(registerClientController.clientName.text.trim());
       String contact = registerClientController.contact.text.trim();
@@ -125,7 +69,6 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
 
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,19 +77,13 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
         child: SafeArea(
           child: Column(
             children: [
-              SlideTransition(
-                position: slideAnimation,
-                child: FadeTransition(
-                  opacity: fadeAnimation,
-                  child: CommonPageHeader(
-                    mainHeading: "Client",
-                    subHeading: "Add New Client",
-                    icon: Icons.chevron_left_rounded,
-                    onTap: () {
-                      Get.back();
-                    },
-                  ),
-                ),
+              CommonPageHeader(
+                mainHeading: "Client",
+                subHeading: "Add New Client",
+                icon: Icons.chevron_left_rounded,
+                onTap: () {
+                  Get.back();
+                },
               ),
 
               SizedBox(height: 20),
@@ -273,12 +210,9 @@ class _AddClientState extends State<AddClient> with TickerProviderStateMixin {
 
                         SizedBox(height: 20),
 
-                        GestureDetector(
+                        CommonSubmit(
+                          data: "Submit",
                           onTap: _submitOnTap,
-                          child: ScaleTransition(
-                            scale: submitScale,
-                            child: CommonSubmit(),
-                          ),
                         ),
 
                         const SizedBox(height: 20),

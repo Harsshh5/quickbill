@@ -21,12 +21,6 @@ class AddInvoice extends StatefulWidget {
 }
 
 class _AddInvoiceState extends State<AddInvoice> with TickerProviderStateMixin {
-  late AnimationController controller;
-  late Animation<Offset> slideAnimation;
-  late Animation<double> fadeAnimation;
-
-  late AnimationController submitController;
-  late Animation<double> submitScale;
 
   List<DesignCardData> designCardList = [DesignCardData()];
   final ScrollController _scrollController = ScrollController();
@@ -35,47 +29,6 @@ class _AddInvoiceState extends State<AddInvoice> with TickerProviderStateMixin {
   double cgst = 0.0;
   double sgst = 0.0;
   double finalTotal = 0.0;
-
-  @override
-  void initState() {
-    super.initState();
-
-    controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-
-    slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -1.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
-
-    fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
-
-    submitController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-      reverseDuration: const Duration(milliseconds: 150),
-    );
-
-    submitScale = Tween<double>(
-      begin: 1.0,
-      end: 0.92,
-    ).animate(CurvedAnimation(parent: submitController, curve: Curves.easeOut));
-
-    controller.forward();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    submitController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
 
   void calculateAmount(DesignCardData data) {
     final total = double.tryParse(data.totalDesigns.text) ?? 0;
@@ -244,17 +197,11 @@ class _AddInvoiceState extends State<AddInvoice> with TickerProviderStateMixin {
           padding: EdgeInsets.only(top: 10, left: 10, right: 10),
           child: Column(
             children: [
-              SlideTransition(
-                position: slideAnimation,
-                child: FadeTransition(
-                  opacity: fadeAnimation,
-                  child: CommonPageHeader(
-                    mainHeading: "Invoice",
-                    subHeading: "Add New Invoice",
-                    onTap: () => Get.back(),
-                    icon: Icons.chevron_left_rounded,
-                  ),
-                ),
+              CommonPageHeader(
+                mainHeading: "Invoice",
+                subHeading: "Add New Invoice",
+                onTap: () => Get.back(),
+                icon: Icons.chevron_left_rounded,
               ),
 
               const SizedBox(height: 20),
@@ -351,15 +298,9 @@ class _AddInvoiceState extends State<AddInvoice> with TickerProviderStateMixin {
 
                       const SizedBox(height: 20),
 
-                      GestureDetector(
-                        onTap: () async {
-                          await submitController.forward();
-                          await submitController.reverse();
-                        },
-                        child: ScaleTransition(
-                          scale: submitScale,
-                          child: CommonSubmit(),
-                        ),
+                      CommonSubmit(
+                        onTap: (){},
+                        data: "Submit",
                       ),
 
                       const SizedBox(height: 20),

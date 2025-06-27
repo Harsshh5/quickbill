@@ -283,20 +283,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             child: SafeArea(
               child: Column(
                 children: [
-                  SlideTransition(
-                    position: slideAnimation,
-                    child: FadeTransition(
-                      opacity: fadeAnimation,
-                      child: CommonPageHeader(
-                        mainHeading: "${getGreeting()}! Harsh",
-                        subHeading: formattedDate,
-                        onTap: () {
-                          setState(() => isDrawerOpen = true);
-                          drawerController.forward();
-                        },
-                        icon: Icons.drag_handle_rounded,
-                      ),
-                    ),
+                  CommonPageHeader(
+                    mainHeading: "${getGreeting()}! Harsh",
+                    subHeading: formattedDate,
+                    onTap: () {
+                      setState(() => isDrawerOpen = true);
+                      drawerController.forward();
+                    },
+                    icon: Icons.drag_handle_rounded,
                   ),
 
                   SizedBox(height: 20),

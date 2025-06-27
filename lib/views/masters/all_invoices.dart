@@ -20,9 +20,6 @@ class AllInvoices extends StatefulWidget {
 
 class _AllInvoicesState extends State<AllInvoices>
     with TickerProviderStateMixin {
-  late AnimationController controller;
-  late Animation<Offset> slideAnimation;
-  late Animation<double> fadeAnimation;
 
   late List<AnimationController> listControllers;
   late List<Animation<double>> listAnimations;
@@ -33,9 +30,6 @@ class _AllInvoicesState extends State<AllInvoices>
 
   final int itemCount = 30;
 
-  late AnimationController submitController;
-  late Animation<double> submitScale;
-
   bool isSelectionMode = false;
   Set<int> selectedIndexes = {};
 
@@ -44,32 +38,6 @@ class _AllInvoicesState extends State<AllInvoices>
   @override
   void initState() {
     super.initState();
-
-    controller = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
-
-    slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -1.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
-
-    fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
-
-    submitController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-      reverseDuration: const Duration(milliseconds: 150),
-    );
-
-    submitScale = Tween<double>(
-      begin: 1.0,
-      end: 0.92,
-    ).animate(CurvedAnimation(parent: submitController, curve: Curves.easeOut));
 
     for (int i = 0; i < itemCount; i++) {
       Future.delayed(Duration(milliseconds: 100 * i), () {
@@ -123,15 +91,6 @@ class _AllInvoicesState extends State<AllInvoices>
             ),
           );
         }).toList();
-
-    controller.forward();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    submitController.dispose();
-    super.dispose();
   }
 
   @override
@@ -144,17 +103,11 @@ class _AllInvoicesState extends State<AllInvoices>
               padding: EdgeInsets.only(top: 10, left: 10, right: 10),
               child: Column(
                 children: [
-                  SlideTransition(
-                    position: slideAnimation,
-                    child: FadeTransition(
-                      opacity: fadeAnimation,
-                      child: CommonPageHeader(
-                        mainHeading: "Invoice",
-                        subHeading: "All Invoices",
-                        onTap: () => Get.back(),
-                        icon: Icons.chevron_left_rounded,
-                      ),
-                    ),
+                  CommonPageHeader(
+                    mainHeading: "Invoice",
+                    subHeading: "All Invoices",
+                    onTap: () => Get.back(),
+                    icon: Icons.chevron_left_rounded,
                   ),
 
                   const SizedBox(height: 20),
@@ -178,7 +131,7 @@ class _AllInvoicesState extends State<AllInvoices>
               children: [
                 Container(
                     margin: EdgeInsets.all(10),
-                    child: CommonSubmit()),
+                    child: CommonSubmit(data: 'Submit', onTap: (){},)),
               ],
             )
         ],

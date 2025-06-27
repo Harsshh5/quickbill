@@ -22,10 +22,6 @@ class _AllClientsState extends State<AllClients> with TickerProviderStateMixin{
 
   final ClientListController clientListController = Get.put(ClientListController());
 
-  late AnimationController controller;
-  late Animation<Offset> slideAnimation;
-  late Animation<double> fadeAnimation;
-
   late List<AnimationController> listControllers;
   late List<Animation<double>> listAnimations;
 
@@ -38,22 +34,6 @@ class _AllClientsState extends State<AllClients> with TickerProviderStateMixin{
   @override
   void initState() {
     super.initState();
-
-    controller = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
-
-    slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -1.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
-
-    fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
-
     for (int i = 0; i < itemCount; i++) {
       Future.delayed(Duration(milliseconds: 100 * i), () {
         entranceControllers[i].forward();
@@ -106,14 +86,6 @@ class _AllClientsState extends State<AllClients> with TickerProviderStateMixin{
             ),
           );
         }).toList();
-
-    controller.forward();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
   }
 
   @override
@@ -123,17 +95,11 @@ class _AllClientsState extends State<AllClients> with TickerProviderStateMixin{
         child: Padding(
           padding: EdgeInsets.only(top: 10, left: 10, right: 10),
           child: Column(children: [
-            SlideTransition(
-              position: slideAnimation,
-              child: FadeTransition(
-                opacity: fadeAnimation,
-                child: CommonPageHeader(
-                  mainHeading: "Clients",
-                  subHeading: "All Clients",
-                  onTap: () => Get.back(),
-                  icon: Icons.chevron_left_rounded,
-                ),
-              ),
+            CommonPageHeader(
+              mainHeading: "Clients",
+              subHeading: "All Clients",
+              onTap: () => Get.back(),
+              icon: Icons.chevron_left_rounded,
             ),
 
             SizedBox(height: 20),

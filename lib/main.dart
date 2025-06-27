@@ -1,7 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:quickbill/config/app_colors.dart';
-import 'package:quickbill/views/masters/home.dart';
+// import 'package:quickbill/views/masters/home.dart';
+import 'package:quickbill/views/passwords/enter_password.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           scaffoldBackgroundColor: AppColors.backGround,
         ),
-        home: Home(),
+        home: SetPassword(),
       );
   }
 }

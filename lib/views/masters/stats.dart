@@ -18,9 +18,6 @@ class Stats extends StatefulWidget {
 }
 
 class _StatsState extends State<Stats> with TickerProviderStateMixin {
-  late AnimationController controller;
-  late Animation<Offset> slideAnimation;
-  late Animation<double> fadeAnimation;
 
   late TabController tabController;
 
@@ -50,22 +47,6 @@ class _StatsState extends State<Stats> with TickerProviderStateMixin {
         }
       });
     });
-
-    controller = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
-
-    slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -1.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
-
-    fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
-
     //bar animation
     animatedValues = List.filled(originalValues.length, 1);
 
@@ -73,13 +54,6 @@ class _StatsState extends State<Stats> with TickerProviderStateMixin {
       startBarAnimation();
     });
 
-    controller.forward();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
   }
 
   void startBarAnimation() async {
@@ -134,17 +108,11 @@ class _StatsState extends State<Stats> with TickerProviderStateMixin {
           padding: EdgeInsets.only(top: 10, left: 10, right: 10),
           child: Column(
             children: [
-              SlideTransition(
-                position: slideAnimation,
-                child: FadeTransition(
-                  opacity: fadeAnimation,
-                  child: CommonPageHeader(
-                    mainHeading: "Statistics",
-                    subHeading: "Business Progress and Analysis",
-                    onTap: () => Get.back(),
-                    icon: Icons.chevron_left_rounded,
-                  ),
-                ),
+              CommonPageHeader(
+                mainHeading: "Statistics",
+                subHeading: "Business Progress and Analysis",
+                onTap: () => Get.back(),
+                icon: Icons.chevron_left_rounded,
               ),
 
               const SizedBox(height: 20),
