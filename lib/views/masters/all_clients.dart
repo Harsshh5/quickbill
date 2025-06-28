@@ -122,7 +122,7 @@ class _AllClientsState extends State<AllClients> with TickerProviderStateMixin{
   }
 
 
-  invoiceList() {
+  Obx invoiceList() {
     return Obx((){
       return Expanded(
         child: RefreshIndicator(

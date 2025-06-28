@@ -36,7 +36,7 @@ class ClientListController extends GetxController {
     update();
   }
 
-  getClientList() async {
+  Future<void> getClientList() async {
     isLoading.value = true;
     try {
       var res = await ClientListModel().fetchClients();

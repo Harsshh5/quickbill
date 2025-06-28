@@ -7,7 +7,7 @@ class RegisterClientModel {
   final headers = {'Content-Type': 'application/json'};
   final url = AppUrl.registerClient;
 
-  Future<Map<String, dynamic>> registerNewClient(companyName, clientName, contact, address, gstNo) async {
+  Future<Map<String, dynamic>> registerNewClient(String companyName, String clientName, String contact, String address, String gstNo) async {
     try {
       var response = await http.post(
         Uri.parse(url),

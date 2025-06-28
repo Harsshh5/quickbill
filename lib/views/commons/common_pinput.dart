@@ -9,7 +9,8 @@ class CommonPinput extends StatelessWidget {
   final TextEditingController? controller;
   final String? errorText;
   final void Function(String)? onCompleted;
-  const CommonPinput({super.key, this.controller, this.errorText, this.onCompleted});
+  final bool forceErrorState;
+  const CommonPinput({super.key, this.controller, this.errorText, this.onCompleted, required this.forceErrorState});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class CommonPinput extends StatelessWidget {
       autofocus: true,
       hapticFeedbackType: HapticFeedbackType.lightImpact,
       errorText: errorText,
-      forceErrorState: false,
+      forceErrorState: forceErrorState,
 
       controller: controller,
 

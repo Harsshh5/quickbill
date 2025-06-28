@@ -14,7 +14,7 @@ class ClientCountController extends GetxController{
     super.onInit();
   }
 
-  getClientCount() async {
+  Future<void> getClientCount() async {
     isLoading.value = true;
     try {
       var res = await ClientCountModel().fetchClientCount();

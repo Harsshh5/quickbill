@@ -28,7 +28,7 @@ class RegisterClientController extends GetxController {
   TextEditingController contact = TextEditingController();
   TextEditingController gstNo = TextEditingController();
 
-  registerClient(companyName, clientName, contact, address, gstNo) async {
+  Future<void> registerClient(String companyName, String clientName, String contact, String address, String gstNo) async {
     try {
       var res = await RegisterClientModel().registerNewClient(
         companyName,

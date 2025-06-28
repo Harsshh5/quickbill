@@ -139,7 +139,7 @@ class _AllInvoicesState extends State<AllInvoices>
     );
   }
 
-  invoiceList() {
+  Expanded invoiceList() {
     return Expanded(
       child: RefreshIndicator(
         backgroundColor: Colors.white,

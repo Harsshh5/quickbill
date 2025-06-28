@@ -16,7 +16,7 @@ class AddClient extends StatelessWidget {
     RegisterClientController(),
   );
 
-  _submitOnTap() {
+  void _submitOnTap() {
       String companyName = capitalizeEachWord(registerClientController.companyName.text.trim());
       String clientName = capitalizeEachWord(registerClientController.clientName.text.trim());
       String contact = registerClientController.contact.text.trim();

@@ -7,8 +7,6 @@ import 'package:quickbill/views/commons/submit_button.dart';
 import 'package:quickbill/views/commons/text_style.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-import '../masters/home.dart';
-
 class SetPassword extends StatelessWidget {
   SetPassword({super.key});
 
@@ -19,11 +17,12 @@ class SetPassword extends StatelessWidget {
     "4": "Lion Art Studio",
   };
 
-  final CheckPasswordController checkPasswordController = Get.put(CheckPasswordController());
+  final CheckPasswordController checkPasswordController = Get.put(
+    CheckPasswordController(),
+  );
 
   @override
   Widget build(BuildContext context) {
-
     final List<DropdownMenuEntry<Object>> accountList =
         accountMap.entries
             .map(
@@ -36,7 +35,8 @@ class SetPassword extends StatelessWidget {
                   ),
                 ),
               ),
-            ).toList();
+            )
+            .toList();
 
     return Scaffold(
       body: Container(
@@ -80,7 +80,8 @@ class SetPassword extends StatelessWidget {
                     ),
                     child: CommonDropDown(
                       onSelected: (value) {
-                        checkPasswordController.selectedAccount.value = value.toString();
+                        checkPasswordController.selectedAccount.value =
+                            value.toString();
                       },
                       dropdownMenuEntries: accountList,
                       width: MediaQuery.of(context).size.width * 0.9,
@@ -90,25 +91,40 @@ class SetPassword extends StatelessWidget {
 
                   SizedBox(height: 30),
 
-                  Obx(() => CommonPinput(
-                    errorText: checkPasswordController.pinErrorText.value,
-                    controller: checkPasswordController.pinController,
-                    onCompleted: (pin) {
-                      final businessId = checkPasswordController.selectedAccount.value;
-                      final pass = int.parse(pin);
-                      checkPasswordController.verifyPassword(businessId, pass);
-                    },
-                  )),
-
+                  Obx(
+                    () => CommonPinput(
+                      forceErrorState: checkPasswordController.errorState.value,
+                      errorText: checkPasswordController.pinErrorText.value,
+                      controller: checkPasswordController.pinController,
+                      onCompleted: (pin) {
+                        final businessId =
+                            checkPasswordController.selectedAccount.value;
+                        final pass = int.parse(pin);
+                        checkPasswordController.verifyPassword(
+                          businessId,
+                          pass,
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
               Spacer(),
 
               Skeletonizer(
                 enabled: checkPasswordController.isLoading.value,
-                child: CommonSubmit(data: "Continue", onTap: () {
-                  Get.to(() => Home());
-                }),
+                child: CommonSubmit(
+                  data: "Continue",
+                  onTap: () {
+                    final businessId =
+                        checkPasswordController.selectedAccount.value;
+                    final pass = int.parse(
+                      checkPasswordController.pinController.text,
+                    );
+
+                    checkPasswordController.verifyPassword(businessId, pass);
+                  },
+                ),
               ),
             ],
           ),

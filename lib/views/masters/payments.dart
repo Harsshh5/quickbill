@@ -285,7 +285,7 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
     );
   }
 
-  invoiceList() {
+  Expanded invoiceList() {
     return Expanded(
       child: RefreshIndicator(
         backgroundColor: Colors.white,
