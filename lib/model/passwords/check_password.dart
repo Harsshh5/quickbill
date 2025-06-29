@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:http/http.dart' as http;
 
 import '../../config/app_url.dart';
@@ -25,7 +24,6 @@ class CheckPasswordModel {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        log("Password check success: ${responseBody.toString()}");
 
         return {
           "success": true,
@@ -33,7 +31,6 @@ class CheckPasswordModel {
         };
       } else {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        log("Password check failed: ${responseBody.toString()}");
 
         return {
           "success": false,
@@ -41,7 +38,6 @@ class CheckPasswordModel {
         };
       }
     } catch (e) {
-      log("Error in checkPassword: $e");
       return {
         "success": false,
         "message": "Something went wrong: $e",

@@ -27,22 +27,17 @@ class CheckPasswordController extends GetxController {
         return;
       }
       var res = await CheckPasswordModel().checkPassword(businessId: businessId, inputPassword: pass);
-      log(res.toString());
 
       if (res["success"] == true) {
 
         pinErrorText.value = "";
         errorState.value = false;
+        pinController.clear();
+
         AppConstants.businessId = businessId;
-        if(businessId == "1"){
-          AppConstants.abbreviation = "AN";
-        } else if(businessId == "2"){
-          AppConstants.abbreviation = "VB";
-        } else if(businessId == "3"){
-          AppConstants.abbreviation = "ED";
-        } else if(businessId == "4"){
-          AppConstants.abbreviation = "LA";
-        }
+
+        AppConstants.setAllVariables();
+
         Get.offAll(() => Home(), transition: Transition.fade);
 
       } else {

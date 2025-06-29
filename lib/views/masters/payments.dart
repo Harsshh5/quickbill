@@ -9,6 +9,7 @@ import 'package:quickbill/views/commons/submit_button.dart';
 import '../../config/app_colors.dart';
 import '../commons/page_header.dart';
 import '../commons/text_style.dart';
+import '../wrapper/recent_invoice_wrapper.dart';
 
 class Payments extends StatefulWidget {
   const Payments({super.key});
@@ -19,14 +20,6 @@ class Payments extends StatefulWidget {
 
 class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
 
-  late List<AnimationController> listControllers;
-  late List<Animation<double>> listAnimations;
-
-  late List<AnimationController> entranceControllers;
-  late List<Animation<double>> listFadeAnimation;
-  late List<Animation<Offset>> listSlideAnimation;
-
-  final int itemCount = 10;
 
   late AnimationController calendarController;
   late Animation<double> calendarAnimation;
@@ -36,7 +29,6 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
   DateTimeRange? selectedDateRange;
 
   bool isSelectionMode = false;
-  Set<int> selectedIndexes = {};
 
   @override
   void initState() {
@@ -61,64 +53,6 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
       reverseCurve: Curves.easeInOut,
     );
     calendarController.value = 1.0;
-
-    for (int i = 0; i < itemCount; i++) {
-      Future.delayed(Duration(milliseconds: 100 * i), () {
-        entranceControllers[i].forward();
-      });
-    }
-
-    listControllers = List.generate(
-      itemCount,
-      (index) => AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 150),
-        lowerBound: 0.92,
-        upperBound: 1.0,
-      ),
-    );
-
-    listAnimations =
-        listControllers.map((controller) {
-          return CurvedAnimation(
-            parent: controller,
-            curve: Curves.easeInOut,
-            reverseCurve: Curves.easeInOut,
-          );
-        }).toList();
-
-    for (var controller in listControllers) {
-      controller.value = 1.0;
-    }
-
-    entranceControllers = List.generate(
-      itemCount,
-      (index) => AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 500),
-      ),
-    );
-
-    listFadeAnimation =
-        entranceControllers
-            .map(
-              (c) => Tween<double>(
-                begin: 0.0,
-                end: 1.0,
-              ).animate(CurvedAnimation(parent: c, curve: Curves.easeIn)),
-            )
-            .toList();
-
-    listSlideAnimation =
-        entranceControllers.asMap().entries.map((entry) {
-          var controller = entry.value;
-          return Tween<Offset>(begin: Offset(0, 0.2), end: Offset.zero).animate(
-            CurvedAnimation(
-              parent: controller,
-              curve: Interval(0.0, 1.0, curve: Curves.easeInOut),
-            ),
-          );
-        }).toList();
   }
 
   @override
@@ -267,7 +201,22 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
                       ],
                     ),
 
-                  invoiceList(),
+                  InvoiceListWrapper(
+                    onRefresh: (){
+                      return Future(() {});
+                    },
+                    itemCount: 20,
+                    enableSelection: true,
+                    billNo: "Bill No.",
+                    companyName: "Company Name",
+                    invoiceAmount: "10,000",
+                    invoiceDate: "16-06-25",
+                    onSelectionModeChange: (val) {
+                      setState(() {
+                        isSelectionMode = !val;
+                      });
+                    },
+                  ),
                 ],
               ),
             ),
@@ -277,7 +226,12 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Container(margin: EdgeInsets.all(10), child: CommonSubmit(data: "Submit", onTap: (){},)),
+                Container(
+                  margin: const EdgeInsets.all(10),
+                  child: CommonSubmit(data: 'Submit', onTap: () {
+                    // Perform action on selected items
+                  }),
+                ),
               ],
             ),
         ],
@@ -285,127 +239,4 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
     );
   }
 
-  Expanded invoiceList() {
-    return Expanded(
-      child: RefreshIndicator(
-        backgroundColor: Colors.white,
-        color: AppColors.dark,
-        onRefresh: () {
-          return Future(() {}); // Your refresh logic
-        },
-        child: ListView.builder(
-          itemCount: 10,
-          shrinkWrap: true,
-          physics: AlwaysScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            bool isSelected = selectedIndexes.contains(index);
-
-            return SlideTransition(
-              position: listSlideAnimation[index],
-              child: FadeTransition(
-                opacity: listFadeAnimation[index],
-                child: ScaleTransition(
-                  scale: listAnimations[index],
-                  child: GestureDetector(
-                    onLongPress: () {
-                      setState(() {
-                        isSelectionMode = true;
-                        selectedIndexes.add(
-                          index,
-                        ); // select the long-pressed item
-                      });
-                    },
-                    onTap: () async {
-                      await listControllers[index].reverse();
-                      await listControllers[index].forward();
-
-                      if (isSelectionMode) {
-                        setState(() {
-                          if (isSelected) {
-                            selectedIndexes.remove(index);
-                            if (selectedIndexes.isEmpty) {
-                              isSelectionMode = false;
-                            }
-                          } else {
-                            selectedIndexes.add(index);
-                          }
-                        });
-                      } else {
-                        // Navigate to invoice details or another action
-                      }
-                    },
-                    child: CommonCardContainer(
-                      height: 80,
-                      width: Get.width,
-                      padding: EdgeInsets.all(10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          if (isSelectionMode)
-                            Checkbox(
-                              value: isSelected,
-                              onChanged: (val) {
-                                setState(() {
-                                  if (val!) {
-                                    selectedIndexes.add(index);
-                                  } else {
-                                    selectedIndexes.remove(index);
-                                    if (selectedIndexes.isEmpty) {
-                                      isSelectionMode = false;
-                                    }
-                                  }
-                                });
-                              },
-                            ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Bill No.",
-                                style: appTextStyle(
-                                  fontSize: 16,
-                                ),
-                              ),
-                              Text(
-                                "Company Name",
-                                style: appTextStyle(
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Spacer(),
-                          Text(
-                            '16-6-25',
-                            style: appTextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                          SizedBox(width: 15),
-
-                          Text(
-                            '₹10,000',
-                            style: appTextStyle(
-                              fontSize: 16,
-                              color: tabController.index == 0
-                                  ? Colors.red[600]!
-                                  : Colors.green[700]!,
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Icon(Icons.chevron_right_rounded),
-                        ],
-                      ),
-                    )
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
 }
