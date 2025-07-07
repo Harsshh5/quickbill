@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quickbill/config/app_constants.dart';
-import 'package:quickbill/views/commons/gradient.dart';
 import 'package:quickbill/views/commons/text_style.dart';
 
+import '../../../config/app_colors.dart';
 import '../../passwords/enter_password.dart';
+import '../card_container.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -37,15 +38,13 @@ class CustomDrawer extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
-                  height: 60,
-                  width: 60,
-                  margin: EdgeInsets.only(right: 10, bottom: 5),
-                  decoration: BoxDecoration(
-                    gradient: appGradient1,
-                    borderRadius: BorderRadius.circular(50),
-                  ),
+                CommonIconCardContainer(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: Text(AppConstants.abbreviation, style: appTextStyle(color: AppColors.dark),)
                 ),
+                SizedBox(width: 10,),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,

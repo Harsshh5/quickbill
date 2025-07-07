@@ -50,13 +50,15 @@ class ClientListController extends GetxController {
             "companyName": item["companyName"] ?? "",
             "clientName": item["clientName"] ?? "",
             "contact": item["contact"] ?? "",
+            "address": item["address"] ?? "",
+            "gstNo": item["gstNo"] ?? ""
           });
         }
 
         clientList.assignAll(tempList);
         filteredList.assignAll(tempList);
 
-        // log(filteredList.toString());
+        log(filteredList.toString());
       } else {
         log("Success is false I guess!!");
         clientList.clear();

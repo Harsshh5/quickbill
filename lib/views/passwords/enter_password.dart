@@ -84,7 +84,7 @@ class SetPassword extends StatelessWidget {
                             value.toString();
                       },
                       dropdownMenuEntries: accountList,
-                      width: MediaQuery.of(context).size.width * 0.9,
+                      width: Get.width * 0.9,
                       initialSelection: accountList.first.value,
                     ),
                   ),

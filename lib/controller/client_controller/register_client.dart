@@ -123,4 +123,6 @@ class RegisterClientController extends GetxController {
 
     }
   }
+
+
 }

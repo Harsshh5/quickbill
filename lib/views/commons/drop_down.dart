@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quickbill/views/commons/text_style.dart';
 
-import '../../config/app_colors.dart';
-
 class CommonDropDown<T> extends StatelessWidget {
   final void Function(T?)? onSelected;
   final List<DropdownMenuEntry<T>> dropdownMenuEntries;
@@ -43,15 +41,17 @@ class CommonDropDown<T> extends StatelessWidget {
       ),
       textStyle: appTextStyle(fontSize: 16),
       dropdownMenuEntries: dropdownMenuEntries,
+      width: width ?? double.infinity,
       menuStyle: MenuStyle(
-        backgroundColor: WidgetStateProperty.all(AppColors.light),
-        elevation: WidgetStateProperty.all(4),
+        // minimumSize: WidgetStatePropertyAll(Size.infinite),
+        maximumSize: WidgetStatePropertyAll(Size.infinite),
+        backgroundColor: WidgetStateProperty.all(Colors.white),
+        elevation: WidgetStateProperty.all(5),
         shadowColor: WidgetStateProperty.all(Colors.black26),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
-      width: width,
     );
   }
 }

@@ -50,7 +50,7 @@ class AnimatedBoxGrid extends StatelessWidget {
                       Get.to(() => const AddInvoice(), transition: Transition.fadeIn);
                       break;
                     case 1:
-                      Get.to(() => AddClient(), transition: Transition.fadeIn);
+                      Get.to(() => AddClient(), transition: Transition.fadeIn, arguments: {"tag" : "add_client"});
                       break;
                     case 2:
                       Get.to(() => const Payments(), transition: Transition.fadeIn);

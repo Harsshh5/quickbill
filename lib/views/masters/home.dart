@@ -21,6 +21,7 @@ class Home extends StatelessWidget {
 
   final DrawerControllerX drawerController = Get.put(DrawerControllerX());
 
+
   final List<IconData> boxIcons = <IconData>[
     Icons.note_add,
     Icons.person_add,

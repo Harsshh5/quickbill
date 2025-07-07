@@ -1,15 +1,17 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quickbill/controller/client_controller/edit_client.dart';
 import 'package:quickbill/views/commons/card_container.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../config/app_colors.dart';
+import '../../controller/all_client_animations/client_list_animation.dart';
 import '../../controller/client_controller/client_list.dart';
+import '../commons/all_clients_widgets/client_detail_dialog.dart';
 import '../commons/card_text_field.dart';
 import '../commons/page_header.dart';
 import '../commons/text_style.dart';
+import 'add_client.dart';
 
 class AllClients extends StatefulWidget {
   const AllClients({super.key});
@@ -18,74 +20,27 @@ class AllClients extends StatefulWidget {
   State<AllClients> createState() => _AllClientsState();
 }
 
-class _AllClientsState extends State<AllClients> with TickerProviderStateMixin{
+class _AllClientsState extends State<AllClients> with TickerProviderStateMixin {
 
-  final ClientListController clientListController = Get.put(ClientListController());
+  final ClientListController clientListController = Get.put(
+    ClientListController(),
+  );
 
-  late List<AnimationController> listControllers;
-  late List<Animation<double>> listAnimations;
+  final EditClientController editClientController = Get.put(EditClientController());
 
-  late List<AnimationController> entranceControllers;
-  late List<Animation<double>> listFadeAnimation;
-  late List<Animation<Offset>> listSlideAnimation;
-
-  final int itemCount = 30;
+  late ClientListAnimations clientAnimations;
 
   @override
   void initState() {
     super.initState();
-    for (int i = 0; i < itemCount; i++) {
-      Future.delayed(Duration(milliseconds: 100 * i), () {
-        entranceControllers[i].forward();
-      });
-    }
+    clientAnimations = ClientListAnimations(vsync: this, itemCount: 300);
+    clientAnimations.playEntranceAnimations();
+  }
 
-    listControllers = List.generate(
-      itemCount,
-          (index) => AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 150),
-        lowerBound: 0.92,
-        upperBound: 1.0,
-      ),
-    );
-
-    listAnimations =
-        listControllers.map((controller) {
-          return CurvedAnimation(
-            parent: controller,
-            curve: Curves.easeInOut,
-            reverseCurve: Curves.easeInOut,
-          );
-        }).toList();
-
-    for (var controller in listControllers) {
-      controller.value = 1.0;
-    }
-
-    entranceControllers = List.generate(
-      itemCount,
-          (index) => AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 500),
-      ),
-    );
-
-    listFadeAnimation =entranceControllers
-        .map((c) => Tween<double>(begin: 0.0,end: 1.0)
-        .animate(CurvedAnimation(parent: c, curve: Curves.easeIn)))
-        .toList();
-
-    listSlideAnimation =
-        entranceControllers.asMap().entries.map((entry) {
-          var controller = entry.value;
-          return Tween<Offset>(begin: Offset(0, 0.2), end: Offset.zero).animate(
-            CurvedAnimation(
-              parent: controller,
-              curve: Interval(0.0, 1.0, curve: Curves.easeInOut),
-            ),
-          );
-        }).toList();
+  @override
+  void dispose() {
+    clientAnimations.dispose();
+    super.dispose();
   }
 
   @override
@@ -94,36 +49,37 @@ class _AllClientsState extends State<AllClients> with TickerProviderStateMixin{
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(top: 10, left: 10, right: 10),
-          child: Column(children: [
-            CommonPageHeader(
-              mainHeading: "Clients",
-              subHeading: "All Clients",
-              onTap: () => Get.back(),
-              icon: Icons.chevron_left_rounded,
-            ),
+          child: Column(
+            children: [
+              CommonPageHeader(
+                mainHeading: "Clients",
+                subHeading: "All Clients",
+                onTap: () => Get.back(),
+                icon: Icons.chevron_left_rounded,
+              ),
 
-            SizedBox(height: 20),
+              SizedBox(height: 20),
 
-            CommonTextField(
-              hintText: "Search",
-              suffixIcon: Icon(Icons.search, color: Colors.black),
-              onChanged: (p0) {
-                clientListController.filterItems(p0);
-              },
-            ),
+              CommonTextField(
+                hintText: "Search",
+                suffixIcon: Icon(Icons.search, color: Colors.black),
+                onChanged: (p0) {
+                  clientListController.filterItems(p0);
+                },
+              ),
 
-            SizedBox(height: 20),
+              SizedBox(height: 20),
 
-            invoiceList()
-          ]),
+              invoiceList(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-
   Obx invoiceList() {
-    return Obx((){
+    return Obx(() {
       return Expanded(
         child: RefreshIndicator(
           backgroundColor: Colors.white,
@@ -142,48 +98,69 @@ class _AllClientsState extends State<AllClients> with TickerProviderStateMixin{
                 String? clientId = client["id"];
 
                 return SlideTransition(
-                  position: listSlideAnimation[index],
+                  position: clientAnimations.slideAnimations[index],
                   child: FadeTransition(
-                    opacity: listFadeAnimation[index],
+                    opacity: clientAnimations.fadeAnimations[index],
                     child: ScaleTransition(
-                      scale: listAnimations[index],
+                      scale: clientAnimations.scaleAnimations[index],
                       child: GestureDetector(
-                          onTap: () async {
-                            await listControllers[index].reverse();
-                            await listControllers[index].forward();
+                        onTap: () async {
+                          await clientAnimations.scaleControllers[index]
+                              .reverse();
+                          await clientAnimations.scaleControllers[index]
+                              .forward();
 
-                            log(clientId!);
-                          },
-                          child: CommonCardContainer(
-                            width: Get.width,
-                            padding: EdgeInsets.all(10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "${client["companyName"]}",
-                                      style: appTextStyle(fontSize: 16),
-                                    ),
-                                    Text(
-                                      "${client["clientName"]}",
-                                      style: appTextStyle(fontSize: 14, color: Colors.black54),
-                                    ),
-                                    Text(
-                                      "Contact : ${client["contact"]}",
-                                      style: appTextStyle(fontSize: 14, color: Colors.black54),
-                                    ),
-                                  ],
-                                ),
-                                Spacer(),
-                                Icon(Icons.chevron_right_rounded),
-                              ],
+                          Get.to(
+                            () => ClientDetailDialog(
+                              client: client,
+                              onEditPressed: () {
+                                editClientController.setEditableValues(client);
+                                Get.to(
+                                  () => AddClient(),
+                                  transition: Transition.fadeIn,
+                                  arguments: {"tag": "edit_client"}
+                                );
+                              },
                             ),
-                          )
+                            transition: Transition.fadeIn,
+                            duration: const Duration(milliseconds: 300),
+                            opaque: false,
+                            fullscreenDialog: true,
+                          );
+                        },
+                        child: Hero(
+                          tag: 'client-$clientId',
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: CommonCardContainer(
+                              width: Get.width,
+                              padding: EdgeInsets.all(10),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "${client["companyName"]}",
+                                        style: appTextStyle(fontSize: 16),
+                                      ),
+                                      Text(
+                                        "${client["clientName"]}",
+                                        style: appTextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),

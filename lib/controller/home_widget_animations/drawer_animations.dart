@@ -11,7 +11,7 @@ class DrawerControllerX extends GetxController with GetSingleTickerProviderState
     super.onInit();
     animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 250)
     );
 
     slideAnimation = Tween<Offset>(
@@ -19,7 +19,7 @@ class DrawerControllerX extends GetxController with GetSingleTickerProviderState
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: animationController,
-      curve: Curves.easeOut,
+      curve: Curves.easeInOut,
     ));
   }
 

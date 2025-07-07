@@ -1,5 +1,5 @@
 class AppUrl {
-  static const String mainUrl = "http://192.168.0.107:3000/api";
+  static const String mainUrl = "http://192.168.0.102:3000/api";
 
   // client
   static const String displayClients = "$mainUrl/client/display";
