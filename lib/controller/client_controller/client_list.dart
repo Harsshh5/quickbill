@@ -6,6 +6,7 @@ import '../../model/client_model/client_list.dart';
 class ClientListController extends GetxController {
   RxList<Map<String, String>> clientList = <Map<String, String>>[].obs;
   RxList<Map<String, String>> filteredList = <Map<String, String>>[].obs;
+
   var isLoading = false.obs;
 
   @override
@@ -58,8 +59,8 @@ class ClientListController extends GetxController {
         clientList.assignAll(tempList);
         filteredList.assignAll(tempList);
 
-        log(filteredList.toString());
-      } else {
+        // log(filteredList.toString());
+      } else if(res["message"] == "No clients found"){
         log("Success is false I guess!!");
         clientList.clear();
       }

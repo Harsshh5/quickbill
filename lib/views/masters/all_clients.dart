@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quickbill/controller/client_controller/delete_client.dart';
 import 'package:quickbill/controller/client_controller/edit_client.dart';
 import 'package:quickbill/views/commons/card_container.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -21,19 +22,24 @@ class AllClients extends StatefulWidget {
 }
 
 class _AllClientsState extends State<AllClients> with TickerProviderStateMixin {
-
   final ClientListController clientListController = Get.put(
     ClientListController(),
   );
 
-  final EditClientController editClientController = Get.put(EditClientController());
+  final EditClientController editClientController = Get.put(
+    EditClientController(),
+  );
+
+  final DeleteClientController deleteClientController = Get.put(DeleteClientController());
 
   late ClientListAnimations clientAnimations;
+
+  final clientCount = Get.arguments["clientCount"];
 
   @override
   void initState() {
     super.initState();
-    clientAnimations = ClientListAnimations(vsync: this, itemCount: 300);
+    clientAnimations = ClientListAnimations(vsync: this, itemCount: clientCount);
     clientAnimations.playEntranceAnimations();
   }
 
@@ -70,7 +76,7 @@ class _AllClientsState extends State<AllClients> with TickerProviderStateMixin {
 
               SizedBox(height: 20),
 
-              invoiceList(),
+              clientList(),
             ],
           ),
         ),
@@ -78,98 +84,136 @@ class _AllClientsState extends State<AllClients> with TickerProviderStateMixin {
     );
   }
 
-  Obx invoiceList() {
-    return Obx(() {
-      return Expanded(
-        child: RefreshIndicator(
-          backgroundColor: Colors.white,
-          color: AppColors.dark,
-          onRefresh: () {
-            return clientListController.getClientList();
-          },
-          child: Skeletonizer(
-            enabled: clientListController.isLoading.value,
-            child: ListView.builder(
-              itemCount: clientListController.filteredList.length,
-              shrinkWrap: true,
-              physics: AlwaysScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                var client = clientListController.filteredList[index];
-                String? clientId = client["id"];
+  Widget clientList() {
+    return Expanded(
+      child: clientCount == 0
+          ? Center(
+        child: Text(
+          "No Clients Found",
+          style: appTextStyle(color: Colors.grey),
+        ),
+      )
+          : RefreshIndicator(
+        backgroundColor: Colors.white,
+        color: AppColors.dark,
+        onRefresh: () {
+          return clientListController.getClientList();
+        },
+        child: Obx(() => Skeletonizer(
+          enabled: clientListController.isLoading.value,
+          child: ListView.builder(
+            itemCount: clientListController.filteredList.length,
+            shrinkWrap: true,
+            physics: AlwaysScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              var client = clientListController.filteredList[index];
+              String? clientId = client["id"];
 
-                return SlideTransition(
-                  position: clientAnimations.slideAnimations[index],
-                  child: FadeTransition(
-                    opacity: clientAnimations.fadeAnimations[index],
-                    child: ScaleTransition(
-                      scale: clientAnimations.scaleAnimations[index],
-                      child: GestureDetector(
-                        onTap: () async {
-                          await clientAnimations.scaleControllers[index]
-                              .reverse();
-                          await clientAnimations.scaleControllers[index]
-                              .forward();
+              return SlideTransition(
+                position: clientAnimations.slideAnimations[index],
+                child: FadeTransition(
+                  opacity: clientAnimations.fadeAnimations[index],
+                  child: ScaleTransition(
+                    scale: clientAnimations.scaleAnimations[index],
+                    child: GestureDetector(
+                      onTap: () async {
+                        await clientAnimations.scaleControllers[index].reverse();
+                        await clientAnimations.scaleControllers[index].forward();
 
-                          Get.to(
-                            () => ClientDetailDialog(
-                              client: client,
-                              onEditPressed: () {
-                                editClientController.setEditableValues(client);
-                                Get.to(
-                                  () => AddClient(),
-                                  transition: Transition.fadeIn,
-                                  arguments: {"tag": "edit_client"}
-                                );
-                              },
-                            ),
-                            transition: Transition.fadeIn,
-                            duration: const Duration(milliseconds: 300),
-                            opaque: false,
-                            fullscreenDialog: true,
-                          );
-                        },
-                        child: Hero(
-                          tag: 'client-$clientId',
-                          child: Material(
-                            type: MaterialType.transparency,
-                            child: CommonCardContainer(
-                              width: Get.width,
-                              padding: EdgeInsets.all(10),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "${client["companyName"]}",
-                                        style: appTextStyle(fontSize: 16),
-                                      ),
-                                      Text(
-                                        "${client["clientName"]}",
-                                        style: appTextStyle(
-                                          fontSize: 14,
-                                          color: Colors.black54,
-                                        ),
-                                      ),
-                                    ],
+                        Get.to(
+                              () => ClientDetailDialog(
+                            client: client,
+                            onDeletePressed: () {
+                              Get.defaultDialog(
+                                radius: 22,
+                                backgroundColor: Colors.white,
+                                titlePadding: EdgeInsets.only(top: 10),
+                                title: "Delete Client?",
+                                titleStyle: appTextStyle(),
+                                content: Column(
+                                  children: [
+                                    Divider(),
+                                    SizedBox(height: 20),
+                                    Text(
+                                      "Are you sure you want to \ndelete this client?",
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: 10),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Get.back(),
+                                    child: Text("Cancel"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      deleteClientController.removeClient(clientId!);
+                                      Get.back();
+                                    },
+                                    child: Text("Delete", style: TextStyle(color: Colors.red)),
                                   ),
                                 ],
-                              ),
+                              );
+                            },
+                            onEditPressed: () {
+                              Get.back();
+                              editClientController.setEditableValues(client, clientId);
+                              Get.to(
+                                    () => AddClient(),
+                                transition: Transition.fadeIn,
+                                arguments: {"tag": "edit_client"},
+                              );
+                            },
+                          ),
+                          transition: Transition.fadeIn,
+                          duration: const Duration(milliseconds: 300),
+                          opaque: false,
+                          fullscreenDialog: true,
+                        );
+                      },
+                      child: Hero(
+                        tag: 'client-$clientId',
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: CommonCardContainer(
+                            width: Get.width,
+                            padding: EdgeInsets.all(10),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "${client["companyName"]}",
+                                      style: appTextStyle(fontSize: 16),
+                                    ),
+                                    Text(
+                                      "${client["clientName"]}",
+                                      style: appTextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
-        ),
-      );
-    });
+        )),
+      ),
+    );
   }
+
+
 }

@@ -30,7 +30,7 @@ class CountBoxRow extends StatelessWidget {
   Future<void> _onTapTotalClients() async {
     await animController.clientController.forward();
     await animController.clientController.reverse();
-    Get.to(() => AllClients(), transition: Transition.fadeIn);
+    Get.to(() => AllClients(), transition: Transition.fadeIn, arguments: {"clientCount" : clientCount.value});
   }
 
   @override

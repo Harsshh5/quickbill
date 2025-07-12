@@ -8,7 +8,9 @@ import '../../model/client_model/register_client.dart';
 import '../../views/commons/text_style.dart';
 
 class RegisterClientController extends GetxController {
-  final ClientCountController clientCountController = Get.put(ClientCountController());
+  final ClientCountController clientCountController = Get.put(
+    ClientCountController(),
+  );
 
   FocusNode companyFocus = FocusNode();
   FocusNode clientFocus = FocusNode();
@@ -28,7 +30,13 @@ class RegisterClientController extends GetxController {
   TextEditingController contact = TextEditingController();
   TextEditingController gstNo = TextEditingController();
 
-  Future<void> registerClient(String companyName, String clientName, String contact, String address, String gstNo) async {
+  Future<void> registerClient(
+    String companyName,
+    String clientName,
+    String contact,
+    String address,
+    String gstNo,
+  ) async {
     try {
       var res = await RegisterClientModel().registerNewClient(
         companyName,
@@ -39,45 +47,49 @@ class RegisterClientController extends GetxController {
       );
 
       if (res["success"] == true) {
-
         ScaffoldMessenger.of(Get.context!).showSnackBar(
           SnackBar(
             elevation: 5,
             behavior: SnackBarBehavior.floating,
             margin: EdgeInsets.all(10),
             padding: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
+            ),
             backgroundColor: AppColors.medium,
             duration: Duration(seconds: 3),
             content: TweenAnimationBuilder<double>(
               tween: Tween(begin: 0, end: 1),
               duration: Duration(seconds: 3),
-              builder: (context, value, child) => SizedBox(
-                height: 60,
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Client registered successfully.",
-                          style: appTextStyle(color: Colors.white),
+              builder:
+                  (context, value, child) => SizedBox(
+                    height: 60,
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Client registered successfully.",
+                              style: appTextStyle(color: Colors.white),
+                            ),
+                          ),
                         ),
-                      ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: LinearProgressIndicator(
+                            value: value,
+                            backgroundColor: Colors.green.shade700,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                            minHeight: 4,
+                          ),
+                        ),
+                      ],
                     ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: LinearProgressIndicator(
-                        value: value,
-                        backgroundColor: Colors.green.shade700,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        minHeight: 4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
             ),
           ),
         );
@@ -87,23 +99,17 @@ class RegisterClientController extends GetxController {
         Get.back();
 
         // log(res["data"]);
-
       } else if (res["success"] == false) {
-
         if (res["data"]["errorCode"] == 1) {
-
           contactError.value = '';
           contactError.value = "Contact Already Exists.";
           contactFocus.requestFocus();
           return;
-
         } else if (res["data"]["errorCode"] == 2) {
-
           companyError.value = "";
           companyError.value = "Company Name Already Exists";
           companyFocus.requestFocus();
           return;
-
         } else if (res["data"]["errorCode"] == 3) {
           gstError.value = "";
           gstError.value = "GST No. Already Exists.";
@@ -114,15 +120,9 @@ class RegisterClientController extends GetxController {
         log(res.toString());
       }
     } catch (e) {
-
       log("Error : $e");
-
     } finally {
-
       update();
-
     }
   }
-
-
 }

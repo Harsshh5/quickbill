@@ -13,26 +13,16 @@ import '../commons/submit_button.dart';
 class AddClient extends StatelessWidget {
   AddClient({super.key});
 
-  final RegisterClientController registerClientController = Get.put(
-    RegisterClientController(),
-  );
-  final EditClientController editClientController = Get.put(
-    EditClientController(),
-  );
+  final RegisterClientController registerClientController = Get.put(RegisterClientController());
+  final EditClientController editClientController = Get.put(EditClientController());
 
   final String tag = Get.arguments["tag"];
 
   void _submitOnTap() {
-    String companyName = capitalizeEachWord(
-      registerClientController.companyName.text.trim(),
-    );
-    String clientName = capitalizeEachWord(
-      registerClientController.clientName.text.trim(),
-    );
+    String companyName = capitalizeEachWord(registerClientController.companyName.text.trim());
+    String clientName = capitalizeEachWord(registerClientController.clientName.text.trim());
     String contact = registerClientController.contact.text.trim();
-    String address = capitalizeEachWord(
-      registerClientController.address.text.trim(),
-    );
+    String address = capitalizeEachWord(registerClientController.address.text.trim());
     String gstNo = registerClientController.gstNo.text.trim();
 
     registerClientController.companyError.value = '';
@@ -71,16 +61,62 @@ class AddClient extends StatelessWidget {
       return;
     }
 
-    registerClientController.registerClient(
+    registerClientController.registerClient(companyName, clientName, contact, address, gstNo);
+  }
+
+  void _updateOnTap() {
+    String companyName = capitalizeEachWord(editClientController.companyName.text.trim());
+    String clientName = capitalizeEachWord(editClientController.clientName.text.trim());
+    String contact = editClientController.contact.text.trim();
+    String address = capitalizeEachWord(editClientController.address.text.trim());
+    String gstNo = editClientController.gstNo.text.trim();
+
+    editClientController.companyError.value = '';
+    editClientController.clientError.value = '';
+    editClientController.contactError.value = '';
+    editClientController.addressError.value = '';
+    editClientController.gstError.value = '';
+
+    if (companyName.isEmpty) {
+      editClientController.companyError.value = "Enter company name.";
+      editClientController.companyFocus.requestFocus();
+      return;
+    }
+
+    if (clientName.isEmpty) {
+      editClientController.clientError.value = "Enter client name.";
+      editClientController.clientFocus.requestFocus();
+      return;
+    }
+
+    if (contact.isEmpty) {
+      editClientController.contactError.value = "Enter contact.";
+      editClientController.contactFocus.requestFocus();
+      return;
+    }
+
+    if (address.isEmpty) {
+      editClientController.addressError.value = "Enter address.";
+      editClientController.addressFocus.requestFocus();
+      return;
+    }
+
+    if (gstNo.isEmpty) {
+      editClientController.gstError.value = "Enter GST number.";
+      editClientController.gstFocus.requestFocus();
+      return;
+    }
+
+    editClientController.editClient(
       companyName,
       clientName,
+      editClientController.clientEditId,
       contact,
       address,
       gstNo,
     );
   }
 
-  void _updateOnTap() {}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,21 +160,22 @@ class AddClient extends StatelessWidget {
                                           ? registerClientController.companyName
                                           : editClientController.companyName,
                                   focusNode:
-                                      registerClientController.companyFocus,
+                                      (tag == "add_client")
+                                          ? registerClientController.companyFocus
+                                          : editClientController.companyFocus,
                                   errorText:
-                                      registerClientController
-                                              .companyError
-                                              .value
-                                              .isEmpty
-                                          ? null
-                                          : registerClientController
-                                              .companyError
-                                              .value,
+                                      (tag == "add_client")
+                                          ? (registerClientController.companyError.value.isEmpty
+                                              ? null
+                                              : registerClientController.companyError.value)
+                                          : (editClientController.companyError.value.isEmpty
+                                              ? null
+                                              : editClientController.companyError.value),
                                   onChanged: (value) {
-                                    if (value.trim().isNotEmpty) {
-                                      registerClientController
-                                          .companyError
-                                          .value = '';
+                                    if (value.trim().isNotEmpty && tag == "add_client") {
+                                      registerClientController.companyError.value = '';
+                                    } else if (value.trim().isNotEmpty && tag != "add_client") {
+                                      editClientController.companyError.value = '';
                                     }
                                   },
                                 ),
@@ -159,21 +196,23 @@ class AddClient extends StatelessWidget {
                                           ? registerClientController.clientName
                                           : editClientController.clientName,
                                   focusNode:
-                                      registerClientController.clientFocus,
+                                      (tag == "add_client")
+                                          ? registerClientController.clientFocus
+                                          : editClientController.clientFocus,
                                   errorText:
-                                      registerClientController
-                                              .clientError
-                                              .value
-                                              .isEmpty
-                                          ? null
-                                          : registerClientController
-                                              .clientError
-                                              .value,
+                                      (tag == "add_client")
+                                          ? (registerClientController.clientError.value.isEmpty
+                                              ? null
+                                              : registerClientController.clientError.value)
+                                          : (editClientController.clientError.value.isEmpty
+                                              ? null
+                                              : editClientController.clientError.value),
+
                                   onChanged: (value) {
-                                    if (value.trim().isNotEmpty) {
-                                      registerClientController
-                                          .clientError
-                                          .value = '';
+                                    if (value.trim().isNotEmpty && tag == "add_client") {
+                                      registerClientController.clientError.value = '';
+                                    } else if (value.trim().isNotEmpty && tag != "add_client") {
+                                      editClientController.clientError.value = '';
                                     }
                                   },
                                 ),
@@ -191,29 +230,29 @@ class AddClient extends StatelessWidget {
                                   hintText: "Contact",
                                   maxLength: 10,
                                   keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                  ],
+                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                   controller:
                                       (tag == "add_client")
                                           ? registerClientController.contact
                                           : editClientController.contact,
                                   focusNode:
-                                      registerClientController.contactFocus,
+                                      (tag == "add_client")
+                                          ? registerClientController.contactFocus
+                                          : editClientController.contactFocus,
                                   errorText:
-                                      registerClientController
-                                              .contactError
-                                              .value
-                                              .isEmpty
-                                          ? null
-                                          : registerClientController
-                                              .contactError
-                                              .value,
+                                      (tag == "add_client")
+                                          ? (registerClientController.contactError.value.isEmpty
+                                              ? null
+                                              : registerClientController.contactError.value)
+                                          : (editClientController.contactError.value.isEmpty
+                                              ? null
+                                              : editClientController.contactError.value),
+
                                   onChanged: (value) {
-                                    if (value.trim().isNotEmpty) {
-                                      registerClientController
-                                          .contactError
-                                          .value = '';
+                                    if (value.trim().isNotEmpty && tag == "add_client") {
+                                      registerClientController.contactError.value = '';
+                                    } else if (value.trim().isNotEmpty && tag != "add_client") {
+                                      editClientController.contactError.value = '';
                                     }
                                   },
                                 ),
@@ -241,20 +280,24 @@ class AddClient extends StatelessWidget {
                                       (tag == "add_client")
                                           ? registerClientController.gstNo
                                           : editClientController.gstNo,
-                                  focusNode: registerClientController.gstFocus,
+                                  focusNode:
+                                      (tag == "add_client")
+                                          ? registerClientController.gstFocus
+                                          : editClientController.gstFocus,
                                   errorText:
-                                      registerClientController
-                                              .gstError
-                                              .value
-                                              .isEmpty
-                                          ? null
-                                          : registerClientController
-                                              .gstError
-                                              .value,
+                                      (tag == "add_client")
+                                          ? (registerClientController.gstError.value.isEmpty
+                                              ? null
+                                              : registerClientController.gstError.value)
+                                          : (editClientController.gstError.value.isEmpty
+                                              ? null
+                                              : editClientController.gstError.value),
+
                                   onChanged: (value) {
-                                    if (value.trim().isNotEmpty) {
-                                      registerClientController.gstError.value =
-                                          '';
+                                    if (value.trim().isNotEmpty && tag == "add_client") {
+                                      registerClientController.gstError.value = '';
+                                    } else if (value.trim().isNotEmpty && tag != "add_client") {
+                                      editClientController.gstError.value = '';
                                     }
                                   },
                                 ),
@@ -273,21 +316,23 @@ class AddClient extends StatelessWidget {
                                           ? registerClientController.address
                                           : editClientController.address,
                                   focusNode:
-                                      registerClientController.addressFocus,
+                                      (tag == "add_client")
+                                          ? registerClientController.addressFocus
+                                          : editClientController.addressFocus,
                                   errorText:
-                                      registerClientController
-                                              .addressError
-                                              .value
-                                              .isEmpty
-                                          ? null
-                                          : registerClientController
-                                              .addressError
-                                              .value,
+                                      (tag == "add_client")
+                                          ? (registerClientController.addressError.value.isEmpty
+                                              ? null
+                                              : registerClientController.addressError.value)
+                                          : (editClientController.addressError.value.isEmpty
+                                              ? null
+                                              : editClientController.addressError.value),
+
                                   onChanged: (value) {
-                                    if (value.trim().isNotEmpty) {
-                                      registerClientController
-                                          .addressError
-                                          .value = '';
+                                    if (value.trim().isNotEmpty && tag == "add_client") {
+                                      registerClientController.addressError.value = '';
+                                    } else if (value.trim().isNotEmpty && tag != "add_client") {
+                                      editClientController.addressError.value = '';
                                     }
                                   },
                                 ),
@@ -298,7 +343,10 @@ class AddClient extends StatelessWidget {
 
                         SizedBox(height: 20),
 
-                        CommonSubmit(data: (tag == "add_client") ? "Submit" : "Update", onTap: (tag == "add_client") ? _submitOnTap : _updateOnTap),
+                        CommonSubmit(
+                          data: (tag == "add_client") ? "Submit" : "Update",
+                          onTap: (tag == "add_client") ? _submitOnTap : _updateOnTap,
+                        ),
 
                         const SizedBox(height: 20),
                       ],
