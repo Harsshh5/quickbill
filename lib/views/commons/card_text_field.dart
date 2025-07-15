@@ -13,12 +13,13 @@ class CommonTextField extends StatelessWidget {
   final bool? obscureText;
   final void Function(String)? onChanged;
   final void Function(String)? onSubmitted;
+  final void Function()? onTap;
   final Widget? suffixIcon;
   final bool? readOnly;
   final String? errorText;
   final int? maxLength;
   final List<TextInputFormatter>? inputFormatters;
-  const CommonTextField({super.key, this.autofocus, this.hintText, this.controller, this.focusNode, this.keyboardType, this.obscureText, this.onChanged, this.onSubmitted, this.suffixIcon, this.readOnly, this.errorText, this.inputFormatters, this.maxLength});
+  const CommonTextField({super.key, this.autofocus, this.hintText, this.controller, this.focusNode, this.keyboardType, this.obscureText, this.onChanged, this.onSubmitted, this.suffixIcon, this.readOnly, this.errorText, this.inputFormatters, this.maxLength, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +41,11 @@ class CommonTextField extends StatelessWidget {
         style: appTextStyle(color: Colors.black, fontSize: 16),
         onSubmitted: onSubmitted,
         onChanged: onChanged,
+        onTap: onTap,
         readOnly: readOnly ?? false,
         inputFormatters: inputFormatters,
         maxLength: maxLength,
+        maxLines: null,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           hintStyle: appTextStyle(color: Colors.grey, fontSize: 16),

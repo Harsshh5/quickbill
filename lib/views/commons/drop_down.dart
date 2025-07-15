@@ -6,13 +6,18 @@ class CommonDropDown<T> extends StatelessWidget {
   final List<DropdownMenuEntry<T>> dropdownMenuEntries;
   final double? width;
   final T? initialSelection;
+  final String? hintText;
+  final BorderSide? borderSideBorder;
+  final BorderSide? borderSideEnable;
+  final BorderSide? borderSideFocused;
 
   const CommonDropDown({
     super.key,
     this.onSelected,
     this.width,
     this.initialSelection,
-    required this.dropdownMenuEntries,
+    this.hintText,
+    required this.dropdownMenuEntries, this.borderSideBorder, this.borderSideEnable, this.borderSideFocused,
   });
 
   @override
@@ -21,24 +26,25 @@ class CommonDropDown<T> extends StatelessWidget {
       onSelected: onSelected,
       initialSelection: initialSelection,
       inputDecorationTheme: InputDecorationTheme(
+        hintStyle: TextStyle(color: Colors.grey),
         filled: true,
         fillColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(22),
-          borderSide: BorderSide(color: Colors.black),
+          borderSide: borderSideBorder ?? BorderSide(color: Colors.black),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(22),
-          borderSide: BorderSide(
-            color: Colors.black,
-          ),
+          borderSide: borderSideEnable ?? BorderSide(color: Colors.black),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(22),
-          borderSide: BorderSide(color: Colors.black, width: 2),
+          borderSide: borderSideFocused ?? BorderSide(color: Colors.black, width: 2),
         ),
       ),
+      hintText: hintText,
+
       textStyle: appTextStyle(fontSize: 16),
       dropdownMenuEntries: dropdownMenuEntries,
       width: width ?? double.infinity,

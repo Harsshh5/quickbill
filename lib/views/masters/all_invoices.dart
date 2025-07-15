@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quickbill/controller/invoice_controller/invoice_list.dart';
 import 'package:quickbill/views/commons/card_text_field.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../commons/page_header.dart';
 import '../commons/submit_button.dart';
@@ -14,10 +16,13 @@ class AllInvoices extends StatefulWidget {
   State<AllInvoices> createState() => _AllInvoicesState();
 }
 
-class _AllInvoicesState extends State<AllInvoices>
-    with TickerProviderStateMixin {
+class _AllInvoicesState extends State<AllInvoices>{
 
   bool isSelectionMode = false;
+
+  var invoiceCount = Get.arguments["invoiceCount"];
+
+  final InvoiceListController invoiceListController = Get.put(InvoiceListController());
 
   @override
   Widget build(BuildContext context) {

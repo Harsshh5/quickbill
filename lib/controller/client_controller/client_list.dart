@@ -27,8 +27,7 @@ class ClientListController extends GetxController {
           ) ||
               item["clientName"]!.toLowerCase().contains(
                 query.toLowerCase(),
-              ) ||
-              item["contact"]!.toLowerCase().contains(query.toLowerCase()),
+              )
         ),
       );
 

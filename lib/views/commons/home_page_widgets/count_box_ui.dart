@@ -12,19 +12,23 @@ import '../text_style.dart';
 class CountBoxRow extends StatelessWidget {
   final CountBoxAnimationController animController;
   final RxBool isClientLoading;
+  final RxBool isInvoiceLoading;
   final RxInt clientCount;
+  final RxInt invoiceCount;
 
   const CountBoxRow({
     super.key,
     required this.animController,
     required this.isClientLoading,
     required this.clientCount,
+    required this.isInvoiceLoading,
+    required this.invoiceCount,
   });
 
   Future<void> _onTapTotalInvoice() async {
     await animController.invoiceController.forward();
     await animController.invoiceController.reverse();
-    Get.to(() => const AllInvoices(), transition: Transition.fadeIn);
+    Get.to(() => const AllInvoices(), transition: Transition.fadeIn, arguments: {"invoiceCount" : invoiceCount.value});
   }
 
   Future<void> _onTapTotalClients() async {
@@ -53,10 +57,13 @@ class CountBoxRow extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        "10", // Replace with dynamic if needed
-                        style: appTextStyle(fontSize: 28, color: AppColors.dark),
-                      ),
+                      Obx(() => Skeletonizer(
+                        enabled: isInvoiceLoading.value,
+                        child: Text(
+                          invoiceCount.value.toString(), // Replace with dynamic if needed
+                          style: appTextStyle(fontSize: 28, color: AppColors.dark),
+                        ),
+                      )),
                       const SizedBox(height: 10),
                       Text("Total Invoices", style: appTextStyle()),
                     ],

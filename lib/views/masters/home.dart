@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:quickbill/controller/client_controller/client_count.dart';
 import 'package:quickbill/views/commons/gradient.dart';
 import 'package:quickbill/views/commons/page_header.dart';
 import 'package:quickbill/views/commons/text_style.dart';
@@ -14,10 +13,6 @@ import '../wrapper/recent_invoice_wrapper.dart';
 
 class Home extends StatelessWidget {
   Home({super.key});
-
-  final ClientCountController clientCountController = Get.put(
-    ClientCountController(),
-  );
 
   final DrawerControllerX drawerController = Get.put(DrawerControllerX());
 
