@@ -7,9 +7,10 @@ import 'package:quickbill/views/commons/gradient.dart';
 import 'package:quickbill/views/commons/submit_button.dart';
 
 import '../../config/app_colors.dart';
+import '../../controller/home_widget_animations/list_animation_controller.dart';
+import '../../controller/invoice_controller/invoice_list.dart';
 import '../commons/page_header.dart';
 import '../commons/text_style.dart';
-import '../wrapper/recent_invoice_wrapper.dart';
 
 class Payments extends StatefulWidget {
   const Payments({super.key});
@@ -29,16 +30,21 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
   DateTimeRange? selectedDateRange;
 
   bool isSelectionMode = false;
+  late final ListAnimationControllerHelper animController;
+  final InvoiceListController invoiceListController = Get.put(InvoiceListController());
 
   @override
   void initState() {
     super.initState();
+
+    animController = ListAnimationControllerHelper(vsync: this,itemCount: 10);
 
     tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
       if (tabController.indexIsChanging) return;
       setState(() {});
     });
+
 
     calendarController = AnimationController(
       vsync: this,
@@ -60,6 +66,11 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
     tabController.dispose();
     calendarController.dispose();
     super.dispose();
+  }
+
+  void handleTap(int index) async {
+    await animController.listControllers[index].forward();
+    await animController.listControllers[index].reverse();
   }
 
   @override
@@ -201,22 +212,7 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
                       ],
                     ),
 
-                  InvoiceListWrapper(
-                    onRefresh: (){
-                      return Future(() {});
-                    },
-                    itemCount: 20,
-                    enableSelection: true,
-                    billNo: "Bill No.",
-                    companyName: "Company Name",
-                    invoiceAmount: "10,000",
-                    invoiceDate: "16-06-25",
-                    onSelectionModeChange: (val) {
-                      setState(() {
-                        isSelectionMode = !val;
-                      });
-                    },
-                  ),
+                  invoicesList( ),
                 ],
               ),
             ),
@@ -239,4 +235,61 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
     );
   }
 
+  Widget invoicesList() {
+    return Expanded(
+      child: RefreshIndicator(
+        backgroundColor: Colors.white,
+        color: AppColors.dark,
+        onRefresh: () {
+          return Future(() {});
+        },
+        child: ListView.builder(
+          itemCount: invoiceListController.filteredList.length,
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemBuilder: (context, index) {
+            var invoices = invoiceListController.filteredList[index];
+            var amountColor = (invoices["status"] == "paid") ? Colors.green : Colors.red;
+
+            return SlideTransition(
+              position: animController.listSlideAnimation[index],
+              child: FadeTransition(
+                opacity: animController.listFadeAnimation[index],
+                child: ScaleTransition(
+                  scale: animController.listAnimations[index],
+                  child: GestureDetector(
+                    onTap: () {
+                      handleTap(index);
+                    },
+                    child: CommonCardContainer(
+                      height: 80,
+                      width: Get.width,
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(invoices["invoiceNumber"]!, style: appTextStyle(fontSize: 16)),
+                              Text(invoices["companyName"]!, style: appTextStyle(fontSize: 14)),
+                            ],
+                          ),
+                          const Spacer(),
+                          Text(invoices["date"]!, style: appTextStyle(fontSize: 16)),
+                          const SizedBox(width: 15),
+                          Text(invoices["totalAmount"]!, style: appTextStyle(fontSize: 16, color: amountColor)),
+                          const SizedBox(width: 10),
+                          const Icon(Icons.chevron_right_rounded),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 }

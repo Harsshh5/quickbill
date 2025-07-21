@@ -21,17 +21,11 @@ class ClientListController extends GetxController {
     } else {
       filteredList.assignAll(
         clientList.where(
-              (item) =>
-          item["companyName"]!.toLowerCase().contains(
-            query.toLowerCase(),
-          ) ||
-              item["clientName"]!.toLowerCase().contains(
-                query.toLowerCase(),
-              )
+          (item) =>
+              item["companyName"]!.toLowerCase().contains(query.toLowerCase()) ||
+              item["clientName"]!.toLowerCase().contains(query.toLowerCase()),
         ),
       );
-
-      // log(filteredList.toString());
     }
     update();
   }
@@ -51,7 +45,7 @@ class ClientListController extends GetxController {
             "clientName": item["clientName"] ?? "",
             "contact": item["contact"] ?? "",
             "address": item["address"] ?? "",
-            "gstNo": item["gstNo"] ?? ""
+            "gstNo": item["gstNo"] ?? "",
           });
         }
 
@@ -59,7 +53,7 @@ class ClientListController extends GetxController {
         filteredList.assignAll(tempList);
 
         // log(filteredList.toString());
-      } else if(res["message"] == "No clients found"){
+      } else if (res["message"] == "No clients found") {
         log("Success is false I guess!!");
         clientList.clear();
       }

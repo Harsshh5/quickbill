@@ -15,6 +15,19 @@ class InvoiceListController extends GetxController {
     super.onInit();
   }
 
+  String formatDateToDMY(String inputDate) {
+    try {
+      final date = DateTime.parse(inputDate);
+      final day = date.day.toString().padLeft(2, '0');
+      final month = date.month.toString().padLeft(2, '0');
+      final year = date.year.toString();
+      return '$day-$month-$year';
+    } catch (e) {
+      return 'Invalid date';
+    }
+  }
+
+
   void filterItems(String query) {
     if (query.isEmpty) {
       filteredList.assignAll(invoiceList);
@@ -28,8 +41,6 @@ class InvoiceListController extends GetxController {
               item["date"]!.toLowerCase().contains(query.toLowerCase()),
         ),
       );
-
-      // log(filteredList.toString());
     }
     update();
   }
@@ -49,7 +60,7 @@ class InvoiceListController extends GetxController {
             "totalAmount": item["amountDetails"]?["totalAmount"]?.toString() ?? "",
             "invoiceNumber": item["invoiceNumber"]?.toString() ?? "",
             "status": item["status"] ?? "",
-            "date": item["createdAt"] ?? "",
+            "date": formatDateToDMY(item["createdAt"]),
           });
         }
 
@@ -57,7 +68,7 @@ class InvoiceListController extends GetxController {
         invoiceList.assignAll(tempList);
         filteredList.assignAll(tempList);
 
-        log(filteredList.toString());
+        // log(filteredList.toString());
       } else if (res["message"] == "No invoices found") {
         log("Success is false I guess!!");
         invoiceList.clear();

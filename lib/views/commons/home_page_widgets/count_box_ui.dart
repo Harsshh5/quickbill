@@ -28,7 +28,7 @@ class CountBoxRow extends StatelessWidget {
   Future<void> _onTapTotalInvoice() async {
     await animController.invoiceController.forward();
     await animController.invoiceController.reverse();
-    Get.to(() => const AllInvoices(), transition: Transition.fadeIn, arguments: {"invoiceCount" : invoiceCount.value});
+    Get.to(() => AllInvoices(), transition: Transition.fadeIn, arguments: {"invoiceCount" : invoiceCount.value});
   }
 
   Future<void> _onTapTotalClients() async {
