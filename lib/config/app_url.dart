@@ -1,7 +1,6 @@
 import 'package:quickbill/config/app_constants.dart';
 
 class AppUrl {
-  // static const String mainUrl = "http://192.168.0.107:3000/api";
   static const String mainUrl = "https://hr-quick-bill.onrender.com/api";
 
   // client
@@ -15,12 +14,12 @@ class AppUrl {
   static const String checkPassword = "$mainUrl/passwords/check";
 
   // invoice
-  static final String firmAbb = AppConstants.abbreviation.toLowerCase();
+  static String get firmAbb => AppConstants.abbreviation.toLowerCase();
 
-  static final String invCreate = "$mainUrl/invoice/$firmAbb/create";
-  static final String invList = "$mainUrl/invoice/$firmAbb/list";
-  static final String invUpdate = "$mainUrl/invoice/$firmAbb/update";
-  static final String invTotal = "$mainUrl/invoice/$firmAbb/total";
-  static final String invDetails = "$mainUrl/invoice/$firmAbb/details";
-  static final String invLatestNumber = "$mainUrl/invoice/$firmAbb/latestNumber";
+  static String get invCreate => "$mainUrl/invoice/$firmAbb/create";
+  static String get invList => "$mainUrl/invoice/$firmAbb/list";
+  static String get invUpdate => "$mainUrl/invoice/$firmAbb/update";
+  static String get invTotal => "$mainUrl/invoice/$firmAbb/total";
+  static String get invDetails => "$mainUrl/invoice/$firmAbb/details";
+  static String get invLatestNumber => "$mainUrl/invoice/$firmAbb/latestNumber";
 }

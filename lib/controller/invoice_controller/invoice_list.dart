@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:quickbill/model/invoice_model/invoice_list.dart';
 
 class InvoiceListController extends GetxController {
@@ -14,6 +15,17 @@ class InvoiceListController extends GetxController {
     await getInvoiceList();
     super.onInit();
   }
+
+  String formatIndianCurrency(String amount) {
+    try {
+      final number = double.parse(amount);
+      final format = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 1);
+      return format.format(number);
+    } catch (e) {
+      return "₹0.00"; // fallback if parsing fails
+    }
+  }
+
 
   String formatDateToDMY(String inputDate) {
     try {

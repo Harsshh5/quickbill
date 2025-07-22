@@ -11,9 +11,14 @@ class CheckPasswordController extends GetxController {
   final pinController = TextEditingController();
   var pinErrorText = "".obs;
   var isLoading = false.obs;
-  final selectedAccount = '1'.obs;
+  late var selectedAccount = '1'.obs;
   var errorState = false.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    selectedAccount = '1'.obs;
+  }
 
   Future<void> verifyPassword(String businessId, int pass) async {
 
@@ -34,7 +39,7 @@ class CheckPasswordController extends GetxController {
         errorState.value = false;
         pinController.clear();
 
-        AppConstants.businessId = businessId;
+        AppConstants.businessId = selectedAccount.value;
 
         AppConstants.setAllVariables();
 

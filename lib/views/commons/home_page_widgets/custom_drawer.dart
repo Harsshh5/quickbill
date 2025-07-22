@@ -16,10 +16,7 @@ class CustomDrawer extends StatelessWidget {
       elevation: 5,
       margin: EdgeInsets.zero,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          bottomRight: Radius.circular(22),
-          topRight: Radius.circular(22),
-        ),
+        borderRadius: BorderRadius.only(bottomRight: Radius.circular(22), topRight: Radius.circular(22)),
       ),
       child: Container(
         width: Get.width / 1.5,
@@ -27,10 +24,7 @@ class CustomDrawer extends StatelessWidget {
         padding: EdgeInsets.all(10),
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.only(
-            bottomRight: Radius.circular(22),
-            topRight: Radius.circular(22),
-          ),
+          borderRadius: BorderRadius.only(bottomRight: Radius.circular(22), topRight: Radius.circular(22)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -39,21 +33,18 @@ class CustomDrawer extends StatelessWidget {
             Row(
               children: [
                 CommonIconCardContainer(
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    child: Text(AppConstants.abbreviation, style: appTextStyle(color: AppColors.dark),)
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  child: Text(AppConstants.abbreviation, style: appTextStyle(color: AppColors.dark)),
                 ),
-                SizedBox(width: 10,),
+                SizedBox(width: 10),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("Quick Bill", style: appTextStyle(fontSize: 24)),
-                    Text(
-                      AppConstants.businessName,
-                      style: appTextStyle(fontSize: 16, color: Colors.black38),
-                    ),
+                    Text(AppConstants.businessName, style: appTextStyle(fontSize: 16, color: Colors.black38)),
                   ],
                 ),
               ],
@@ -62,13 +53,14 @@ class CustomDrawer extends StatelessWidget {
             Divider(),
 
             ListTile(title: Text("Change PIN"), leading: Icon(Icons.password)),
+            ListTile(title: Text("Change Theme"), leading: Icon(Icons.light_mode)),
             ListTile(
-              title: Text("Change Theme"),
-              leading: Icon(Icons.light_mode),
+              title: Text("Logout"),
+              leading: Icon(Icons.login),
+              onTap: () {
+                Get.offAll(() => SetPassword(), transition: Transition.fade);
+              },
             ),
-            ListTile(title: Text("Logout"), leading: Icon(Icons.login), onTap: (){
-              Get.offAll(() => SetPassword(), transition: Transition.fade);
-            },),
           ],
         ),
       ),

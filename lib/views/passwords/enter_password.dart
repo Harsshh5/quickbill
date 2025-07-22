@@ -85,7 +85,7 @@ class SetPassword extends StatelessWidget {
                       },
                       dropdownMenuEntries: accountList,
                       width: Get.width * 0.9,
-                      initialSelection: accountList.first.value,
+                      initialSelection: checkPasswordController.selectedAccount.value,
                     ),
                   ),
 
