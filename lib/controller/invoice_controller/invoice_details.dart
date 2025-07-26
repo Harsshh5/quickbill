@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../model/invoice_model/invoice_details.dart';
 
@@ -17,6 +18,15 @@ class InvoiceDetailsController extends GetxController{
   RxString status = "".obs;
   RxString createDate = "".obs;
 
+  String formatDateToDMY(String inputDate) {
+    try {
+      final date = DateTime.parse(inputDate);
+      return DateFormat('dd-MM-yyyy').format(date);
+    } catch (e) {
+      return 'Invalid date';
+    }
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -28,10 +38,12 @@ class InvoiceDetailsController extends GetxController{
   Future<void> getInvoiceDetails(String invoiceId) async {
     var res = await InvoiceDetailsModel().fetchInvoiceDetails(invoiceId);
 
+    // log(res.toString());
+
     if (res["success"] == true) {
       invoiceNo.value = int.tryParse(res["details"]["invoiceNumber"].toString()) ?? 0;
       subTotal.value = int.tryParse(res["details"]["amountDetails"]["subTotal"].toString()) ?? 0;
-      finalTotal.value = int.tryParse(res["details"]["amountDetails"]["finalTotal"].toString()) ?? 0;
+      finalTotal.value = int.tryParse(res["details"]["amountDetails"]["totalAmount"].toString()) ?? 0;
 
       clientName.value = res["details"]["clientId"]["clientName"]?.toString() ?? "";
       companyName.value = res["details"]["clientId"]["companyName"]?.toString() ?? "";
@@ -39,7 +51,8 @@ class InvoiceDetailsController extends GetxController{
       gstNo.value = res["details"]["clientId"]["gstNo"]?.toString() ?? "";
       address.value = res["details"]["clientId"]["address"]?.toString() ?? "";
       status.value = res["details"]["status"]?.toString() ?? "";
-      createDate.value = res["details"]["createdAt"]?.toString() ?? "";
+      createDate.value = formatDateToDMY(res["details"]["createdAt"].toString());
+
 
       final designData = res["details"]["designDetails"];
 

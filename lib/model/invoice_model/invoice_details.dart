@@ -16,7 +16,6 @@ class InvoiceDetailsModel {
         final data = json.decode(response.body);
         return {
           "success": true,
-          "message": "Failed to fetch invoice details",
           "details": data,
         };
       } else {
