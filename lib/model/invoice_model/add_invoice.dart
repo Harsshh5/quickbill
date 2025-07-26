@@ -26,16 +26,6 @@ class AddInvoiceModel {
       if (cgst != null) amountDetails["cgst"] = cgst;
       if (sgst != null) amountDetails["sgst"] = sgst;
 
-      // final requestBody = {
-      //   "clientId": clientId,
-      //   "designDetails": designDetails,
-      //   "amountDetails": amountDetails,
-      //   "status": "unpaid",
-      // };
-
-      // print("Request Body (JSON): ${jsonEncode(requestBody)}");
-
-
       var response = await http.post(
         Uri.parse(url),
         headers: headers,
@@ -48,14 +38,12 @@ class AddInvoiceModel {
       );
       if (response.statusCode == 201) {
         final data = json.decode(response.body);
-        log("\n\n\n\nClient registered successfully:\n\n$data");
+        // log("\n\n\n Invoice created successfully:\n\n$data");
         return {"success": true, "data": data};
       } else if (response.statusCode == 400) {
         final data = json.decode(response.body);
         return {"success": false, "data": data};
       } else {
-        log(AppUrl.invCreate);
-        // log("clientId: $clientId, designDetails: $designDetails, amountDetails: $amountDetails,status: unpaid");
         return {"success": false, "message": "Failed to register client"};
       }
     } catch (e) {

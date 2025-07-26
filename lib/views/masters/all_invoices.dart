@@ -9,6 +9,7 @@ import '../commons/card_container.dart';
 import '../commons/page_header.dart';
 import '../commons/text_style.dart';
 import '../../../controller/home_widget_animations/list_animation_controller.dart';
+import 'invoice_details.dart';
 
 class AllInvoices extends StatefulWidget {
   const AllInvoices({super.key});
@@ -104,6 +105,7 @@ class _AllInvoicesState extends State<AllInvoices> with TickerProviderStateMixin
                               child: GestureDetector(
                                 onTap: () {
                                   handleTap(index);
+                                  Get.to(() => InvoiceDetails(), arguments: {"invoiceId": invoices["id"]});
                                 },
                                 child: CommonCardContainer(
                                   height: 80,

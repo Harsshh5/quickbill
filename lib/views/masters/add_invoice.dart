@@ -12,11 +12,14 @@ import 'package:quickbill/views/commons/submit_button.dart';
 import 'package:quickbill/views/commons/text_style.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
+import '../../controller/invoice_controller/latest_invoice_number.dart';
+
 class AddInvoice extends StatelessWidget {
   AddInvoice({super.key});
 
   final AddInvoiceController controller = Get.put(AddInvoiceController());
   final ClientListController clientListController = Get.put(ClientListController());
+  final LatestInvoiceNumberController latestInvoiceNumberController = Get.put(LatestInvoiceNumberController());
 
   Widget buildDesignCard(int index) {
     final data = controller.designCardList[index];
@@ -239,7 +242,15 @@ class AddInvoice extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CommonFromHeading(data: "Invoice No."),
+                              Row(
+                                children: [
+                                  CommonFromHeading(data: "Invoice No."),
+                                  Spacer(),
+                                  Obx(() {
+                                    return CommonFromHeading(data: "${latestInvoiceNumberController.latestNumber.value}");
+                                  }),
+                                ],
+                              ),
                               Row(
                                 children: [
                                   CommonFromHeading(data: "Invoice Date"),

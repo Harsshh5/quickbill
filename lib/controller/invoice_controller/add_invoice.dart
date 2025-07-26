@@ -5,9 +5,9 @@ import 'package:get/get.dart';
 import 'package:quickbill/config/app_constants.dart';
 import 'package:quickbill/controller/invoice_controller/invoice_count.dart';
 import 'package:quickbill/model/invoice_model/add_invoice.dart';
+import 'package:quickbill/views/commons/snackbar.dart';
 
-import '../../config/app_colors.dart';
-import '../../views/commons/text_style.dart';
+import '../../views/masters/invoice_details.dart';
 
 class DesignCardData {
   String? category;
@@ -27,7 +27,7 @@ class AddInvoiceController extends GetxController {
   final TextEditingController company = TextEditingController();
   final TextEditingController clientId = TextEditingController();
 
-  final categoryList = ["Pallu", "SP. Allover", "Dupatta", "Neck / Panel", "Colors", "All Ever Designs"];
+  final categoryList = ["Pallu", "SP. Allover", "Dupatta", "Neck / Panel", "Colors", "All Over Designs"];
 
   List<DropdownMenuEntry<String>> get categoryDropdownEntries {
     return categoryList
@@ -90,6 +90,8 @@ class AddInvoiceController extends GetxController {
       card.amount.dispose();
       card.note.dispose();
     }
+    company.dispose();
+    clientId.dispose();
     super.onClose();
   }
 
@@ -102,7 +104,7 @@ class AddInvoiceController extends GetxController {
         'quantity': int.tryParse(card.totalDesigns.text) ?? 0,
         'rate': double.tryParse(card.rate.text) ?? 0.0,
         'amount': double.tryParse(card.amount.text) ?? 0.0,
-        'note': card.note.text,
+        'notes': '"${card.note.text}"',
       });
     }
 
@@ -121,56 +123,26 @@ class AddInvoiceController extends GetxController {
         totalAmount: finalTotal.value.toDouble(),
       );
 
+      log("Response from API: $res");
+
       if (res["success"] == true) {
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
-          SnackBar(
-            elevation: 5,
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.all(10),
-            padding: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-            backgroundColor: AppColors.medium,
-            duration: Duration(seconds: 3),
-            content: TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0, end: 1),
-              duration: Duration(seconds: 3),
-              builder:
-                  (context, value, child) => SizedBox(
-                height: 60,
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text("Invoice Created successfully.", style: appTextStyle(color: Colors.white)),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: LinearProgressIndicator(
-                        value: value,
-                        backgroundColor: Colors.green.shade700,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        minHeight: 4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
+        AppSnackBar.show(message: "Invoice Created Successfully");
 
         invoiceCountController.getInvoiceCount();
+
+        var savedInvoiceId = res["data"]["invoice"]["_id"];
+
+        await Get.to(() => InvoiceDetails(), arguments: {"invoiceId": savedInvoiceId});
+
         Get.back();
 
       }
       else if (res["success"] == false) {
+        AppSnackBar.show(message: "Invoice Not Created! Try Again");
         log(res.toString());
       }
     } catch (e) {
-      log("Error : $e");
+      log("Error here: $e");
     } finally {
       update();
     }

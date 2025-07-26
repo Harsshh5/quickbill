@@ -1,12 +1,14 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
-import 'package:quickbill/config/app_url.dart';
 
-class InvoiceCountModel {
+import '../../config/app_url.dart';
+
+class LatestInvoiceNumberModel {
   final headers = {'Content-Type': 'application/json'};
-  final url = AppUrl.invTotal;
+  final url = AppUrl.invLatestNumber;
 
-  Future<Map<String, dynamic>> fetchInvoiceCount() async {
+  Future<Map<String, dynamic>> fetchInvoiceNumber() async {
     try {
       var response = await http.get(Uri.parse(url), headers: headers);
 
@@ -16,7 +18,7 @@ class InvoiceCountModel {
       } else {
         return {
           "success": false,
-          "message": "Failed to fetch invoice count",
+          "message": "Failed to fetch invoice number",
         };
       }
     } catch (e) {

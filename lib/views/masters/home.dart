@@ -14,6 +14,7 @@ import '../commons/card_container.dart';
 import '../commons/home_page_widgets/custom_drawer.dart';
 import '../wrapper/count_box_wrapper.dart';
 import '../wrapper/home_animated_grid_wrapper.dart';
+import 'invoice_details.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -22,13 +23,12 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with TickerProviderStateMixin{
+class _HomeState extends State<Home> with TickerProviderStateMixin {
   late final ListAnimationControllerHelper animController;
 
   final DrawerControllerX drawerController = Get.put(DrawerControllerX());
 
   final InvoiceListController invoiceListController = Get.put(InvoiceListController());
-
 
   final List<IconData> boxIcons = <IconData>[
     Icons.note_add,
@@ -59,8 +59,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
   @override
   void initState() {
     super.initState();
-    animController = ListAnimationControllerHelper(vsync: this,itemCount: 10);
+    animController = ListAnimationControllerHelper(vsync: this, itemCount: 10);
   }
+
   @override
   Widget build(BuildContext context) {
     String formattedDate = DateFormat('EEEE, d MMMM y').format(DateTime.now());
@@ -96,7 +97,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
                   SizedBox(height: 20),
 
                   // Recent Text
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text("Recent Invoices", style: appTextStyle())]),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [Text("Recent Invoices", style: appTextStyle())],
+                  ),
 
                   SizedBox(height: 10),
 
@@ -137,64 +141,77 @@ class _HomeState extends State<Home> with TickerProviderStateMixin{
   Widget invoicesList() {
     return Obx(() {
       return Expanded(
-        child: invoiceListController.filteredList.isEmpty
-            ? CommonCardContainer(child: Center(child: Text("No Invoices Found", style: appTextStyle(color: Colors.grey))),)
-            : RefreshIndicator(
-          backgroundColor: Colors.white,
-          color: AppColors.dark,
-          onRefresh: () {
-            return invoiceListController.getInvoiceList();
-          },
-          child: Skeletonizer(
-            enabled: invoiceListController.isLoading.value,
-            child: ListView.builder(
-              itemCount: invoiceListController.filteredList.length,
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                var invoices = invoiceListController.filteredList[index];
-                var amountColor = (invoices["status"] == "paid") ? Colors.green : Colors.red;
+        child:
+            invoiceListController.filteredList.isEmpty
+                ? CommonCardContainer(
+                  child: Center(child: Text("No Invoices Found", style: appTextStyle(color: Colors.grey))),
+                )
+                : RefreshIndicator(
+                  backgroundColor: Colors.white,
+                  color: AppColors.dark,
+                  onRefresh: () {
+                    return invoiceListController.getInvoiceList();
+                  },
+                  child: Skeletonizer(
+                    enabled: invoiceListController.isLoading.value,
+                    child: ListView.builder(
+                      itemCount:
+                          (invoiceListController.filteredList.length) > 10
+                              ? 10
+                              : invoiceListController.filteredList.length,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        var invoices = invoiceListController.filteredList[index];
+                        var amountColor = (invoices["status"] == "paid") ? Colors.green : Colors.red;
 
-                return SlideTransition(
-                  position: animController.listSlideAnimation[index],
-                  child: FadeTransition(
-                    opacity: animController.listFadeAnimation[index],
-                    child: ScaleTransition(
-                      scale: animController.listAnimations[index],
-                      child: GestureDetector(
-                        onTap: () {
-                          handleTap(index);
-                        },
-                        child: CommonCardContainer(
-                          height: 80,
-                          width: Get.width,
-                          padding: const EdgeInsets.all(10),
-                          child: Row(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text("Bill No. ${invoices["invoiceNumber"]!}", style: appTextStyle(fontSize: 16)),
-                                  Text(invoices["companyName"]!, style: appTextStyle(fontSize: 14)),
-                                ],
+                        return SlideTransition(
+                          position: animController.listSlideAnimation[index],
+                          child: FadeTransition(
+                            opacity: animController.listFadeAnimation[index],
+                            child: ScaleTransition(
+                              scale: animController.listAnimations[index],
+                              child: GestureDetector(
+                                onTap: () {
+                                  handleTap(index);
+                                  Get.to(() => InvoiceDetails(), arguments: {"invoiceId": invoices["id"]});
+                                },
+                                child: CommonCardContainer(
+                                  height: 80,
+                                  width: Get.width,
+                                  padding: const EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "Bill No. ${invoices["invoiceNumber"]!}",
+                                            style: appTextStyle(fontSize: 16),
+                                          ),
+                                          Text(invoices["companyName"]!, style: appTextStyle(fontSize: 14)),
+                                        ],
+                                      ),
+                                      const Spacer(),
+                                      Text(invoices["date"]!, style: appTextStyle(fontSize: 16)),
+                                      const SizedBox(width: 15),
+                                      Text(
+                                        invoiceListController.formatIndianCurrency(invoices["totalAmount"]!),
+                                        style: appTextStyle(fontSize: 16, color: amountColor),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      const Icon(Icons.chevron_right_rounded),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              const Spacer(),
-                              Text(invoices["date"]!, style: appTextStyle(fontSize: 16)),
-                              const SizedBox(width: 15),
-                              Text(invoiceListController.formatIndianCurrency(invoices["totalAmount"]!), style: appTextStyle(fontSize: 16, color: amountColor)),
-                              const SizedBox(width: 10),
-                              const Icon(Icons.chevron_right_rounded),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-        ),
+                ),
       );
     });
   }
