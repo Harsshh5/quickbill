@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quickbill/config/app_constants.dart';
 import 'package:quickbill/views/commons/card_container.dart';
 import 'package:quickbill/views/commons/page_header.dart';
 import 'package:quickbill/views/commons/text_style.dart';
@@ -11,6 +12,21 @@ class InvoiceDetails extends StatelessWidget {
   InvoiceDetails({super.key});
 
   final InvoiceDetailsController ctrl = Get.put(InvoiceDetailsController());
+
+  Widget _buildAmountRow(String label, dynamic amount) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Text(
+            "$label: ₹$amount",
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,13 +92,32 @@ class InvoiceDetails extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
+                            InkWell(
+                              onTap: () {
+                                ctrl.status.value = ctrl.status.value == "Paid" ? "Unpaid" : "Paid";
+                              },
+                              child: CommonCardContainer(
+                                height: 30,
+                                width: 80,
+                                alignment: Alignment.center,
+                                child: Text(
+                                  ctrl.status.value.capitalizeFirst!,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: ctrl.status.value == "Paid" ? Colors.green : Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Spacer(),
                             Text(
                               "Invoice #${ctrl.invoiceNo.value}",
                               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 5),
+
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [Text("${ctrl.createDate}", style: TextStyle(fontSize: 14))],
@@ -107,15 +142,15 @@ class InvoiceDetails extends StatelessWidget {
                                     child: Text("Item", style: TextStyle(fontWeight: FontWeight.bold)),
                                   ),
                                   SizedBox(
-                                    width: 100,
+                                    width: 80,
                                     child: Text("Quantity", style: TextStyle(fontWeight: FontWeight.bold)),
                                   ),
                                   SizedBox(
-                                    width: 100,
+                                    width: 80,
                                     child: Text("Rate", style: TextStyle(fontWeight: FontWeight.bold)),
                                   ),
                                   SizedBox(
-                                    width: 100,
+                                    width: 80,
                                     child: Text("Amount", style: TextStyle(fontWeight: FontWeight.bold)),
                                   ),
                                 ],
@@ -126,9 +161,9 @@ class InvoiceDetails extends StatelessWidget {
                                 return Row(
                                   children: [
                                     SizedBox(width: 100, child: Text("${item["designCategory"]}")),
-                                    SizedBox(width: 100, child: Text("${item["quantity"]}")),
-                                    SizedBox(width: 100, child: Text("${item["rate"]}")),
-                                    SizedBox(width: 100, child: Text("${item["amount"]}")),
+                                    SizedBox(width: 80, child: Text("${item["quantity"]}")),
+                                    SizedBox(width: 80, child: Text("${item["rate"]}.0")),
+                                    SizedBox(width: 80, child: Text("${item["amount"]}.0")),
                                   ],
                                 );
                               }),
@@ -138,22 +173,17 @@ class InvoiceDetails extends StatelessWidget {
 
                         const SizedBox(height: 20),
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(
-                              "Sub Total: ₹${ctrl.subTotal.value}",
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Final Total: ₹${ctrl.finalTotal.value}",
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                            ),
+                            _buildAmountRow("Sub Total", ctrl.subTotal.value),
+
+                            if (AppConstants.abbreviation == "AN") ...[
+                              _buildAmountRow("CGST", ctrl.cgst.value),
+                              _buildAmountRow("SGST", ctrl.sgst.value),
+                            ],
+
+                            _buildAmountRow("Final Total", ctrl.finalTotal.value),
                           ],
                         ),
 

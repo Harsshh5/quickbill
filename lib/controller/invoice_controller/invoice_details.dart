@@ -10,6 +10,8 @@ class InvoiceDetailsController extends GetxController{
   RxInt invoiceNo = 0.obs;
   RxInt subTotal = 0.obs;
   RxInt finalTotal = 0.obs;
+  RxDouble cgst = 0.0.obs;
+  RxDouble sgst = 0.0.obs;
   RxString clientName = "".obs;
   RxString companyName = "".obs;
   RxString contact = "".obs;
@@ -38,12 +40,14 @@ class InvoiceDetailsController extends GetxController{
   Future<void> getInvoiceDetails(String invoiceId) async {
     var res = await InvoiceDetailsModel().fetchInvoiceDetails(invoiceId);
 
-    // log(res.toString());
+    log(res.toString());
 
     if (res["success"] == true) {
       invoiceNo.value = int.tryParse(res["details"]["invoiceNumber"].toString()) ?? 0;
       subTotal.value = int.tryParse(res["details"]["amountDetails"]["subTotal"].toString()) ?? 0;
       finalTotal.value = int.tryParse(res["details"]["amountDetails"]["totalAmount"].toString()) ?? 0;
+      cgst.value = double.tryParse(res["details"]["amountDetails"]["cgst"].toString()) ?? 0.0;
+      sgst.value = double.tryParse(res["details"]["amountDetails"]["sgst"].toString()) ?? 0.0;
 
       clientName.value = res["details"]["clientId"]["clientName"]?.toString() ?? "";
       companyName.value = res["details"]["clientId"]["companyName"]?.toString() ?? "";

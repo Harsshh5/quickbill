@@ -111,21 +111,23 @@ class SetPassword extends StatelessWidget {
               ),
               Spacer(),
 
-              Skeletonizer(
-                enabled: checkPasswordController.isLoading.value,
-                child: CommonSubmit(
-                  data: "Continue",
-                  onTap: () {
-                    final businessId =
-                        checkPasswordController.selectedAccount.value;
-                    final pass = int.parse(
-                      checkPasswordController.pinController.text,
-                    );
+              Obx(() {
+                return Skeletonizer(
+                  enabled: checkPasswordController.isLoading.value,
+                  child: CommonSubmit(
+                    data: "Continue",
+                    onTap: () {
+                      final businessId =
+                          checkPasswordController.selectedAccount.value;
+                      final pass = int.parse(
+                        checkPasswordController.pinController.text,
+                      );
 
-                    checkPasswordController.verifyPassword(businessId, pass);
-                  },
-                ),
-              ),
+                      checkPasswordController.verifyPassword(businessId, pass);
+                    },
+                  ),
+                );
+              }),
             ],
           ),
         ),
