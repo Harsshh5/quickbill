@@ -40,8 +40,6 @@ class InvoiceDetailsController extends GetxController{
   Future<void> getInvoiceDetails(String invoiceId) async {
     var res = await InvoiceDetailsModel().fetchInvoiceDetails(invoiceId);
 
-    log(res.toString());
-
     if (res["success"] == true) {
       invoiceNo.value = int.tryParse(res["details"]["invoiceNumber"].toString()) ?? 0;
       subTotal.value = int.tryParse(res["details"]["amountDetails"]["subTotal"].toString()) ?? 0;

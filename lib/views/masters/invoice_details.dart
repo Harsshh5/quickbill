@@ -4,14 +4,18 @@ import 'package:quickbill/config/app_constants.dart';
 import 'package:quickbill/views/commons/card_container.dart';
 import 'package:quickbill/views/commons/page_header.dart';
 import 'package:quickbill/views/commons/text_style.dart';
+import 'package:quickbill/views/masters/preview_pdf.dart';
+import 'package:quickbill/views/pdfs/create_pdf.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../controller/invoice_controller/invoice_details.dart';
+import '../pdfs/download_pdf.dart';
 
 class InvoiceDetails extends StatelessWidget {
   InvoiceDetails({super.key});
 
   final InvoiceDetailsController ctrl = Get.put(InvoiceDetailsController());
+  final abb = AppConstants.abbreviation;
 
   Widget _buildAmountRow(String label, dynamic amount) {
     return Padding(
@@ -48,29 +52,43 @@ class InvoiceDetails extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CommonCardContainer(
-                    height: 60,
-                    width: Get.width / 4.8,
-                    alignment: Alignment.center,
-                    child: Text("Download", style: appTextStyle(fontSize: 14)),
+                  InkWell(
+                    splashColor: Colors.deepPurpleAccent.shade100,
+                    radius: 50,borderRadius: BorderRadius.circular(24),
+                    onTap: () {
+                      downloadPdf("$abb-Invoice-${ctrl.invoiceNo.value}");
+                    },
+                    child: CommonCardContainer(
+                      height: 60,
+                      width: Get.width / 3.5,
+                      alignment: Alignment.center,
+                      child: Text("Download\nPDF", textAlign: TextAlign.center, style: appTextStyle(fontSize: 14)),
+                    ),
                   ),
-                  CommonCardContainer(
-                    height: 60,
-                    width: Get.width / 4.8,
-                    alignment: Alignment.center,
-                    child: Text("Preview", style: appTextStyle(fontSize: 14)),
+                  InkWell(
+                    splashColor: Colors.deepPurpleAccent.shade100,
+                    radius: 50,borderRadius: BorderRadius.circular(24),
+                    onTap: () async {
+                      final pdfFile = await CreatePdf().createPdf();
+                      Get.to(() => PreviewPdf(pdfPath: pdfFile.path));
+                    },
+                    child: CommonCardContainer(
+                      height: 60,
+                      width: Get.width / 3.5,
+                      alignment: Alignment.center,
+                      child: Text("Preview\nPDF", textAlign: TextAlign.center, style: appTextStyle(fontSize: 14)),
+                    ),
                   ),
-                  CommonCardContainer(
-                    height: 60,
-                    width: Get.width / 4.8,
-                    alignment: Alignment.center,
-                    child: Text("Share", style: appTextStyle(fontSize: 14)),
-                  ),
-                  CommonCardContainer(
-                    height: 60,
-                    width: Get.width / 4.8,
-                    alignment: Alignment.center,
-                    child: Text("Edit", style: appTextStyle(fontSize: 14)),
+                  InkWell(
+                    splashColor: Colors.deepPurpleAccent.shade100,
+                    radius: 50,borderRadius: BorderRadius.circular(24),
+                    onTap: () {},
+                    child: CommonCardContainer(
+                      height: 60,
+                      width: Get.width / 3.5,
+                      alignment: Alignment.center,
+                      child: Text("Edit\nInvoice", textAlign: TextAlign.center, style: appTextStyle(fontSize: 14)),
+                    ),
                   ),
                 ],
               ),

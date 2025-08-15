@@ -19,7 +19,7 @@ class AppConstants {
 
     } else if(businessId == "4"){
       abbreviation = "LA";
-      businessName = "Lion Art Studio";
+      businessName = "The Lion Art Studio";
 
     }
   }
