@@ -104,7 +104,7 @@ class AddInvoiceController extends GetxController {
         'quantity': int.tryParse(card.totalDesigns.text) ?? 0,
         'rate': double.tryParse(card.rate.text) ?? 0.0,
         'amount': double.tryParse(card.amount.text) ?? 0.0,
-        'notes': '"${card.note.text}"',
+        'notes': card.note.text,
       });
     }
 

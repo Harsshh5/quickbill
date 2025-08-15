@@ -26,7 +26,7 @@ Future<void> downloadPdf(String fileName) async {
 
     await pdfFile.copy(filePath);
 
-    await showDownloadNotification(fileName);
+    await showDownloadNotification(fileName, filePath);
   } else {
     debugPrint("Storage permission denied");
   }

@@ -2,7 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../main.dart';
 
-Future<void> showDownloadNotification(String fileName) async {
+Future<void> showDownloadNotification(String fileName, String filePath) async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
   AndroidNotificationDetails(
     'download_channel',
@@ -21,5 +21,6 @@ Future<void> showDownloadNotification(String fileName) async {
     'Download Complete',
     '$fileName has been saved to Downloads folder.',
     platformChannelSpecifics,
+    payload: filePath,
   );
 }

@@ -4,6 +4,7 @@ import 'package:quickbill/config/app_colors.dart';
 import 'package:quickbill/views/passwords/enter_password.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:flutter/material.dart';
 
 SharedPreferences? pref;
@@ -17,7 +18,15 @@ Future<void> main() async {
 
   const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
 
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse response) {
+      final payload = response.payload;
+      if (payload != null && payload.isNotEmpty) {
+        OpenFilex.open(payload);
+      }
+    },
+  );
 
   pref = await SharedPreferences.getInstance();
 
