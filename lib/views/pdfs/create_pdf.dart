@@ -28,24 +28,27 @@ class CreatePdf {
 
     String address = "";
     String codes = "";
+    String contactDetails = "";
 
     if (AppConstants.abbreviation == "AN") {
       address = "406, 4th Floor, Midas Square, Parvatgam, Godadara Road, Surat - 395010";
       codes = "HSN CODE : 998821 | GST NO. 24ABNPR3829A1ZQ";
+      contactDetails = "+91 9825654790 | dhirajratnaparkhi15@gmail.com";
     } else if (AppConstants.abbreviation == "VB") {
       address = "132, Neminath Nagar, Parvat Patiya, Dumbhal, Surat - 395010";
       codes = "PAN : AAPPR0140R | UDHYAM-GJ-22-0212600";
+      contactDetails = "+91 9825654790 | dhirajratnaparkhi15@gmail.com";
     } else if (AppConstants.abbreviation == "ED") {
       address = "132, Neminath Nagar, Parvat Patiya, Dumbhal, Surat - 395010";
       codes = "PAN : AADHP0737L | UDHYAM-GJ-22-0212550";
+      contactDetails = "+91 9825654790 | dhirajratnaparkhi15@gmail.com";
     } else if (AppConstants.abbreviation == "LA") {
       address = "132, Neminath Nagar, Parvat Patiya, Dumbhal, Surat - 395010";
-      codes = "PAN : CEVPR3580M | UDHYAM-GJ-22-0213504";
+      codes = "HSN CODE : 998821 | GST NO. 24CEVPR3580M1ZL";
+      contactDetails = "+91 9016079197 | harshratnaparkhi19@gmail.com";
     }
 
-    final signatureImage = pw.MemoryImage(
-      (await rootBundle.load('assets/images/sign.png')).buffer.asUint8List(),
-    );
+    final signatureImage = pw.MemoryImage((await rootBundle.load('assets/images/sign.png')).buffer.asUint8List());
 
     final fontData = await rootBundle.load("assets/fonts/Quicksand-Regular.ttf");
     final fontData2 = await rootBundle.load("assets/fonts/Quicksand-Bold.ttf");
@@ -79,7 +82,7 @@ class CreatePdf {
                       pw.Text(address, textAlign: pw.TextAlign.end, style: pw.TextStyle(font: ttf, fontSize: 12)),
                       pw.SizedBox(height: 8),
                       pw.Text(
-                        "+91 9825654790 | dhirajratnaparkhi15@gmail.com",
+                        contactDetails,
                         textAlign: pw.TextAlign.end,
                         style: pw.TextStyle(font: ttf, fontSize: 10),
                       ),
@@ -87,7 +90,7 @@ class CreatePdf {
                   ),
                 ),
 
-                (AppConstants.abbreviation == "AN")
+                (AppConstants.abbreviation == "AN" || AppConstants.abbreviation == "LA")
                     ? pw.Column(
                       children: [
                         pw.Divider(),
@@ -152,6 +155,12 @@ class CreatePdf {
                 pw.Divider(),
 
                 ...ctrl.designList.map((item) {
+                  final double baseAmount = double.tryParse(item["amountBeforeDiscount"]?.toString() ?? "0") ?? 0.0;
+                  final double additional = double.tryParse(item["additionalCharges"]?.toString() ?? "0") ?? 0.0;
+                  final double discount = double.tryParse(item["discountValue"]?.toString() ?? "0") ?? 0.0;
+                  final double finalAmount = double.tryParse(item["amount"]?.toString() ?? "0") ?? 0.0;
+                  final bool isPercentage = (item["discountMode"] == "percentage");
+
                   return pw.Column(
                     children: [
                       pw.Row(
@@ -179,7 +188,45 @@ class CreatePdf {
 
                           pw.Expanded(flex: 1, child: pw.Text("${item["rate"]}.0", style: pw.TextStyle(font: ttf))),
 
-                          pw.Expanded(flex: 1, child: pw.Text("${item["amount"]}.0", style: pw.TextStyle(font: ttf))),
+                          pw.Expanded(
+                            flex: 1,
+                            child: pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.end, // Aligns text to the right
+                              children: [
+
+                                // Base Amount
+                                pw.Text(
+                                  baseAmount.toStringAsFixed(2),
+                                  style: pw.TextStyle(font: ttf, fontSize: 10),
+                                ),
+
+                                // Additional Charges (Only show if > 0)
+                                if (additional > 0)
+                                  pw.Text(
+                                    "₹ + ${additional.toStringAsFixed(2)}",
+                                    style: pw.TextStyle(font: ttf, fontSize: 10, color: PdfColors.grey700),
+                                  ),
+
+                                // Discount (Only show if > 0)
+                                if (discount > 0)
+                                  pw.Text(
+                                    "${isPercentage ? '%' : '₹'} - ${discount.toStringAsFixed(2)}",
+                                    style: pw.TextStyle(font: ttf, fontSize: 10, color: PdfColors.grey700),
+                                  ),
+
+                                // Final Total (Only show if logic was applied)
+                                if (additional > 0 || discount > 0) ...[
+                                  pw.SizedBox(height: 2),
+                                  pw.Divider(height: 1, thickness: 0.5), // Adds a calculation line
+                                  pw.SizedBox(height: 2),
+                                  pw.Text(
+                                    finalAmount.toStringAsFixed(2),
+                                    style: pw.TextStyle(font: ttf, fontSize: 10, fontWeight: pw.FontWeight.bold),
+                                  ),
+                                ]
+                              ],
+                            ),
+                          )
                         ],
                       ),
                       pw.Divider(color: PdfColors.grey),
@@ -193,10 +240,21 @@ class CreatePdf {
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
                     _pdfAmountRow(ttf, "Sub Total", ctrl.subTotal.value),
-                    if (AppConstants.abbreviation == "AN") ...[
-                      _pdfAmountRow(ttf, "CGST ( 2.5% )", ctrl.cgst.value),
-                      _pdfAmountRow(ttf, "SGST ( 2.5% )", ctrl.sgst.value),
+
+                    // Check if abbreviation matches either condition
+                    if (AppConstants.abbreviation == "AN" || AppConstants.abbreviation == "LA") ...[
+                      _pdfAmountRow(
+                          ttf,
+                          "CGST ( ${AppConstants.abbreviation == "AN" ? "2.5%" : "9%"} )",
+                          ctrl.cgst.value
+                      ),
+                      _pdfAmountRow(
+                          ttf,
+                          "SGST ( ${AppConstants.abbreviation == "AN" ? "2.5%" : "9%"} )",
+                          ctrl.sgst.value
+                      ),
                     ],
+
                     _pdfAmountRow(ttf2, "Final Total", ctrl.finalTotal.value),
                     pw.SizedBox(height: 10),
                     pw.Text("[ ${converter.convertAmountToWords(ctrl.finalTotal.value.toDouble())} Only ]"),
@@ -221,7 +279,17 @@ class CreatePdf {
                             pw.Text("Parvat Patiya, Surat-10", style: pw.TextStyle(font: ttf, fontSize: 12)),
                           ],
                         )
-                        : pw.SizedBox(),
+                        : pw.Column(
+                      mainAxisAlignment: pw.MainAxisAlignment.start,
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text("Bank Details for NEFT & RTGS", style: pw.TextStyle(font: ttf2, fontSize: 14)),
+                        pw.Text("Acc. No. 00111021001747", style: pw.TextStyle(font: ttf, fontSize: 12)),
+                        pw.Text("IFSC: SUTB0248011", style: pw.TextStyle(font: ttf, fontSize: 12)),
+                        pw.Text("THE SUTEX CO-OP BANK LTD", style: pw.TextStyle(font: ttf2, fontSize: 12)),
+                        pw.Text("Parvat Patiya, Surat-10", style: pw.TextStyle(font: ttf, fontSize: 12)),
+                      ],
+                    ),
                     pw.Spacer(),
                     pw.Column(
                       mainAxisAlignment: pw.MainAxisAlignment.start,
@@ -229,11 +297,7 @@ class CreatePdf {
                       children: [
                         pw.Text("For, ${AppConstants.businessName}", style: pw.TextStyle(font: ttf2, fontSize: 12)),
                         pw.SizedBox(height: 5),
-                        pw.Image(
-                          signatureImage,
-                          height: 40,
-                          fit: pw.BoxFit.contain,
-                        ),
+                        pw.Image(signatureImage, height: 40, fit: pw.BoxFit.contain),
                         pw.Text("Proprietor", style: pw.TextStyle(font: ttf, fontSize: 12)),
                       ],
                     ),

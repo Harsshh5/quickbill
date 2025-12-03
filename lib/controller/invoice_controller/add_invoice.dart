@@ -1,12 +1,11 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quickbill/config/app_constants.dart';
 import 'package:quickbill/controller/invoice_controller/invoice_count.dart';
-import 'package:quickbill/model/invoice_model/add_invoice.dart';
-import 'package:quickbill/views/commons/snackbar.dart';
 
+import '../../model/invoice_model/add_invoice.dart';
+import '../../views/commons/snackbar.dart';
 import '../../views/masters/invoice_details.dart';
 
 class DesignCardData {
@@ -14,7 +13,11 @@ class DesignCardData {
   final TextEditingController totalDesigns = TextEditingController();
   final TextEditingController rate = TextEditingController();
   final TextEditingController amount = TextEditingController();
+  final TextEditingController additionalAMT = TextEditingController();
   final TextEditingController note = TextEditingController();
+  final TextEditingController discountController = TextEditingController();
+
+  RxString discountType = "percentage".obs;
 }
 
 class AddInvoiceController extends GetxController {
@@ -24,8 +27,12 @@ class AddInvoiceController extends GetxController {
   var designCardList = <DesignCardData>[DesignCardData()].obs;
   final ScrollController scrollController = ScrollController();
 
+  final PageController pageController = PageController();
+
   final TextEditingController company = TextEditingController();
   final TextEditingController clientId = TextEditingController();
+
+  RxInt currentCardIndex = 0.obs;
 
   final categoryList = ["Pallu", "SP. Allover", "Dupatta", "Neck / Panel", "Colors", "All Over Designs"];
 
@@ -41,10 +48,29 @@ class AddInvoiceController extends GetxController {
   RxDouble finalTotal = 0.0.obs;
 
   void calculateAmount(DesignCardData data) {
-    final total = double.tryParse(data.totalDesigns.text) ?? 0;
+    final qty = double.tryParse(data.totalDesigns.text) ?? 0;
     final rate = double.tryParse(data.rate.text) ?? 0;
-    final result = total * rate;
-    data.amount.text = result.toStringAsFixed(2);
+    final discountVal = double.tryParse(data.discountController.text) ?? 0;
+    final additionalAmt = double.tryParse(data.additionalAMT.text) ?? 0;
+
+
+    double baseAmount = qty * rate;
+    double finalAmount = 0.0;
+
+    if (data.discountType.value == "percentage") {
+      double discountAmount = (baseAmount * discountVal) / 100;
+      finalAmount = baseAmount - discountAmount;
+    } else {
+      finalAmount = baseAmount - discountVal;
+    }
+
+    if(data.additionalAMT.text.isNotEmpty) {
+      finalAmount += additionalAmt;
+    }
+
+    if (finalAmount < 0) finalAmount = 0;
+
+    data.amount.text = finalAmount.toStringAsFixed(2);
     calculateTotals();
   }
 
@@ -59,19 +85,15 @@ class AddInvoiceController extends GetxController {
     if (AppConstants.abbreviation == "AN") {
       cgst.value = subtotal.value * 0.025;
       sgst.value = subtotal.value * 0.025;
+    } else if(AppConstants.abbreviation == "LA"){
+      cgst.value = subtotal.value * 0.09;
+      sgst.value = subtotal.value * 0.09;
     }
     finalTotal.value = subtotal.value + cgst.value + sgst.value;
   }
 
   void addDesignCard() {
     designCardList.add(DesignCardData());
-    Future.delayed(const Duration(milliseconds: 300), () {
-      scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeOut,
-      );
-    });
   }
 
   void removeDesignCard(int index) {
@@ -89,6 +111,8 @@ class AddInvoiceController extends GetxController {
       card.rate.dispose();
       card.amount.dispose();
       card.note.dispose();
+      card.discountController.dispose();
+      card.additionalAMT.dispose();
     }
     company.dispose();
     clientId.dispose();
@@ -103,6 +127,9 @@ class AddInvoiceController extends GetxController {
         "designCategory": "${card.category}",
         'quantity': int.tryParse(card.totalDesigns.text) ?? 0,
         'rate': double.tryParse(card.rate.text) ?? 0.0,
+        'discountValue': double.tryParse(card.discountController.text) ?? 0.0,
+        'discountMode': card.discountType.value,
+        'additionalCharges':double.tryParse(card.additionalAMT.text) ?? 0.0,
         'amount': double.tryParse(card.amount.text) ?? 0.0,
         'notes': card.note.text,
       });
@@ -118,12 +145,10 @@ class AddInvoiceController extends GetxController {
         clientId: clientId.text,
         designDetails: createDesignDetailsList(),
         subTotal: subtotal.value.toDouble(),
-        cgst: AppConstants.abbreviation == "AN" ? cgst.value.toDouble() : null,
-        sgst: AppConstants.abbreviation == "AN" ? sgst.value.toDouble() : null,
-        totalAmount: finalTotal.value.toDouble(),
+        cgst: (AppConstants.abbreviation == "AN") || (AppConstants.abbreviation == "LA") ? cgst.value.toDouble() : null,
+        sgst: (AppConstants.abbreviation == "AN") || (AppConstants.abbreviation == "LA") ? sgst.value.toDouble() : null,
+        totalAmount: finalTotal.value.toDouble().ceilToDouble(),
       );
-
-      log("Response from API: $res");
 
       if (res["success"] == true) {
         AppSnackBar.show(message: "Invoice Created Successfully");
