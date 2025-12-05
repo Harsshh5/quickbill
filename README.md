@@ -48,7 +48,7 @@ QuickBill is a personalized solution tailored for:
 
 | Dashboard | Create Invoice | PDF Preview | Client List |
 |:---:|:---:|:---:|:---:|
-| <img src="assets/dashboard.png" width="200"> | <img src="assets/create_invoice.png" width="200"> | <img src="assets/pdf_preview.png" width="200"> | <img src="assets/clients.png" width="200"> |
+| <img src="assets/images/dashboard.png" width="200"> | <img src="assets/images/create invoice.png" width="200"> | <img src="assets/images/pdf_preview.png" width="200"> | <img src="assets/images/clients.png" width="200"> |
 
 
 ---
