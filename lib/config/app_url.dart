@@ -22,4 +22,9 @@ class AppUrl {
   static String get invTotal => "$mainUrl/invoice/$firmAbb/total";
   static String get invDetails => "$mainUrl/invoice/$firmAbb/details";
   static String get invLatestNumber => "$mainUrl/invoice/$firmAbb/latestNumber";
+
+  // cheques
+  static const String registerCheque = "$mainUrl/cheque/register";
+  static const String displayCheques = "$mainUrl/cheque/display";
+
 }

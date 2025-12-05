@@ -22,7 +22,7 @@ class InvoiceListController extends GetxController {
       final format = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 1);
       return format.format(number);
     } catch (e) {
-      return "₹0.00"; // fallback if parsing fails
+      return "₹0.00";
     }
   }
 

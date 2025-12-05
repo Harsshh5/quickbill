@@ -4,13 +4,15 @@ import 'package:intl/intl.dart';
 import 'package:quickbill/views/commons/card_container.dart';
 import 'package:quickbill/views/commons/card_text_field.dart';
 import 'package:quickbill/views/commons/gradient.dart';
-import 'package:quickbill/views/commons/submit_button.dart';
+import 'package:quickbill/views/masters/add_cheque.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../config/app_colors.dart';
 import '../../controller/home_widget_animations/list_animation_controller.dart';
 import '../../controller/invoice_controller/invoice_list.dart';
 import '../commons/page_header.dart';
 import '../commons/text_style.dart';
+import 'cheque_list.dart';
 
 class Payments extends StatefulWidget {
   const Payments({super.key});
@@ -20,7 +22,10 @@ class Payments extends StatefulWidget {
 }
 
 class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
+  late ListAnimationControllerHelper animController;
+  late int invoiceCount;
 
+  final InvoiceListController invoiceListController = Get.put(InvoiceListController());
 
   late AnimationController calendarController;
   late Animation<double> calendarAnimation;
@@ -29,26 +34,26 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
 
   DateTimeRange? selectedDateRange;
 
-  bool isSelectionMode = false;
-  late final ListAnimationControllerHelper animController;
-  final InvoiceListController invoiceListController = Get.put(InvoiceListController());
-
   @override
   void initState() {
     super.initState();
 
-    animController = ListAnimationControllerHelper(vsync: this,itemCount: 10);
+    invoiceCount = Get.arguments != null ? (Get.arguments["invoiceCount"] ?? 0) : 0;
+
+    animController = ListAnimationControllerHelper(vsync: this, itemCount: invoiceCount);
 
     tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
       if (tabController.indexIsChanging) return;
-      setState(() {});
+      setState(() {
+        // Todo: Add logic here to filter the list based on Tab Index (0 or 1)
+        // invoiceListController.filterByStatus(tabController.index == 0 ? 'pending' : 'received');
+      });
     });
-
 
     calendarController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 150),
       lowerBound: 0.92,
       upperBound: 1.0,
     );
@@ -65,231 +70,293 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
   void dispose() {
     tabController.dispose();
     calendarController.dispose();
+    animController.dispose();
     super.dispose();
-  }
-
-  void handleTap(int index) async {
-    await animController.listControllers[index].forward();
-    await animController.listControllers[index].reverse();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          SafeArea(
-            child: Padding(
-              padding: EdgeInsets.only(top: 10, left: 10, right: 10),
-              child: Column(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+          child: Column(
+            children: [
+              // Page Header
+              CommonPageHeader(
+                mainHeading: "Payments",
+                subHeading: "All Payments",
+                onTap: () => Get.back(),
+                icon: Icons.chevron_left_rounded,
+              ),
+
+              const SizedBox(height: 20),
+
+              // Search and calender row
+              Row(
                 children: [
-                  CommonPageHeader(
-                    mainHeading: "Payments",
-                    subHeading: "All Payments",
-                    onTap: () => Get.back(),
-                    icon: Icons.chevron_left_rounded,
+                  Expanded(
+                    child: CommonTextField(
+                      hintText: "Search",
+                      suffixIcon: const Icon(Icons.search, color: Colors.black),
+                    ),
                   ),
+                  const SizedBox(width: 15),
 
-                  const SizedBox(height: 20),
+                  ScaleTransition(
+                    scale: calendarAnimation,
+                    child: GestureDetector(
+                      onTap: () async {
+                        await calendarController.reverse();
+                        await calendarController.forward();
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CommonTextField(
-                          hintText: "Search",
-                          suffixIcon: Icon(Icons.search, color: Colors.black),
-                        ),
-                      ),
-                      SizedBox(width: 15),
+                        if (!context.mounted) return;
 
-                      ScaleTransition(
-                        scale: calendarAnimation,
-                        child: GestureDetector(
-                          onTap: () async {
-                            await calendarController.reverse();
-                            await calendarController.forward();
-
-                            DateTimeRange? picked = await showDateRangePicker(
-                              currentDate: DateTime.now(),
-                              // ignore: use_build_context_synchronously
-                              context: context,
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
-                              initialDateRange: selectedDateRange,
-                              builder: (context, child) {
-                                return Theme(
-                                  data: Theme.of(context).copyWith(
-                                    colorScheme: ColorScheme.light(
-                                      primary: AppColors.dark,
-                                      onPrimary: Colors.white,
-                                      secondary: AppColors.medium,
-                                    ),
-                                    textButtonTheme: TextButtonThemeData(
-                                      style: TextButton.styleFrom(
-                                        foregroundColor: AppColors.dark,
-                                      ),
-                                    ),
-                                  ),
-                                  child: child!,
-                                );
-                              },
+                        DateTimeRange? picked = await showDateRangePicker(
+                          currentDate: DateTime.now(),
+                          context: context,
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                          initialDateRange: selectedDateRange,
+                          builder: (context, child) {
+                            return Theme(
+                              data: Theme.of(context).copyWith(
+                                colorScheme: ColorScheme.light(
+                                  primary: AppColors.dark,
+                                  onPrimary: Colors.white,
+                                  secondary: AppColors.medium,
+                                ),
+                                textButtonTheme: TextButtonThemeData(
+                                  style: TextButton.styleFrom(foregroundColor: AppColors.dark),
+                                ),
+                              ),
+                              child: child!,
                             );
-
-                            if (!context.mounted) return;
-
-                            if (picked != null) {
-                              setState(() {
-                                selectedDateRange = picked;
-                              });
-                            }
-
-                            if (picked != null) {
-                              setState(() {
-                                selectedDateRange = picked;
-                              });
-                            }
                           },
-                          child: CommonIconCardContainer(
-                            width: 50,
-                            height: 50,
-                            child: Icon(
-                              Icons.calendar_month_rounded,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
+                        );
+
+                        if (picked != null) {
+                          setState(() {
+                            selectedDateRange = picked;
+                          });
+                        }
+                      },
+                      child: const CommonIconCardContainer(
+                        width: 50,
+                        height: 50,
+                        child: Icon(Icons.calendar_month_rounded, color: Colors.black),
                       ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  Card(
-                    elevation: 5,
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: TabBar(
-                      controller: tabController,
-                      tabs: const [Tab(text: 'Pending'), Tab(text: 'Received')],
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      indicatorPadding: EdgeInsets.all(5),
-                      splashBorderRadius: BorderRadius.circular(18),
-                      dividerColor: Colors.transparent,
-                      indicatorAnimation: TabIndicatorAnimation.elastic,
-                      labelStyle: appTextStyle(color: Colors.white, fontSize: 16),
-                      unselectedLabelStyle: appTextStyle(fontSize: 16),
-                      indicator: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        gradient: appGradient1
-                      ),
-
                     ),
                   ),
-
-                  const SizedBox(height: 20),
-
-                  if (selectedDateRange != null)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "${DateFormat('dd MMM yyyy').format(selectedDateRange!.start)}"
-                          " - "
-                          "${DateFormat('dd MMM yyyy').format(selectedDateRange!.end)}",
-                          style: appTextStyle(),
-                        ),
-                        SizedBox(width: 10),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedDateRange = null;
-                            });
-                          },
-                          child: Icon(Icons.close, color: Colors.red),
-                        ),
-                      ],
-                    ),
-
-                  invoicesList( ),
                 ],
               ),
-            ),
-          ),
 
-          if (isSelectionMode)
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: CommonSubmit(data: 'Submit', onTap: () {
-                    // Perform action on selected items
-                  }),
+              const SizedBox(height: 20),
+
+              // Total Amount Sum
+              Row(
+                children: [
+                  Expanded(
+                    child: CommonCardContainer(
+                      height: 150,
+                      width: Get.width,
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text("₹ 0", style: appTextStyle(fontSize: 24, color: AppColors.dark)),
+                          Text("Total Amount", style: appTextStyle()),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+
+              // Cheque options
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(() => AddCheque(), arguments: {"tag": "add_cheque"}, transition: Transition.fadeIn);
+                    },
+                    child: CommonCardContainer(
+                      height: 65,
+                      width: Get.width / 2.2,
+                      alignment: Alignment.center,
+                      child: Text("Add Cheque", style: appTextStyle(fontSize: 15)),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(() => ChequeList(), transition: Transition.fadeIn);
+                    },
+                    child: CommonCardContainer(
+                      height: 65,
+                      width: Get.width / 2.2,
+                      alignment: Alignment.center,
+                      child: Text("Cheque List", style: appTextStyle(fontSize: 15)),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // Tab bar header
+              Card(
+                elevation: 5,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                child: TabBar(
+                  controller: tabController,
+                  tabs: const [Tab(text: 'Pending'), Tab(text: 'Received')],
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicatorPadding: const EdgeInsets.all(5),
+                  splashBorderRadius: BorderRadius.circular(18),
+                  dividerColor: Colors.transparent,
+                  indicatorAnimation: TabIndicatorAnimation.elastic,
+                  labelStyle: appTextStyle(color: Colors.white, fontSize: 16),
+                  unselectedLabelStyle: appTextStyle(fontSize: 16),
+                  indicator: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: appGradient1),
                 ),
-              ],
-            ),
-        ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // Selected date range
+              if (selectedDateRange != null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "${DateFormat('dd MMM yyyy').format(selectedDateRange!.start)}"
+                      " - "
+                      "${DateFormat('dd MMM yyyy').format(selectedDateRange!.end)}",
+                      style: appTextStyle(),
+                    ),
+                    const SizedBox(width: 10),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedDateRange = null;
+                        });
+                      },
+                      child: const Icon(Icons.close, color: Colors.red),
+                    ),
+                  ],
+                ),
+
+              // Invoice List
+              invoicesList(),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   Widget invoicesList() {
     return Expanded(
-      child: RefreshIndicator(
-        backgroundColor: Colors.white,
-        color: AppColors.dark,
-        onRefresh: () {
-          return Future(() {});
-        },
-        child: ListView.builder(
-          itemCount: invoiceListController.filteredList.length,
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            var invoices = invoiceListController.filteredList[index];
-            var amountColor = (invoices["status"] == "paid") ? Colors.green : Colors.red;
+      child:
+          invoiceListController.filteredList.isEmpty
+              ? Center(child: Text("No Invoices Found", style: appTextStyle(color: Colors.grey)))
+              : RefreshIndicator(
+                backgroundColor: Colors.white,
+                color: AppColors.dark,
+                onRefresh: () {
+                  return invoiceListController.getInvoiceList();
+                },
+                child: Obx(() {
+                  return Skeletonizer(
+                    enabled: invoiceListController.isLoading.value,
+                    child: ListView.builder(
+                      itemCount: invoiceListController.filteredList.length,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        var invoices = invoiceListController.filteredList[index];
+                        var amountColor = (invoices["status"] == "paid") ? Colors.green : Colors.red;
 
-            return SlideTransition(
-              position: animController.listSlideAnimation[index],
-              child: FadeTransition(
-                opacity: animController.listFadeAnimation[index],
-                child: ScaleTransition(
-                  scale: animController.listAnimations[index],
-                  child: GestureDetector(
-                    onTap: () {
-                      handleTap(index);
-                    },
-                    child: CommonCardContainer(
-                      height: 80,
-                      width: Get.width,
-                      padding: const EdgeInsets.all(10),
-                      child: Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(invoices["invoiceNumber"]!, style: appTextStyle(fontSize: 16)),
-                              Text(invoices["companyName"]!, style: appTextStyle(fontSize: 14)),
-                            ],
+                        if (index >= animController.listAnimations.length) {
+                          return GestureDetector(
+                            child: CommonCardContainer(
+                              height: 80,
+                              width: Get.width,
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text("Bill No. ${invoices["invoiceNumber"]!}", style: appTextStyle(fontSize: 16)),
+                                      Text(invoices["companyName"]!, style: appTextStyle(fontSize: 14)),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  Text(invoices["date"]!, style: appTextStyle(fontSize: 16)),
+                                  const SizedBox(width: 15),
+                                  Text(
+                                    invoiceListController.formatIndianCurrency(invoices["totalAmount"]!),
+                                    style: appTextStyle(fontSize: 16, color: amountColor),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Icon(Icons.chevron_right_rounded),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+
+                        return SlideTransition(
+                          position: animController.listSlideAnimation[index],
+                          child: FadeTransition(
+                            opacity: animController.listFadeAnimation[index],
+                            child: ScaleTransition(
+                              scale: animController.listAnimations[index],
+                              child: GestureDetector(
+                                child: CommonCardContainer(
+                                  height: 80,
+                                  width: Get.width,
+                                  padding: const EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "Bill No. ${invoices["invoiceNumber"]!}",
+                                            style: appTextStyle(fontSize: 16),
+                                          ),
+                                          Text(invoices["companyName"]!, style: appTextStyle(fontSize: 14)),
+                                        ],
+                                      ),
+                                      const Spacer(),
+                                      Text(invoices["date"]!, style: appTextStyle(fontSize: 16)),
+                                      const SizedBox(width: 15),
+                                      Text(
+                                        invoiceListController.formatIndianCurrency(invoices["totalAmount"]!),
+                                        style: appTextStyle(fontSize: 16, color: amountColor),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      const Icon(Icons.chevron_right_rounded),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                          const Spacer(),
-                          Text(invoices["date"]!, style: appTextStyle(fontSize: 16)),
-                          const SizedBox(width: 15),
-                          Text(invoices["totalAmount"]!, style: appTextStyle(fontSize: 16, color: amountColor)),
-                          const SizedBox(width: 10),
-                          const Icon(Icons.chevron_right_rounded),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  ),
-                ),
+                  );
+                }),
               ),
-            );
-          },
-        ),
-      ),
     );
   }
 }
