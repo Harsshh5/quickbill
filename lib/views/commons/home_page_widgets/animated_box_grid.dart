@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quickbill/views/masters/cheque_list.dart';
 import '../../../config/app_colors.dart';
 import '../../../controller/home_widget_animations/box_grid_animation_controller.dart';
 import '../../../controller/invoice_controller/invoice_count.dart';
 import '../../masters/add_client.dart';
 import '../../masters/add_invoice.dart';
 import '../../masters/payments.dart';
-import '../../masters/stats.dart';
 import '../card_container.dart';
 import '../text_style.dart';
 
@@ -59,7 +59,7 @@ class AnimatedBoxGrid extends StatelessWidget {
                       Get.to(() => const Payments(), transition: Transition.fadeIn, arguments: {"invoiceCount" : invoiceCountController.count.value});
                       break;
                     case 3:
-                      Get.to(() => const Stats(), transition: Transition.fadeIn);
+                      Get.to(() => ChequeList(), transition: Transition.fadeIn);
                       break;
                   }
                 },

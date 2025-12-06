@@ -34,10 +34,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     Icons.note_add,
     Icons.person_add,
     Icons.currency_rupee_rounded,
-    Icons.bar_chart_rounded,
+    Icons.account_balance_rounded
   ];
 
-  final List<String> boxTexts = <String>["Invoice", "Client", "Payments", "Stats"];
+  final List<String> boxTexts = <String>["Invoice", "Client", "Payments", "Cheques"];
 
   String getGreeting() {
     final hour = DateTime.now().hour;
