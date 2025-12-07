@@ -78,21 +78,25 @@ class SetPassword extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
                     ),
-                    child: CommonDropDown(
-                      onSelected: (value) {
-                        checkPasswordController.selectedAccount.value =
-                            value.toString();
-                      },
-                      dropdownMenuEntries: accountList,
-                      width: Get.width * 0.9,
-                      initialSelection: checkPasswordController.selectedAccount.value,
-                    ),
+                    child: Obx(() {
+                      return CommonDropDown(
+                        isEnable: !checkPasswordController.isLoading.value,
+                        onSelected: (value) {
+                          checkPasswordController.selectedAccount.value =
+                              value.toString();
+                        },
+                        dropdownMenuEntries: accountList,
+                        width: Get.width * 0.9,
+                        initialSelection: checkPasswordController.selectedAccount.value,
+                      );
+                    })
                   ),
 
                   SizedBox(height: 30),
 
                   Obx(
                     () => CommonPinput(
+                      isEnabled: !checkPasswordController.isLoading.value,
                       forceErrorState: checkPasswordController.errorState.value,
                       errorText: checkPasswordController.pinErrorText.value,
                       controller: checkPasswordController.pinController,

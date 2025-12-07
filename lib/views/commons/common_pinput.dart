@@ -10,7 +10,16 @@ class CommonPinput extends StatelessWidget {
   final String? errorText;
   final void Function(String)? onCompleted;
   final bool forceErrorState;
-  const CommonPinput({super.key, this.controller, this.errorText, this.onCompleted, required this.forceErrorState});
+  final bool? isEnabled;
+
+  const CommonPinput({
+    super.key,
+    this.controller,
+    this.errorText,
+    this.onCompleted,
+    required this.forceErrorState,
+    this.isEnabled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +28,7 @@ class CommonPinput extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       keyboardType: TextInputType.number,
-      enabled: true,
+      enabled: isEnabled ?? true,
       autofocus: true,
       hapticFeedbackType: HapticFeedbackType.lightImpact,
       errorText: errorText,
@@ -37,9 +46,7 @@ class CommonPinput extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(color: AppColors.medium),
-          boxShadow: [
-            BoxShadow(color: AppColors.medium, blurRadius: 5),
-          ],
+          boxShadow: [BoxShadow(color: AppColors.medium, blurRadius: 5)],
         ),
       ),
 
@@ -51,9 +58,7 @@ class CommonPinput extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.medium),
-          boxShadow: [
-            BoxShadow(color: AppColors.medium, blurRadius: 5),
-          ],
+          boxShadow: [BoxShadow(color: AppColors.medium, blurRadius: 5)],
         ),
       ),
 
@@ -65,13 +70,7 @@ class CommonPinput extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(color: Colors.redAccent, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.redAccent,
-              blurRadius: 5,
-              blurStyle: BlurStyle.normal,
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.redAccent, blurRadius: 5, blurStyle: BlurStyle.normal)],
         ),
       ),
     );

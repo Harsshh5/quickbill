@@ -10,6 +10,7 @@ class CommonDropDown<T> extends StatelessWidget {
   final BorderSide? borderSideBorder;
   final BorderSide? borderSideEnable;
   final BorderSide? borderSideFocused;
+  final bool? isEnable;
 
   const CommonDropDown({
     super.key,
@@ -17,7 +18,11 @@ class CommonDropDown<T> extends StatelessWidget {
     this.width,
     this.initialSelection,
     this.hintText,
-    required this.dropdownMenuEntries, this.borderSideBorder, this.borderSideEnable, this.borderSideFocused,
+    required this.dropdownMenuEntries,
+    this.borderSideBorder,
+    this.borderSideEnable,
+    this.borderSideFocused,
+    this.isEnable,
   });
 
   @override
@@ -25,6 +30,7 @@ class CommonDropDown<T> extends StatelessWidget {
     return DropdownMenu<T>(
       onSelected: onSelected,
       initialSelection: initialSelection,
+      enabled: isEnable ?? true,
       inputDecorationTheme: InputDecorationTheme(
         hintStyle: TextStyle(color: Colors.grey),
         filled: true,
@@ -54,9 +60,7 @@ class CommonDropDown<T> extends StatelessWidget {
         backgroundColor: WidgetStateProperty.all(Colors.white),
         elevation: WidgetStateProperty.all(5),
         shadowColor: WidgetStateProperty.all(Colors.black26),
-        shape: WidgetStateProperty.all(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        ),
+        shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
       ),
     );
   }

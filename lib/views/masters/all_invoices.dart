@@ -105,7 +105,10 @@ class _AllInvoicesState extends State<AllInvoices> with TickerProviderStateMixin
                               child: GestureDetector(
                                 onTap: () {
                                   handleTap(index);
-                                  Get.to(() => InvoiceDetails(), arguments: {"invoiceId": invoices["id"]});
+                                  Get.to(
+                                    () => InvoiceDetails(),
+                                    arguments: {"invoiceId": invoices["id"], "invoiceCount": invoiceCount},
+                                  );
                                 },
                                 child: CommonCardContainer(
                                   height: 80,

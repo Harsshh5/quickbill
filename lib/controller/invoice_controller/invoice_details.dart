@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../model/invoice_model/invoice_details.dart';
@@ -6,6 +5,7 @@ import '../../model/invoice_model/invoice_details.dart';
 class InvoiceDetailsController extends GetxController {
   RxList<Map<String, String>> designList = <Map<String, String>>[].obs;
   RxInt invoiceNo = 0.obs;
+  RxString invId = "".obs;
 
   RxInt discountValue = 0.obs;
 
@@ -33,9 +33,9 @@ class InvoiceDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Ensure arguments exist before accessing
     if(Get.arguments != null && Get.arguments["invoiceId"] != null){
       final String invoiceId = Get.arguments["invoiceId"];
+      invId.value = Get.arguments["invoiceId"];
       getInvoiceDetails(invoiceId);
     }
   }
@@ -43,10 +43,8 @@ class InvoiceDetailsController extends GetxController {
   Future<void> getInvoiceDetails(String invoiceId) async {
     var res = await InvoiceDetailsModel().fetchInvoiceDetails(invoiceId);
 
-    log(res.toString());
-
     if (res["success"] == true) {
-      var details = res["details"]; // Helper variable to make code cleaner
+      var details = res["details"];
       var amountDetails = details["amountDetails"];
       var clientDetails = details["clientId"];
 
@@ -95,7 +93,6 @@ class InvoiceDetailsController extends GetxController {
         designList.clear();
       }
 
-      log("Parsed Design List: ${designList.toString()}");
     } else {
       designList.clear();
     }

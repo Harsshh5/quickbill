@@ -8,7 +8,8 @@ class CommonCardContainer extends StatelessWidget {
   final Gradient? gradient;
   final AlignmentGeometry? alignment;
   final EdgeInsetsGeometry? cardMargin;
-  const CommonCardContainer({super.key, this.width, this.height, this.child, this.padding, this.gradient, this.alignment, this.cardMargin});
+  final Color? color;
+  const CommonCardContainer({super.key, this.width, this.height, this.child, this.padding, this.gradient, this.alignment, this.cardMargin, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class CommonCardContainer extends StatelessWidget {
         padding: padding,
         alignment: alignment,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: color ?? Colors.white,
           borderRadius: BorderRadius.circular(22),
           gradient: gradient,
         ),

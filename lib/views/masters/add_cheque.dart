@@ -492,7 +492,7 @@ class AddCheque extends StatelessWidget {
       },
     );
   }
-  
+
 
   @override
   Widget build(BuildContext context) {
@@ -598,6 +598,7 @@ class AddCheque extends StatelessWidget {
                                   autofocus: false,
                                   maxLength: 6,
                                   hintText: "Cheque Number",
+                                  keyboardType: TextInputType.number,
                                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                   controller: (tag == "add_cheque") ? aCC.chqNo : eCC.chqNo,
                                   focusNode: (tag == "add_cheque") ? aCC.chqNoFocus : eCC.chqNoFocus,
