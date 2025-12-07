@@ -33,6 +33,7 @@ class AddInvoiceController extends GetxController {
   final TextEditingController clientId = TextEditingController();
 
   RxInt currentCardIndex = 0.obs;
+  var invoiceDate = DateTime.now().obs;
 
   final categoryList = ["Pallu", "SP. Allover", "Dupatta", "Neck / Panel", "Colors", "All Over Designs"];
 
@@ -41,6 +42,21 @@ class AddInvoiceController extends GetxController {
         .map((item) => DropdownMenuEntry(value: item, label: item))
         .toList();
   }
+
+
+  Future<void> selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: invoiceDate.value,
+      firstDate: DateTime(2025),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null && picked != invoiceDate.value) {
+      invoiceDate.value = picked;
+    }
+  }
+
 
   RxDouble subtotal = 0.0.obs;
   RxDouble cgst = 0.0.obs;
@@ -143,6 +159,7 @@ class AddInvoiceController extends GetxController {
     try {
       var res = await AddInvoiceModel().addNewInvoice(
         clientId: clientId.text,
+        invoiceDate: invoiceDate.value.toString(),
         designDetails: createDesignDetailsList(),
         subTotal: subtotal.value.toDouble(),
         cgst: (AppConstants.abbreviation == "AN") || (AppConstants.abbreviation == "LA") ? cgst.value.toDouble() : null,

@@ -9,6 +9,7 @@ class AddInvoiceModel {
 
   Future<Map<String, dynamic>> addNewInvoice({
     required String clientId,
+    required String invoiceDate,
     required List<Map<String, dynamic>> designDetails,
     required double subTotal,
     double? cgst,
@@ -21,20 +22,12 @@ class AddInvoiceModel {
       if (cgst != null) amountDetails["cgst"] = cgst;
       if (sgst != null) amountDetails["sgst"] = sgst;
 
-      // log(
-      //   "aaaaaaaaa" +
-      //       json.encode({
-      //         "clientId": clientId,
-      //         "designDetails": designDetails,
-      //         "amountDetails": amountDetails,
-      //         "status": "unpaid",
-      //       }),
-      // );
       var response = await http.post(
         Uri.parse(url),
         headers: headers,
         body: json.encode({
           "clientId": clientId,
+          "invoiceDate": invoiceDate,
           "designDetails": designDetails,
           "amountDetails": amountDetails,
           "status": "unpaid",

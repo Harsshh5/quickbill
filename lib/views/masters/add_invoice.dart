@@ -303,7 +303,6 @@ class AddInvoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate = DateFormat('d MMMM y').format(DateTime.now());
 
     return Scaffold(
       body: SafeArea(
@@ -325,7 +324,6 @@ class AddInvoice extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // --- COMPANY DETAILS SECTION ---
                         CommonCardContainer(
                           width: Get.width,
                           padding: const EdgeInsets.all(16),
@@ -343,13 +341,40 @@ class AddInvoice extends StatelessWidget {
                                   }),
                                 ],
                               ),
+                              const SizedBox(height: 10),
+
                               Row(
                                 children: [
                                   const CommonFromHeading(data: "Invoice Date"),
                                   const Spacer(),
-                                  CommonFromHeading(data: formattedDate),
+                                  InkWell(
+                                    onTap: () {
+                                      controller.selectDate(context);
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey.shade300),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.calendar_month, size: 16, color: Colors.grey),
+                                          const SizedBox(width: 5),
+                                          Obx(() {
+                                            // Formats date like "07-12-2025"
+                                            return CommonFromHeading(
+                                              data: DateFormat('dd-MM-yyyy').format(controller.invoiceDate.value),
+                                            );
+                                          }),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
+                              // --- MODIFIED DATE PART ENDS HERE ---
+
                               const SizedBox(height: 10),
                               const Divider(),
                               const SizedBox(height: 10),
