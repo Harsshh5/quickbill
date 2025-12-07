@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quickbill/views/commons/page_header.dart';
@@ -5,6 +7,8 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../config/app_colors.dart';
 import '../../controller/cheque_controller/cheques_list.dart';
+import '../../controller/cheque_controller/delete_cheque.dart';
+import '../../controller/cheque_controller/edit_cheque.dart';
 import '../commons/card_container.dart';
 import '../commons/card_text_field.dart';
 import '../commons/cheque_detail_dialogue.dart';
@@ -15,6 +19,8 @@ class ChequeList extends StatelessWidget {
   ChequeList({super.key});
 
   final ChequesListController cLC = Get.put(ChequesListController());
+  final EditChequeController eCC = Get.put(EditChequeController());
+  final DeleteChequeController dCC = Get.put(DeleteChequeController());
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +175,6 @@ class ChequeList extends StatelessWidget {
         Get.to(
           () => ChequeDetailDialog(
             cheque: cheque,
-            // --- DELETE LOGIC ---
             onDeletePressed: () {
               Get.defaultDialog(
                 radius: 22,
@@ -192,9 +197,7 @@ class ChequeList extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      // Call your controller to remove
-                      // chequeListController.removeCheque(chequeId);
-                      Get.back();
+                      dCC.removeCheque(chequeId);
                       Get.back();
                     },
                     child: const Text("Delete", style: TextStyle(color: Colors.red)),
@@ -203,12 +206,11 @@ class ChequeList extends StatelessWidget {
               );
             },
 
-            // --- EDIT LOGIC ---
             onEditPressed: () {
+              log(cheque.toString());
               Get.back();
 
-              // Populate your edit controller (Example)
-              // editChequeController.setEditableValues(cheque, chequeId);
+              eCC.setEditableValues(cheque, chequeId);
 
               Get.to(
                 () => AddCheque(),

@@ -331,8 +331,6 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
             controller.formatIndianCurrency(invoice["totalAmount"] ?? "0"),
             style: appTextStyle(fontSize: 16, color: amountColor),
           ),
-          const SizedBox(width: 10),
-          const Icon(Icons.chevron_right_rounded),
         ],
       ),
     );

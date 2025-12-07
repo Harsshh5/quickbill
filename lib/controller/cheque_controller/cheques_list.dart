@@ -55,13 +55,23 @@ class ChequesListController extends GetxController {
             billNosString = item["billNos"]?.toString() ?? "";
           }
 
-          String formattedDate = "";
+          String formattedChqDate = "";
           if (item["issueDate"] != null) {
             try {
               DateTime parsedDate = DateTime.parse(item["issueDate"]);
-              formattedDate = "${parsedDate.day}-${parsedDate.month}-${parsedDate.year}";
+              formattedChqDate = "${parsedDate.day}-${parsedDate.month}-${parsedDate.year}";
             } catch (e) {
-              formattedDate = item["issueDate"];
+              formattedChqDate = item["issueDate"];
+            }
+          }
+
+          String formattedClearDate = "";
+          if (item["issueDate"] != null) {
+            try {
+              DateTime parsedDate = DateTime.parse(item["clearanceDate"]);
+              formattedClearDate = "${parsedDate.day}-${parsedDate.month}-${parsedDate.year}";
+            } catch (e) {
+              formattedClearDate = item["clearanceDate"];
             }
           }
 
@@ -74,8 +84,8 @@ class ChequesListController extends GetxController {
             "amount": item["amount"]?.toString() ?? "0",
             "chequeNumber": item["chequeNumber"] ?? "",
             "billNos": billNosString,
-            "issueDate": formattedDate,
-            "clearanceDate": item["clearanceDate"] ?? "",
+            "issueDate": formattedChqDate,
+            "clearanceDate": formattedClearDate,
             "notes": item["notes"] ?? "",
           });
         }

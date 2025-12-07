@@ -119,11 +119,7 @@ class InvoiceDetails extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                InkWell(
-                                  onTap: () {
-                                    ctrl.status.value = ctrl.status.value == "Paid" ? "Unpaid" : "Paid";
-                                  },
-                                  child: CommonCardContainer(
+                                CommonCardContainer(
                                     height: 30,
                                     width: 80,
                                     alignment: Alignment.center,
@@ -131,12 +127,11 @@ class InvoiceDetails extends StatelessWidget {
                                       ctrl.status.value.capitalizeFirst!,
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: ctrl.status.value == "Paid" ? Colors.green : Colors.red,
+                                        color: ctrl.status.value == "paid" ? Colors.green : Colors.red,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
-                                ),
                                 const Spacer(),
                                 Text(
                                   "Invoice #${ctrl.invoiceNo.value}",

@@ -27,7 +27,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late final ListAnimationControllerHelper animController;
 
   final DrawerControllerX drawerController = Get.put(DrawerControllerX());
-
   final InvoiceListController invoiceListController = Get.put(InvoiceListController());
 
   final List<IconData> boxIcons = <IconData>[
@@ -59,6 +58,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!invoiceListController.isClosed) {
+        invoiceListController.setStatusFilter('');
+        invoiceListController.setDateRangeFilter(null);
+      }
+    });
     animController = ListAnimationControllerHelper(vsync: this, itemCount: 10);
   }
 

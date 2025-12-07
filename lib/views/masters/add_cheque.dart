@@ -88,7 +88,6 @@ class AddCheque extends StatelessWidget {
       return;
     }
 
-    // Proceed to API Call
     aCC.addCheque(
       bankName: bankName,
       clientId: aCC.clientId.text,
@@ -110,7 +109,7 @@ class AddCheque extends StatelessWidget {
     String chqDt = eCC.chqDt.text.trim();
     String clearDt = eCC.clearDt.text.trim();
     String billNo = eCC.billNo.text.trim();
-    // String notes = eCC.notes.text.trim();
+    String notes = eCC.notes.text.trim();
 
     eCC.bankError.value = '';
     eCC.clientError.value = '';
@@ -162,18 +161,16 @@ class AddCheque extends StatelessWidget {
       return;
     }
 
-    // Proceed to API Call
-    // eCC.updateCheque(
-    //   chequeId: eCC.chequeId,
-    //   bankName: bankName,
-    //   clientId: eCC.clientId.text,
-    //   amount: amount,
-    //   chequeNo: chqNo,
-    //   billNos: eCC.selectedBillIds,
-    //   issueDate: chqDt,
-    //   clearanceDate: clearDt,
-    //   notes: notes
-    // );
+    eCC.editCheque(
+      bankName: bankName,
+      amount: amount,
+      notes: notes,
+      clientName: clientName,
+      chqNo: chqNo,
+      chqDt: chqDt,
+      clearDt: clearDt,
+      billNo: eCC.selectedBillIds,
+    );
   }
 
   Future showCompanyList(String tag) {
@@ -318,7 +315,7 @@ class AddCheque extends StatelessWidget {
     );
   }
 
-  Future showInvoiceList(String tag) {
+  Future showInvoiceList(String tag) async {
     String selectedClientName = (tag == "add_cheque") ? aCC.clientName.text.trim() : eCC.clientName.text.trim();
 
     if (selectedClientName.isEmpty) {
@@ -326,23 +323,51 @@ class AddCheque extends StatelessWidget {
       return Future.value();
     }
 
+    if (!invoiceListController.isLoading.value) {
+      await invoiceListController.getInvoiceList();
+    }
+
     RxList<String> currentSelectionIds = (tag == "add_cheque") ? aCC.selectedBillIds : eCC.selectedBillIds;
     RxList<String> currentSelectionNumbers = (tag == "add_cheque") ? aCC.selectedBillNumbers : eCC.selectedBillNumbers;
-
     TextEditingController currentTextController = (tag == "add_cheque") ? aCC.billNo : eCC.billNo;
 
-    List<dynamic> clientSpecificInvoices =
-        invoiceListController.filteredList.where((invoice) {
-          String invoiceClient = invoice["companyName"]?.toString() ?? "";
-          bool isClientMatch = invoiceClient.toLowerCase() == selectedClientName.toLowerCase();
+    List<String> existingBills = [];
+    if (currentTextController.text.trim().isNotEmpty) {
+      existingBills = currentTextController.text.trim().split(',').map((e) => e.trim()).toList();
+    }
 
-          String status = invoice["status"]?.toString().toLowerCase() ?? "";
-          bool isUnpaid = status == "unpaid";
+    List<dynamic> clientSpecificInvoices = invoiceListController.filteredList.where((invoice) {
+      String invoiceClient = invoice["companyName"]?.toString() ?? "";
+      bool isClientMatch = invoiceClient.toLowerCase() == selectedClientName.toLowerCase();
 
-          return isClientMatch && isUnpaid;
-        }).toList();
+      String status = invoice["status"]?.toString().toLowerCase() ?? "";
+      String invoiceNo = invoice["invoiceNumber"].toString();
+
+      bool isUnpaid = status == "unpaid";
+      bool isCurrentlySelected = existingBills.contains(invoiceNo);
+
+      return isClientMatch && (isUnpaid || isCurrentlySelected);
+    }).toList();
 
     RxList<dynamic> filteredInvoices = RxList.from(clientSpecificInvoices);
+
+    currentSelectionIds.clear();
+    currentSelectionNumbers.clear();
+
+    if (existingBills.isNotEmpty) {
+      currentSelectionNumbers.assignAll(existingBills);
+
+      for (var invoice in clientSpecificInvoices) {
+        String invNo = invoice["invoiceNumber"].toString();
+        String invId = invoice["id"].toString();
+
+        if (existingBills.contains(invNo)) {
+          currentSelectionIds.add(invId);
+        }
+      }
+    } else {
+      filteredInvoices.assignAll(clientSpecificInvoices);
+    }
 
     return showModalBottomSheet(
       backgroundColor: Colors.white,
@@ -399,7 +424,7 @@ class AddCheque extends StatelessWidget {
                 child: Obx(() {
                   if (filteredInvoices.isEmpty) {
                     return Center(
-                      child: Text("No unpaid bills found for this client.", style: TextStyle(color: Colors.grey[600])),
+                      child: Text("No unpaid bills found.", style: TextStyle(color: Colors.grey[600])),
                     );
                   }
 
@@ -409,8 +434,6 @@ class AddCheque extends StatelessWidget {
                     physics: const AlwaysScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
                       final invoice = filteredInvoices[index];
-
-                      // 2. Extract both ID and Number
                       final String invoiceNo = invoice["invoiceNumber"].toString();
                       final String invoiceId = invoice["id"].toString();
 
@@ -469,6 +492,7 @@ class AddCheque extends StatelessWidget {
       },
     );
   }
+  
 
   @override
   Widget build(BuildContext context) {

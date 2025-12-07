@@ -26,5 +26,8 @@ class AppUrl {
   // cheques
   static const String registerCheque = "$mainUrl/cheque/register";
   static const String displayCheques = "$mainUrl/cheque/display";
+  static const String totalCheques = "$mainUrl/cheque/total";
+  static const String deleteCheque = "$mainUrl/cheque/delete";
+  static const String updateCheque = "$mainUrl/cheque/update";
 
 }

@@ -5,8 +5,11 @@ import 'package:get/get.dart';
 import 'package:quickbill/views/commons/snackbar.dart';
 
 import '../../model/cheques_model/add_cheque.dart';
+import 'cheques_list.dart';
 
 class AddChequeController extends GetxController {
+  final chequeListController = Get.find<ChequesListController>();
+
   RxList<String> selectedBillIds = <String>[].obs;
   RxList<String> selectedBillNumbers = <String>[].obs;
 
@@ -98,6 +101,7 @@ class AddChequeController extends GetxController {
 
       if (res["success"] == true) {
         AppSnackBar.show(message: "Cheque Added Successfully");
+        chequeListController.getChequeList();
 
         Get.back();
       } else if (res["success"] == false) {
