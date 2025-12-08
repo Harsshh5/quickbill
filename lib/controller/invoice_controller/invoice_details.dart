@@ -5,6 +5,7 @@ import '../../model/invoice_model/invoice_details.dart';
 class InvoiceDetailsController extends GetxController {
   RxList<Map<String, String>> designList = <Map<String, String>>[].obs;
   RxInt invoiceNo = 0.obs;
+  RxString invoiceDate = "".obs;
   RxString invId = "".obs;
 
   RxInt discountValue = 0.obs;
@@ -49,7 +50,7 @@ class InvoiceDetailsController extends GetxController {
       var clientDetails = details["clientId"];
 
       invoiceNo.value = int.tryParse(details["invoiceNumber"].toString()) ?? 0;
-
+      invoiceDate.value = formatDateToDMY(details["invoiceDate"].toString());
 
       subTotal.value = int.tryParse(amountDetails["subTotal"].toString()) ?? 0;
       finalTotal.value = int.tryParse(amountDetails["totalAmount"].toString()) ?? 0;

@@ -128,7 +128,7 @@ class _AllInvoicesState extends State<AllInvoices> with TickerProviderStateMixin
                                         ],
                                       ),
                                       const Spacer(),
-                                      Text(invoices["date"]!, style: appTextStyle(fontSize: 16)),
+                                      Text(invoices["invoiceDate"]!, style: appTextStyle(fontSize: 16)),
                                       const SizedBox(width: 15),
                                       Text(
                                         invoiceListController.formatIndianCurrency(invoices["totalAmount"]!),

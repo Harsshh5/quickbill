@@ -12,14 +12,14 @@ import '../../controller/invoice_controller/invoice_list.dart';
 import '../commons/page_header.dart';
 import '../commons/text_style.dart';
 
-class Payments extends StatefulWidget {
-  const Payments({super.key});
+class Analysis extends StatefulWidget {
+  const Analysis({super.key});
 
   @override
-  State<Payments> createState() => _PaymentsState();
+  State<Analysis> createState() => _AnalysisState();
 }
 
-class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
+class _AnalysisState extends State<Analysis> with TickerProviderStateMixin {
   final InvoiceListController controller = Get.put(InvoiceListController());
 
   late ListAnimationControllerHelper animController;
@@ -88,8 +88,8 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
             children: [
               // --- HEADER ---
               CommonPageHeader(
-                mainHeading: "Payments",
-                subHeading: "All Payments",
+                mainHeading: "Analysis",
+                subHeading: "Payment Analysis",
                 onTap: () => Get.back(),
                 icon: Icons.chevron_left_rounded,
               ),
@@ -175,7 +175,9 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
                               Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.dark),
                               const SizedBox(width: 8),
                               Text(
-                                "${DateFormat('dd MMM').format(controller.currentDateRange.value!.start)} - ${DateFormat('dd MMM').format(controller.currentDateRange.value!.end)}",
+                                "${DateFormat('dd MMM').format(
+                                    controller.currentDateRange.value!.start)} - ${DateFormat('dd MMM').format(
+                                    controller.currentDateRange.value!.end)}",
                                 style: appTextStyle(fontSize: 14),
                               ),
                               const SizedBox(width: 10),
@@ -325,7 +327,7 @@ class _PaymentsState extends State<Payments> with TickerProviderStateMixin {
             ],
           ),
           const Spacer(),
-          Text(invoice["date"] ?? "", style: appTextStyle(fontSize: 16)),
+          Text(invoice["invoiceDate"] ?? "", style: appTextStyle(fontSize: 16)),
           const SizedBox(width: 15),
           Text(
             controller.formatIndianCurrency(invoice["totalAmount"] ?? "0"),

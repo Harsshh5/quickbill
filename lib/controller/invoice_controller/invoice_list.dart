@@ -59,7 +59,7 @@ class InvoiceListController extends GetxController {
           item["invoiceNumber"]!.toLowerCase().contains(query.toLowerCase()) ||
               item["companyName"]!.toLowerCase().contains(query.toLowerCase()) ||
               item["totalAmount"]!.toLowerCase().contains(query.toLowerCase()) ||
-              item["date"]!.toLowerCase().contains(query.toLowerCase()),
+              item["invoiceDate"]!.toLowerCase().contains(query.toLowerCase()),
         ),
       );
     }
@@ -139,7 +139,6 @@ class InvoiceListController extends GetxController {
     isLoading.value = true;
     try {
       var res = await InvoiceListModel().fetchInvoices();
-
       if (res["success"] == true) {
         List<Map<String, String>> tempList = [];
         for (var item in res["invoices"]) {
@@ -148,6 +147,7 @@ class InvoiceListController extends GetxController {
             "companyName": item["clientId"]?["companyName"] ?? "",
             "totalAmount": item["amountDetails"]?["totalAmount"]?.toString() ?? "",
             "invoiceNumber": item["invoiceNumber"]?.toString() ?? "",
+            "invoiceDate": formatDateToDMY(item["invoiceDate"]),
             "status": item["status"] ?? "",
             "date": formatDateToDMY(item["createdAt"]),
           });

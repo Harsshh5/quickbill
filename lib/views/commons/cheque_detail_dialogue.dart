@@ -19,12 +19,27 @@ class ChequeDetailDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String chequeId = cheque["id"] ?? "0";
+    String mode = (cheque["payment_mode"] ?? "cheque").toString().toLowerCase();
+
+    // Determine Labels based on Mode
+    String refLabel = "Cheque Number";
+    IconData refIcon = Icons.credit_card;
+
+    if (mode == "online") {
+      refLabel = "Transaction ID";
+      refIcon = Icons.wifi_tethering;
+    } else if (mode == "cash") {
+      refLabel = "Payment Type";
+      refIcon = Icons.payments_outlined;
+    }
+
+    String dateLabel = (mode == "cash") ? "Received Date" : (mode == "online" ? "Transaction Date" : "Issue Date");
 
     return Scaffold(
       backgroundColor: Colors.black.withValues(alpha: 0.4),
       body: Center(
         child: Hero(
-          tag: 'cheque-$chequeId',
+          tag: 'cheque-$chequeId', // Tag matches the list item
           child: Material(
             type: MaterialType.transparency,
             child: CommonCardContainer(
@@ -33,148 +48,125 @@ class ChequeDetailDialog extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    // --- HEADER ---
                     Row(
                       children: [
-                        SelectableText(cheque["bankName"] ?? '', style: appTextStyle()),
-
-                        Spacer(),
-
+                        Expanded(
+                          child: SelectableText(
+                            cheque["bankName"] ?? 'Payment Details',
+                            style: appTextStyle(fontSize: 18),
+                          ),
+                        ),
                         IconButton(
-                          onPressed: () {
-                            Get.back();
-                          },
-                          icon: Icon(Icons.close),
+                          onPressed: () => Get.back(),
+                          icon: const Icon(Icons.close),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
                         ),
                       ],
                     ),
                     const Divider(),
                     const SizedBox(height: 10),
 
-                    Row(
-                      children: [
-                        const Icon(Icons.person, size: 20, color: Colors.blue),
-                        const SizedBox(width: 15),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Client",
-                              style: TextStyle(color: Colors.grey, fontSize: 13, fontStyle: FontStyle.italic),
-                            ),
-                            SelectableText(cheque["clientName"] ?? '-', style: TextStyle(fontSize: 16)),
-                          ],
-                        ),
-                      ],
+                    // --- CLIENT ---
+                    _buildDetailRow(
+                      icon: Icons.person,
+                      label: "Client",
+                      value: cheque["clientName"] ?? '-',
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
 
-                    Row(
-                      children: [
-                        const Icon(Icons.credit_card, size: 20, color: Colors.blue),
-                        const SizedBox(width: 15),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Cheque Number",
-                              style: TextStyle(color: Colors.grey, fontSize: 13, fontStyle: FontStyle.italic),
-                            ),
-                            SelectableText(cheque["chequeNumber"] ?? '-', style: TextStyle(fontSize: 16)),
-                          ],
-                        ),
-                      ],
+                    // --- REFERENCE (Chq No / Trans ID) ---
+                    _buildDetailRow(
+                      icon: refIcon,
+                      label: refLabel,
+                      value: cheque["chequeNumber"] ?? '-', // "chequeNumber" holds Ref ID from controller
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
 
-                    Row(
-                      children: [
-                        const Icon(Icons.currency_rupee_rounded, size: 20, color: Colors.blue),
-                        const SizedBox(width: 15),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Amount",
-                              style: TextStyle(color: Colors.grey, fontSize: 13, fontStyle: FontStyle.italic),
-                            ),
-                            SelectableText(cheque["amount"] ?? '-', style: TextStyle(fontSize: 16)),
-                          ],
-                        ),
-                      ],
+                    // --- AMOUNT ---
+                    _buildDetailRow(
+                      icon: Icons.currency_rupee_rounded,
+                      label: "Amount",
+                      value: cheque["amount"] ?? '-',
+                      valueColor: Colors.black,
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
 
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_month_rounded, size: 20, color: Colors.blue),
-                        const SizedBox(width: 15),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Date",
-                              style: TextStyle(color: Colors.grey, fontSize: 13, fontStyle: FontStyle.italic),
-                            ),
-                            SelectableText(cheque["issueDate"] ?? '-', style: TextStyle(fontSize: 16)),
-                          ],
-                        ),
-                      ],
+                    // --- DATE ---
+                    _buildDetailRow(
+                      icon: Icons.calendar_month_rounded,
+                      label: dateLabel,
+                      value: cheque["issueDate"] ?? '-',
                     ),
 
-                    const SizedBox(height: 10),
+                    // --- CLEARANCE DATE (Cheque Only) ---
+                    if (mode == "cheque" && (cheque["clearanceDate"] != null && cheque["clearanceDate"] != "")) ...[
+                      const SizedBox(height: 15),
+                      _buildDetailRow(
+                        icon: Icons.event_available,
+                        label: "Clearance Date",
+                        value: cheque["clearanceDate"] ?? '-',
+                      ),
+                    ],
 
-                    Row(
-                      children: [
-                        const Icon(Icons.receipt_long_rounded, size: 20, color: Colors.blue),
-                        const SizedBox(width: 15),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Bill Numbers",
-                              style: TextStyle(color: Colors.grey, fontSize: 13, fontStyle: FontStyle.italic),
-                            ),
-                            SelectableText(cheque["billNos"] ?? '-', style: TextStyle(fontSize: 16)),
-                          ],
-                        ),
-                      ],
+                    const SizedBox(height: 15),
+
+                    // --- BILL NUMBERS ---
+                    _buildDetailRow(
+                      icon: Icons.receipt_long_rounded,
+                      label: "Bill Numbers",
+                      value: cheque["billNos"] ?? '-',
                     ),
-                    const SizedBox(height: 10),
 
-                    (cheque["notes"] != "")
-                        ? SelectableText(
-                          "Notes : ${cheque["notes"]}",
-                          style: TextStyle(fontSize: 13, color: Colors.black, fontStyle: FontStyle.italic),
-                        )
-                        : SizedBox.shrink(),
+                    // --- CASH DENOMINATIONS (Cash Only) ---
+                    if (mode == "cash" && cheque["cashDenominations"] != null) ...[
+                      const SizedBox(height: 15),
+                      const Divider(height: 20),
+                      const Text("Denominations", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
+                      const SizedBox(height: 5),
+                      _buildDenominationList(cheque["cashDenominations"]),
+                    ],
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
 
-                    // Action Buttons
+                    // --- NOTES ---
+                    if (cheque["notes"] != null && cheque["notes"].toString().isNotEmpty) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: SelectableText(
+                          "Note: ${cheque["notes"]}",
+                          style: const TextStyle(fontSize: 13, color: Colors.black87, fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                    ],
+
+                    // --- ACTION BUTTONS ---
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         TextButton(
-                          style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.red.shade100)),
+                          style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.red.shade50)),
                           onPressed: onDeletePressed,
                           child: const Text("DELETE", style: TextStyle(color: Colors.red)),
                         ),
-
-                        SizedBox(width: 10),
-
+                        const SizedBox(width: 10),
                         TextButton(
-                          style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.purple.shade100)),
+                          style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.purple.shade50)),
                           onPressed: onEditPressed,
-                          child: const Text("EDIT"),
+                          child: const Text("EDIT", style: TextStyle(color: Colors.purple)),
                         ),
                       ],
                     ),
@@ -185,6 +177,79 @@ class ChequeDetailDialog extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  // Helper Widget to reduce code duplication
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    Color valueColor = Colors.black,
+    bool isBold = false,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: Colors.blue.shade700),
+        const SizedBox(width: 15),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(color: Colors.grey, fontSize: 12, fontStyle: FontStyle.italic),
+              ),
+              const SizedBox(height: 2),
+              SelectableText(
+                value,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: valueColor,
+                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Widget to display cash map neatly
+  Widget _buildDenominationList(dynamic denominations) {
+    if (denominations is! Map) return const SizedBox.shrink();
+
+    // Convert map to list of widgets
+    List<Widget> rows = [];
+    denominations.forEach((key, value) {
+      int amount = int.tryParse(key.toString()) ?? 0;
+      int count = int.tryParse(value.toString()) ?? 0;
+      int total = amount * count;
+
+      rows.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("$amount x $count", style: const TextStyle(fontSize: 14, color: Colors.black87)),
+              Text("=  ₹$total", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+            ],
+          ),
+        ),
+      );
+    });
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green.shade100),
+      ),
+      child: Column(children: rows),
     );
   }
 }

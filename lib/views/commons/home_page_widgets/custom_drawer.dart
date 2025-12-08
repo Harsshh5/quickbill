@@ -52,8 +52,6 @@ class CustomDrawer extends StatelessWidget {
 
             Divider(),
 
-            ListTile(title: Text("Change PIN"), leading: Icon(Icons.password)),
-            ListTile(title: Text("Change Theme"), leading: Icon(Icons.light_mode)),
             ListTile(
               title: Text("Logout"),
               leading: Icon(Icons.login),

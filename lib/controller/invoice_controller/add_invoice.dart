@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quickbill/config/app_constants.dart';
 import 'package:quickbill/controller/invoice_controller/invoice_count.dart';
+import 'package:quickbill/controller/invoice_controller/invoice_list.dart';
 
 import '../../model/invoice_model/add_invoice.dart';
 import '../../views/commons/snackbar.dart';
@@ -23,6 +24,8 @@ class DesignCardData {
 class AddInvoiceController extends GetxController {
 
   final InvoiceCountController invoiceCountController = Get.put(InvoiceCountController());
+  final InvoiceListController invoiceListController = Get.put(InvoiceListController());
+
 
   var designCardList = <DesignCardData>[DesignCardData()].obs;
   final ScrollController scrollController = ScrollController();
@@ -171,6 +174,7 @@ class AddInvoiceController extends GetxController {
         AppSnackBar.show(message: "Invoice Created Successfully");
 
         invoiceCountController.getInvoiceCount();
+        invoiceListController.getInvoiceList();
 
         var savedInvoiceId = res["data"]["invoice"]["_id"];
 

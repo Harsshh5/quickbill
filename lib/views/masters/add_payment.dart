@@ -3,12 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:quickbill/config/app_constants.dart';
-import 'package:quickbill/controller/cheque_controller/add_cheque.dart';
+import 'package:quickbill/controller/payment_controller/add_payment.dart';
 import 'package:quickbill/views/commons/card_container.dart';
+import 'package:quickbill/views/commons/drop_down.dart';
 import 'package:quickbill/views/commons/page_header.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-import '../../controller/cheque_controller/edit_cheque.dart';
+import '../../controller/payment_controller/edit_payment.dart';
 import '../../controller/client_controller/client_list.dart';
 import '../../controller/invoice_controller/invoice_list.dart';
 import '../commons/capitalize_text.dart';
@@ -16,41 +17,37 @@ import '../commons/card_text_field.dart';
 import '../commons/snackbar.dart';
 import '../commons/submit_button.dart';
 
-class AddCheque extends StatelessWidget {
-  AddCheque({super.key});
+class AddPayment extends StatelessWidget {
+  AddPayment({super.key});
 
   final String tag = Get.arguments["tag"];
 
-  final AddChequeController aCC = Get.put(AddChequeController());
-  final EditChequeController eCC = Get.put(EditChequeController());
+  final AddPaymentController aCC = Get.put(AddPaymentController());
+  final EditPaymentController eCC = Get.put(EditPaymentController());
   final ClientListController clientListController = Get.put(ClientListController());
   final InvoiceListController invoiceListController = Get.put(InvoiceListController());
 
   final String businessName = AppConstants.abbreviation;
 
   void _submitOnTap() {
-    String bankName = capitalizeEachWord(aCC.bankName.text.trim());
+    String mode = aCC.selectedMode.value;
     String clientName = capitalizeEachWord(aCC.clientName.text.trim());
     String amount = aCC.amount.text.trim();
-    String chqNo = aCC.chqNo.text.trim();
-    String chqDt = aCC.chqDt.text.trim();
-    String clearDt = aCC.clearDt.text.trim();
     String billNo = aCC.billNo.text.trim();
     String notes = aCC.notes.text.trim();
 
-    aCC.bankError.value = '';
     aCC.clientError.value = '';
     aCC.amountError.value = '';
+    aCC.billNoError.value = '';
+
+    aCC.bankError.value = '';
     aCC.chqNoError.value = '';
     aCC.chqDtError.value = '';
     aCC.clearDtError.value = '';
-    aCC.billNoError.value = '';
 
-    if (bankName.isEmpty) {
-      aCC.bankError.value = "Enter bank name.";
-      aCC.bankFocus.requestFocus();
-      return;
-    }
+    aCC.transactionIdError.value = '';
+    aCC.transactionDtError.value = '';
+    aCC.cashDtError.value = '';
 
     if (clientName.isEmpty) {
       aCC.clientError.value = "Enter client name.";
@@ -64,112 +61,187 @@ class AddCheque extends StatelessWidget {
       return;
     }
 
-    if (amount.isEmpty) {
-      aCC.amountError.value = "Enter amount.";
+    if (amount.isEmpty || double.tryParse(amount) == 0) {
+      aCC.amountError.value = "Enter valid amount.";
       aCC.amountFocus.requestFocus();
       return;
     }
 
-    if (chqNo.isEmpty) {
-      aCC.chqNoError.value = "Enter Cheque No.";
-      aCC.chqNoFocus.requestFocus();
-      return;
+    if (mode == "Cheque") {
+      String bankName = capitalizeEachWord(aCC.bankName.text.trim());
+      String chqNo = aCC.chqNo.text.trim();
+      String chqDt = aCC.chqDt.text.trim();
+      String clearDt = aCC.clearDt.text.trim();
+
+      if (bankName.isEmpty) {
+        aCC.bankError.value = "Enter bank name.";
+        aCC.bankFocus.requestFocus();
+        return;
+      }
+      if (chqNo.isEmpty) {
+        aCC.chqNoError.value = "Enter Cheque No.";
+        aCC.chqNoFocus.requestFocus();
+        return;
+      }
+      if (chqDt.isEmpty) {
+        aCC.chqDtError.value = "Select Cheque Date.";
+        aCC.chqDtFocus.requestFocus();
+        return;
+      }
+      if (clearDt.isEmpty) {
+        aCC.clearDtError.value = "Select Clearance Date.";
+        aCC.clearDtFocus.requestFocus();
+        return;
+      }
+    } else if (mode == "Online") {
+      String transId = aCC.transactionId.text.trim();
+      String transDt = aCC.transactionDt.text.trim();
+
+      if (transId.isEmpty) {
+        aCC.transactionIdError.value = "Enter Transaction ID.";
+        return;
+      }
+      if (transDt.isEmpty) {
+        aCC.transactionDtError.value = "Select Transaction Date.";
+        return;
+      }
+    } else if (mode == "Cash") {
+      String cashDt = aCC.cashDt.text.trim();
+      if (cashDt.isEmpty) {
+        aCC.cashDtError.value = "Select Cash Date.";
+        return;
+      }
     }
 
-    if (chqDt.isEmpty) {
-      aCC.chqDtError.value = "Enter Cheque Date.";
-      aCC.chqDtFocus.requestFocus();
-      return;
-    }
-
-    if (clearDt.isEmpty) {
-      aCC.clearDtError.value = "Enter Clearance Date.";
-      aCC.clearDtFocus.requestFocus();
-      return;
-    }
-
-    aCC.addCheque(
-      bankName: bankName,
+    aCC.addPayment(
+      paymentMode: mode,
       clientId: aCC.clientId.text,
       amount: amount,
-      chequeNumber: chqNo,
       billNos: aCC.selectedBillIds,
-      issueDate: chqDt,
-      clearanceDate: clearDt,
       businessName: businessName,
       notes: notes,
+
+      bankName: (mode == "Cheque") ? capitalizeEachWord(aCC.bankName.text.trim()) : null,
+      chequeNumber: (mode == "Cheque") ? aCC.chqNo.text.trim() : null,
+      issueDate: (mode == "Cheque") ? aCC.chqDt.text.trim() : null,
+      clearanceDate: (mode == "Cheque") ? aCC.clearDt.text.trim() : null,
+
+      transactionId: (mode == "Online") ? aCC.transactionId.text.trim() : null,
+      transactionDate: (mode == "Online") ? aCC.transactionDt.text.trim() : null,
+
+      cashDate: (mode == "Cash") ? aCC.cashDt.text.trim() : null,
+      cashDenominations:
+          (mode == "Cash")
+              ? Map.fromEntries(
+                aCC.denomControllers.entries
+                    .map((e) => MapEntry(e.key.toString(), int.tryParse(e.value.text) ?? 0))
+                    .where((e) => e.value > 0),
+              )
+              : null,
     );
   }
 
   void _updateOnTap() {
-    String bankName = capitalizeEachWord(eCC.bankName.text.trim());
+    String mode = eCC.selectedMode.value;
     String clientName = capitalizeEachWord(eCC.clientName.text.trim());
     String amount = eCC.amount.text.trim();
-    String chqNo = eCC.chqNo.text.trim();
-    String chqDt = eCC.chqDt.text.trim();
-    String clearDt = eCC.clearDt.text.trim();
     String billNo = eCC.billNo.text.trim();
     String notes = eCC.notes.text.trim();
 
-    eCC.bankError.value = '';
     eCC.clientError.value = '';
     eCC.amountError.value = '';
+    eCC.billNoError.value = '';
+    eCC.bankError.value = '';
     eCC.chqNoError.value = '';
     eCC.chqDtError.value = '';
     eCC.clearDtError.value = '';
-    eCC.billNoError.value = '';
-
-    if (bankName.isEmpty) {
-      eCC.bankError.value = "Enter bank name.";
-      eCC.bankFocus.requestFocus();
-      return;
-    }
 
     if (clientName.isEmpty) {
       eCC.clientError.value = "Enter client name.";
       eCC.clientFocus.requestFocus();
       return;
     }
-
     if (billNo.isEmpty) {
       eCC.billNoError.value = "Select at least one bill.";
       eCC.billNoFocus.requestFocus();
       return;
     }
-
-    if (amount.isEmpty) {
-      eCC.amountError.value = "Enter amount.";
+    if (amount.isEmpty || double.tryParse(amount) == 0) {
+      eCC.amountError.value = "Enter valid amount.";
       eCC.amountFocus.requestFocus();
       return;
     }
 
-    if (chqNo.isEmpty) {
-      eCC.chqNoError.value = "Enter Cheque No.";
-      eCC.chqNoFocus.requestFocus();
-      return;
+    if (mode == "Cheque") {
+      String bankName = capitalizeEachWord(eCC.bankName.text.trim());
+      String chqNo = eCC.chqNo.text.trim();
+      String chqDt = eCC.chqDt.text.trim();
+      String clearDt = eCC.clearDt.text.trim();
+
+      if (bankName.isEmpty) {
+        eCC.bankError.value = "Enter bank name.";
+        eCC.bankFocus.requestFocus();
+        return;
+      }
+      if (chqNo.isEmpty) {
+        eCC.chqNoError.value = "Enter Cheque No.";
+        eCC.chqNoFocus.requestFocus();
+        return;
+      }
+      if (chqDt.isEmpty) {
+        eCC.chqDtError.value = "Enter Cheque Date.";
+        eCC.chqDtFocus.requestFocus();
+        return;
+      }
+      if (clearDt.isEmpty) {
+        eCC.clearDtError.value = "Enter Clearance Date.";
+        eCC.clearDtFocus.requestFocus();
+        return;
+      }
+    } else if (mode == "Online") {
+      if (eCC.transactionId.text.trim().isEmpty) {
+        Get.snackbar("Error", "Enter Transaction ID", backgroundColor: Colors.redAccent, colorText: Colors.white);
+        return;
+      }
+      if (eCC.transactionDt.text.trim().isEmpty) {
+        Get.snackbar("Error", "Select Transaction Date", backgroundColor: Colors.redAccent, colorText: Colors.white);
+        return;
+      }
+    } else if (mode == "Cash") {
+      if (eCC.cashDt.text.trim().isEmpty) {
+        Get.snackbar("Error", "Select Cash Date", backgroundColor: Colors.redAccent, colorText: Colors.white);
+        return;
+      }
     }
 
-    if (chqDt.isEmpty) {
-      eCC.chqDtError.value = "Enter Cheque Date.";
-      eCC.chqDtFocus.requestFocus();
-      return;
-    }
-
-    if (clearDt.isEmpty) {
-      eCC.clearDtError.value = "Enter Clearance Date.";
-      eCC.clearDtFocus.requestFocus();
-      return;
-    }
-
-    eCC.editCheque(
-      bankName: bankName,
+    eCC.editPayment(
+      paymentMode: mode,
       amount: amount,
       notes: notes,
-      clientName: clientName,
-      chqNo: chqNo,
-      chqDt: chqDt,
-      clearDt: clearDt,
-      billNo: eCC.selectedBillIds,
+      billNos: eCC.selectedBillIds,
+      businessName: businessName,
+      clientId: aCC.clientId.text,
+
+      // Cheque
+      bankName: (mode == "Cheque") ? capitalizeEachWord(eCC.bankName.text.trim()) : null,
+      chequeNumber: (mode == "Cheque") ? eCC.chqNo.text.trim() : null,
+      issueDate: (mode == "Cheque") ? eCC.chqDt.text.trim() : null,
+      clearanceDate: (mode == "Cheque") ? eCC.clearDt.text.trim() : null,
+
+      // Online
+      transactionId: (mode == "Online") ? eCC.transactionId.text.trim() : null,
+      transactionDate: (mode == "Online") ? eCC.transactionDt.text.trim() : null,
+
+      // Cash
+      cashDate: (mode == "Cash") ? eCC.cashDt.text.trim() : null,
+      cashDenominations:
+          (mode == "Cash")
+              ? Map.fromEntries(
+                aCC.denomControllers.entries
+                    .map((e) => MapEntry(e.key.toString(), int.tryParse(e.value.text) ?? 0))
+                    .where((e) => e.value > 0),
+              )
+              : null,
     );
   }
 
@@ -220,7 +292,7 @@ class AddCheque extends StatelessWidget {
                           title: Text(item["companyName"] ?? ""),
                           subtitle: Text(item["clientName"] ?? ""),
                           onTap: () {
-                            if (tag == "add_cheque") {
+                            if (tag == "add_payment") {
                               aCC.clientName.text = item["companyName"]!;
                               aCC.clientId.text = item["id"]!;
                               aCC.clientError.value = '';
@@ -294,7 +366,7 @@ class AddCheque extends StatelessWidget {
                         onTap: () {
                           String selectedBank = filteredList[index];
 
-                          if (tag == "add_cheque") {
+                          if (tag == "add_payment") {
                             aCC.bankName.text = selectedBank;
                             aCC.bankError.value = '';
                           } else {
@@ -316,7 +388,7 @@ class AddCheque extends StatelessWidget {
   }
 
   Future showInvoiceList(String tag) async {
-    String selectedClientName = (tag == "add_cheque") ? aCC.clientName.text.trim() : eCC.clientName.text.trim();
+    String selectedClientName = (tag == "add_payment") ? aCC.clientName.text.trim() : eCC.clientName.text.trim();
 
     if (selectedClientName.isEmpty) {
       AppSnackBar.show(message: "Select Client.");
@@ -327,27 +399,28 @@ class AddCheque extends StatelessWidget {
       await invoiceListController.getInvoiceList();
     }
 
-    RxList<String> currentSelectionIds = (tag == "add_cheque") ? aCC.selectedBillIds : eCC.selectedBillIds;
-    RxList<String> currentSelectionNumbers = (tag == "add_cheque") ? aCC.selectedBillNumbers : eCC.selectedBillNumbers;
-    TextEditingController currentTextController = (tag == "add_cheque") ? aCC.billNo : eCC.billNo;
+    RxList<String> currentSelectionIds = (tag == "add_payment") ? aCC.selectedBillIds : eCC.selectedBillIds;
+    RxList<String> currentSelectionNumbers = (tag == "add_payment") ? aCC.selectedBillNumbers : eCC.selectedBillNumbers;
+    TextEditingController currentTextController = (tag == "add_payment") ? aCC.billNo : eCC.billNo;
 
     List<String> existingBills = [];
     if (currentTextController.text.trim().isNotEmpty) {
       existingBills = currentTextController.text.trim().split(',').map((e) => e.trim()).toList();
     }
 
-    List<dynamic> clientSpecificInvoices = invoiceListController.filteredList.where((invoice) {
-      String invoiceClient = invoice["companyName"]?.toString() ?? "";
-      bool isClientMatch = invoiceClient.toLowerCase() == selectedClientName.toLowerCase();
+    List<dynamic> clientSpecificInvoices =
+        invoiceListController.filteredList.where((invoice) {
+          String invoiceClient = invoice["companyName"]?.toString() ?? "";
+          bool isClientMatch = invoiceClient.toLowerCase() == selectedClientName.toLowerCase();
 
-      String status = invoice["status"]?.toString().toLowerCase() ?? "";
-      String invoiceNo = invoice["invoiceNumber"].toString();
+          String status = invoice["status"]?.toString().toLowerCase() ?? "";
+          String invoiceNo = invoice["invoiceNumber"].toString();
 
-      bool isUnpaid = status == "unpaid";
-      bool isCurrentlySelected = existingBills.contains(invoiceNo);
+          bool isUnpaid = status == "unpaid";
+          bool isCurrentlySelected = existingBills.contains(invoiceNo);
 
-      return isClientMatch && (isUnpaid || isCurrentlySelected);
-    }).toList();
+          return isClientMatch && (isUnpaid || isCurrentlySelected);
+        }).toList();
 
     RxList<dynamic> filteredInvoices = RxList.from(clientSpecificInvoices);
 
@@ -423,9 +496,7 @@ class AddCheque extends StatelessWidget {
               Expanded(
                 child: Obx(() {
                   if (filteredInvoices.isEmpty) {
-                    return Center(
-                      child: Text("No unpaid bills found.", style: TextStyle(color: Colors.grey[600])),
-                    );
+                    return Center(child: Text("No unpaid bills found.", style: TextStyle(color: Colors.grey[600])));
                   }
 
                   return ListView.builder(
@@ -464,7 +535,7 @@ class AddCheque extends StatelessWidget {
                             currentTextController.text = currentSelectionNumbers.join(', ');
 
                             if (currentSelectionIds.isNotEmpty) {
-                              if (tag == "add_cheque") {
+                              if (tag == "add_payment") {
                                 aCC.billNoError.value = '';
                               } else {
                                 eCC.billNoError.value = '';
@@ -493,6 +564,231 @@ class AddCheque extends StatelessWidget {
     );
   }
 
+  Widget _buildDenomRow(int amount, String tag) {
+    final controller = (tag == "add_payment") ? aCC.denomControllers[amount] : eCC.denomControllers[amount];
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 60,
+            child: Text("$amount  x ", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+
+          Expanded(
+            child: SizedBox(
+              height: 40,
+              child: TextField(
+                onTapOutside: (event) {
+                  FocusScope.of(Get.context!).unfocus();
+                },
+                controller: controller,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                  hintText: "0",
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+          ),
+
+          SizedBox(
+            width: 100,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const Text(" =  ", style: TextStyle(fontWeight: FontWeight.bold)),
+                Obx(() {
+                  int total = (tag == "add_payment") ? (aCC.denomTotals[amount] ?? 0) : (eCC.denomTotals[amount] ?? 0);
+
+                  return Text("$total", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500));
+                }),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget generateModeDetailsBox(String mode) {
+    // --- CASE 1: CHEQUE ---
+    if (mode == "Cheque") {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 15),
+          const CommonFromHeading(data: "Bank"),
+          const SizedBox(height: 10),
+
+          Obx(
+            () => CommonTextField(
+              autofocus: false,
+              readOnly: true,
+              hintText: "Bank Name",
+              controller: (tag == "add_payment") ? aCC.bankName : eCC.bankName,
+              focusNode: (tag == "add_payment") ? aCC.bankFocus : eCC.bankFocus,
+              errorText:
+                  (tag == "add_payment")
+                      ? (aCC.bankError.value.isEmpty ? null : aCC.bankError.value)
+                      : (eCC.bankError.value.isEmpty ? null : eCC.bankError.value),
+              onTap: () => showBankList(tag),
+            ),
+          ),
+
+          const SizedBox(height: 15),
+          const CommonFromHeading(data: "Cheque Number"),
+          const SizedBox(height: 10),
+
+          Obx(
+            () => CommonTextField(
+              hintText: "Cheque Number",
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              controller: (tag == "add_payment") ? aCC.chqNo : eCC.chqNo,
+              focusNode: (tag == "add_payment") ? aCC.chqNoFocus : eCC.chqNoFocus,
+              errorText:
+                  (tag == "add_payment")
+                      ? (aCC.chqNoError.value.isEmpty ? null : aCC.chqNoError.value)
+                      : (eCC.chqNoError.value.isEmpty ? null : eCC.chqNoError.value),
+              onChanged: (value) {
+                if (value.trim().isNotEmpty) {
+                  if (tag == "add_payment") {
+                    aCC.chqNoError.value = '';
+                  } else {
+                    eCC.chqNoError.value = '';
+                  }
+                }
+              },
+            ),
+          ),
+
+          const SizedBox(height: 15),
+          const CommonFromHeading(data: "Cheque Date"),
+          const SizedBox(height: 10),
+
+          CommonTextField(
+            readOnly: true,
+            suffixIcon: const Icon(Icons.calendar_month),
+            hintText: "Cheque Date",
+            controller: (tag == "add_payment") ? aCC.chqDt : eCC.chqDt,
+            focusNode: (tag == "add_payment") ? aCC.chqDtFocus : eCC.chqDtFocus,
+            onTap: () => selectDate(Get.context!, (tag == "add_payment") ? aCC.chqDt : eCC.chqDt),
+          ),
+
+          const SizedBox(height: 15),
+          const CommonFromHeading(data: "Clearance Date"),
+          const SizedBox(height: 10),
+
+          CommonTextField(
+            readOnly: true,
+            suffixIcon: const Icon(Icons.calendar_month),
+            hintText: "Clearance Date",
+            controller: (tag == "add_payment") ? aCC.clearDt : eCC.clearDt,
+            onTap: () => selectDate(Get.context!, (tag == "add_payment") ? aCC.clearDt : eCC.clearDt),
+          ),
+        ],
+      );
+    }
+    // --- CASE 2: ONLINE ---
+    else if (mode == "Online") {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 15),
+          const CommonFromHeading(data: "Transaction ID"),
+          const SizedBox(height: 10),
+
+          CommonTextField(
+            hintText: "Enter Transaction ID",
+            controller: (tag == "add_payment") ? aCC.transactionId : eCC.transactionId,
+          ),
+
+          const SizedBox(height: 15),
+          const CommonFromHeading(data: "Transaction Date"),
+          const SizedBox(height: 10),
+
+          CommonTextField(
+            readOnly: true,
+            hintText: "Select Date",
+            suffixIcon: const Icon(Icons.calendar_month),
+            controller: (tag == "add_payment") ? aCC.transactionDt : eCC.transactionDt,
+            onTap: () => selectDate(Get.context!, (tag == "add_payment") ? aCC.transactionDt : eCC.transactionDt),
+          ),
+        ],
+      );
+    }
+    // --- CASE 3: CASH ---
+    else if (mode == "Cash") {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 15),
+          const CommonFromHeading(data: "Cash Received Date"),
+          const SizedBox(height: 10),
+
+          CommonTextField(
+            readOnly: true,
+            hintText: "Select Date",
+            suffixIcon: const Icon(Icons.calendar_month),
+            controller: (tag == "add_payment") ? aCC.cashDt : eCC.cashDt,
+            onTap: () => selectDate(Get.context!, (tag == "add_payment") ? aCC.cashDt : eCC.cashDt),
+          ),
+
+          const SizedBox(height: 20),
+          const Divider(),
+          const CommonFromHeading(data: "Denominations"),
+          const SizedBox(height: 10),
+
+          Column(
+            children:
+                aCC.denominations.map((denom) {
+                  return _buildDenomRow(denom, tag);
+                }).toList(),
+          ),
+
+          const Divider(),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Total Cash:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Obx(
+                  () => Text(
+                    "₹ ${aCC.grandCashTotal.value}",
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.green),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Future<void> selectDate(BuildContext context, TextEditingController controller) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2024),
+      lastDate: DateTime(2030),
+    );
+    if (picked != null) {
+      controller.text = DateFormat('dd-MM-yyyy').format(picked);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -504,8 +800,8 @@ class AddCheque extends StatelessWidget {
             children: [
               // Page Header
               CommonPageHeader(
-                mainHeading: (tag == "add_cheque") ? "Add Cheque" : "Edit Cheque",
-                subHeading: "Cheques",
+                mainHeading: (tag == "add_payment") ? "Add Payment" : "Edit Payment",
+                subHeading: "Payments",
                 onTap: () => Get.back(),
                 icon: Icons.chevron_left_rounded,
               ),
@@ -525,35 +821,40 @@ class AddCheque extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CommonFromHeading(data: "Bank"),
-
+                              CommonFromHeading(data: "Mode of Payment"),
                               const SizedBox(height: 10),
-                              Obx(
-                                () => CommonTextField(
-                                  autofocus: false,
-                                  readOnly: true,
-                                  hintText: "Bank Name",
-                                  controller: (tag == "add_cheque") ? aCC.bankName : eCC.bankName,
-                                  focusNode: (tag == "add_cheque") ? aCC.bankFocus : eCC.bankFocus,
-                                  errorText:
-                                      (tag == "add_cheque")
-                                          ? (aCC.bankError.value.isEmpty ? null : aCC.bankError.value)
-                                          : (eCC.bankError.value.isEmpty ? null : eCC.bankError.value),
-                                  onChanged: (value) {
-                                    if (value.trim().isNotEmpty) {
-                                      if (tag == "add_cheque") {
-                                        aCC.bankError.value = '';
-                                      } else {
-                                        eCC.bankError.value = '';
-                                      }
+
+                              CommonCardContainer(
+                                child: CommonDropDown(
+                                  hintText: "Mode",
+                                  borderSideBorder: BorderSide.none,
+                                  borderSideEnable: BorderSide.none,
+                                  borderSideFocused: BorderSide.none,
+                                  dropdownMenuEntries: aCC.modeDropdownEntries,
+                                  initialSelection: aCC.selectedMode.value,
+                                  onSelected: (value) {
+                                    if (value != null) {
+                                      aCC.selectedMode.value = value.toString();
                                     }
-                                  },
-                                  onTap: () {
-                                    showBankList(tag);
                                   },
                                 ),
                               ),
 
+                              Obx(() {
+                                return generateModeDetailsBox(aCC.selectedMode.value);
+                              }),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 15),
+
+                        CommonCardContainer(
+                          padding: EdgeInsets.all(10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               const SizedBox(height: 15),
 
                               CommonFromHeading(data: "Client"),
@@ -564,16 +865,16 @@ class AddCheque extends StatelessWidget {
                                   autofocus: false,
                                   readOnly: true,
                                   hintText: "Client Name",
-                                  controller: (tag == "add_cheque") ? aCC.clientName : eCC.clientName,
-                                  focusNode: (tag == "add_cheque") ? aCC.clientFocus : eCC.clientFocus,
+                                  controller: (tag == "add_payment") ? aCC.clientName : eCC.clientName,
+                                  focusNode: (tag == "add_payment") ? aCC.clientFocus : eCC.clientFocus,
                                   errorText:
-                                      (tag == "add_cheque")
+                                      (tag == "add_payment")
                                           ? (aCC.clientError.value.isEmpty ? null : aCC.clientError.value)
                                           : (eCC.clientError.value.isEmpty ? null : eCC.clientError.value),
 
                                   onChanged: (value) {
                                     if (value.trim().isNotEmpty) {
-                                      if (tag == "add_cheque") {
+                                      if (tag == "add_payment") {
                                         aCC.clientError.value = '';
                                       } else {
                                         eCC.clientError.value = '';
@@ -590,35 +891,6 @@ class AddCheque extends StatelessWidget {
 
                               const SizedBox(height: 15),
 
-                              CommonFromHeading(data: "Cheque Number"),
-
-                              const SizedBox(height: 10),
-                              Obx(
-                                () => CommonTextField(
-                                  autofocus: false,
-                                  maxLength: 6,
-                                  hintText: "Cheque Number",
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                  controller: (tag == "add_cheque") ? aCC.chqNo : eCC.chqNo,
-                                  focusNode: (tag == "add_cheque") ? aCC.chqNoFocus : eCC.chqNoFocus,
-                                  errorText:
-                                      (tag == "add_cheque")
-                                          ? (aCC.chqNoError.value.isEmpty ? null : aCC.chqNoError.value)
-                                          : (eCC.chqNoError.value.isEmpty ? null : eCC.chqNoError.value),
-
-                                  onChanged: (value) {
-                                    if (value.trim().isNotEmpty && tag == "add_cheque") {
-                                      aCC.chqNoError.value = '';
-                                    } else if (value.trim().isNotEmpty && tag != "add_cheque") {
-                                      eCC.chqNoError.value = '';
-                                    }
-                                  },
-                                ),
-                              ),
-
-                              const SizedBox(height: 15),
-
                               CommonFromHeading(data: "Amount (₹)"),
 
                               const SizedBox(height: 10),
@@ -626,114 +898,29 @@ class AddCheque extends StatelessWidget {
                                 () => CommonTextField(
                                   autofocus: false,
                                   hintText: "Amount",
-                                  keyboardType: TextInputType.number,
-                                  controller: (tag == "add_cheque") ? aCC.amount : eCC.amount,
-                                  focusNode: (tag == "add_cheque") ? aCC.amountFocus : eCC.amountFocus,
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  // Allow decimal keyboard
+                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+
+                                  readOnly:
+                                      (tag == "add_payment")
+                                          ? (aCC.selectedMode.value == "Cash")
+                                          : (eCC.selectedMode.value == "Cash"),
+
+                                  controller: (tag == "add_payment") ? aCC.amount : eCC.amount,
+                                  focusNode: (tag == "add_payment") ? aCC.amountFocus : eCC.amountFocus,
+
                                   errorText:
-                                      (tag == "add_cheque")
+                                      (tag == "add_payment")
                                           ? (aCC.amountError.value.isEmpty ? null : aCC.amountError.value)
                                           : (eCC.amountError.value.isEmpty ? null : eCC.amountError.value),
 
                                   onChanged: (value) {
-                                    if (value.trim().isNotEmpty && tag == "add_cheque") {
-                                      aCC.amountError.value = '';
-                                    } else if (value.trim().isNotEmpty && tag != "add_cheque") {
-                                      eCC.amountError.value = '';
-                                    }
-                                  },
-                                ),
-                              ),
-
-                              const SizedBox(height: 15),
-
-                              CommonFromHeading(data: "Cheque Date"),
-
-                              const SizedBox(height: 10),
-                              Obx(
-                                () => CommonTextField(
-                                  autofocus: false,
-                                  readOnly: true,
-                                  suffixIcon: Icon(Icons.calendar_month),
-                                  hintText: "Cheque Date",
-                                  controller: (tag == "add_cheque") ? aCC.chqDt : eCC.chqDt,
-                                  focusNode: (tag == "add_cheque") ? aCC.chqDtFocus : eCC.chqDtFocus,
-                                  errorText:
-                                      (tag == "add_cheque")
-                                          ? (aCC.chqDtError.value.isEmpty ? null : aCC.chqDtError.value)
-                                          : (eCC.chqDtError.value.isEmpty ? null : eCC.chqDtError.value),
-
-                                  onChanged: (value) {
-                                    if (value.trim().isNotEmpty && tag == "add_cheque") {
-                                      aCC.chqDtError.value = '';
-                                    } else if (value.trim().isNotEmpty && tag != "add_cheque") {
-                                      eCC.chqDtError.value = '';
-                                    }
-                                  },
-                                  onTap: () async {
-                                    DateTime? pickedDate = await showDatePicker(
-                                      context: Get.context!,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(2024),
-                                      lastDate: DateTime(2030),
-                                    );
-
-                                    if (pickedDate != null) {
-                                      String formattedDate = DateFormat('dd-MM-yyyy').format(pickedDate);
-
-                                      if (tag == "add_cheque") {
-                                        aCC.chqDt.text = formattedDate;
-                                        aCC.chqDtError.value = '';
+                                    if (value.trim().isNotEmpty) {
+                                      if (tag == "add_payment") {
+                                        aCC.amountError.value = '';
                                       } else {
-                                        eCC.chqDt.text = formattedDate;
-                                        eCC.chqDtError.value = '';
-                                      }
-                                    }
-                                  },
-                                ),
-                              ),
-
-                              const SizedBox(height: 15),
-
-                              CommonFromHeading(data: "Clearance Date"),
-
-                              const SizedBox(height: 10),
-                              Obx(
-                                () => CommonTextField(
-                                  autofocus: false,
-                                  readOnly: true,
-                                  suffixIcon: Icon(Icons.calendar_month),
-                                  hintText: "Clearance Date",
-                                  controller: (tag == "add_cheque") ? aCC.clearDt : eCC.clearDt,
-                                  focusNode: (tag == "add_cheque") ? aCC.clearDtFocus : eCC.clearDtFocus,
-                                  errorText:
-                                      (tag == "add_cheque")
-                                          ? (aCC.clearDtError.value.isEmpty ? null : aCC.clearDtError.value)
-                                          : (eCC.clearDtError.value.isEmpty ? null : eCC.clearDtError.value),
-
-                                  onChanged: (value) {
-                                    if (value.trim().isNotEmpty && tag == "add_cheque") {
-                                      aCC.clearDtError.value = '';
-                                    } else if (value.trim().isNotEmpty && tag != "add_cheque") {
-                                      eCC.clearDtError.value = '';
-                                    }
-                                  },
-                                  onTap: () async {
-                                    DateTime? pickedDate = await showDatePicker(
-                                      context: Get.context!,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(2024),
-                                      lastDate: DateTime(2030),
-                                    );
-
-                                    if (pickedDate != null) {
-                                      String formattedDate = DateFormat('dd-MM-yyyy').format(pickedDate);
-
-                                      if (tag == "add_cheque") {
-                                        aCC.clearDt.text = formattedDate;
-                                        aCC.clearDtError.value = '';
-                                      } else {
-                                        eCC.clearDt.text = formattedDate;
-                                        eCC.clearDtError.value = '';
+                                        eCC.amountError.value = '';
                                       }
                                     }
                                   },
@@ -752,17 +939,17 @@ class AddCheque extends StatelessWidget {
                                   suffixIcon: const Icon(Icons.keyboard_arrow_down),
                                   hintText: "Select Bill Numbers",
 
-                                  controller: (tag == "add_cheque") ? aCC.billNo : eCC.billNo,
-                                  focusNode: (tag == "add_cheque") ? aCC.billNoFocus : eCC.billNoFocus,
+                                  controller: (tag == "add_payment") ? aCC.billNo : eCC.billNo,
+                                  focusNode: (tag == "add_payment") ? aCC.billNoFocus : eCC.billNoFocus,
 
                                   errorText:
-                                      (tag == "add_cheque")
+                                      (tag == "add_payment")
                                           ? (aCC.billNoError.value.isEmpty ? null : aCC.billNoError.value)
                                           : (eCC.billNoError.value.isEmpty ? null : eCC.billNoError.value),
 
                                   onChanged: (value) {
                                     if (value.trim().isNotEmpty) {
-                                      if (tag == "add_cheque") {
+                                      if (tag == "add_payment") {
                                         aCC.billNoError.value = '';
                                       } else {
                                         eCC.billNoError.value = '';
@@ -784,7 +971,7 @@ class AddCheque extends StatelessWidget {
                               CommonTextField(
                                 autofocus: false,
                                 hintText: "Notes",
-                                controller: (tag == "add_cheque") ? aCC.notes : eCC.notes,
+                                controller: (tag == "add_payment") ? aCC.notes : eCC.notes,
                               ),
                             ],
                           ),
@@ -793,8 +980,8 @@ class AddCheque extends StatelessWidget {
                         SizedBox(height: 20),
 
                         CommonSubmit(
-                          data: (tag == "add_cheque") ? "Submit" : "Update",
-                          onTap: (tag == "add_cheque") ? _submitOnTap : _updateOnTap,
+                          data: (tag == "add_payment") ? "Submit" : "Update",
+                          onTap: (tag == "add_payment") ? _submitOnTap : _updateOnTap,
                         ),
 
                         const SizedBox(height: 20),

@@ -24,11 +24,11 @@ class AppUrl {
   static String get invLatestNumber => "$mainUrl/invoice/$firmAbb/latestNumber";
   static String get invDelete => "$mainUrl/invoice/$firmAbb/delete";
 
-  // cheques
-  static const String registerCheque = "$mainUrl/cheque/register";
-  static const String displayCheques = "$mainUrl/cheque/display";
-  static const String totalCheques = "$mainUrl/cheque/total";
-  static const String deleteCheque = "$mainUrl/cheque/delete";
-  static const String updateCheque = "$mainUrl/cheque/update";
+  // payments
+  static const String registerPayment = "$mainUrl/payment/register";
+  static const String displayPayment = "$mainUrl/payment/display";
+  static const String totalPayments = "$mainUrl/payment/total";
+  static const String deletePayment = "$mainUrl/payment/delete";
+  static const String updatePayment = "$mainUrl/payment/update";
 
 }

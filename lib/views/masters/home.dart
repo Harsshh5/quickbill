@@ -32,11 +32,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   final List<IconData> boxIcons = <IconData>[
     Icons.note_add,
     Icons.person_add,
-    Icons.currency_rupee_rounded,
-    Icons.account_balance_rounded
+    Icons.auto_graph_rounded,
+    Icons.currency_rupee_rounded
   ];
 
-  final List<String> boxTexts = <String>["Invoice", "Client", "Payments", "Cheques"];
+  final List<String> boxTexts = <String>["Invoice", "Client", "Analysis", "Payments"];
 
   String getGreeting() {
     final hour = DateTime.now().hour;
@@ -83,7 +83,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 children: [
                   // Greeting box
                   CommonPageHeader(
-                    mainHeading: "${getGreeting()}! Harsh",
+                    mainHeading: "${getGreeting()}!",
                     subHeading: formattedDate,
                     onTap: drawerController.openDrawer,
                     icon: Icons.drag_handle_rounded,
@@ -198,7 +198,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         ],
                                       ),
                                       const Spacer(),
-                                      Text(invoices["date"]!, style: appTextStyle(fontSize: 16)),
+                                      Text(invoices["invoiceDate"]!, style: appTextStyle(fontSize: 16)),
                                       const SizedBox(width: 15),
                                       Text(
                                         invoiceListController.formatIndianCurrency(invoices["totalAmount"]!),
