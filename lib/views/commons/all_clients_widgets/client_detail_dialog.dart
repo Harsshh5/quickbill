@@ -28,19 +28,26 @@ class ClientDetailDialog extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start, // Aligns icon to top if text wraps
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SelectableText(
-                          client["companyName"] ?? '',
-                          style: appTextStyle(),
+                        Expanded(
+                          child: SelectableText(
+                            client["companyName"] ?? '',
+                            style: appTextStyle(),
+                          ),
                         ),
 
-                        Spacer(),
+                        const SizedBox(width: 10),
 
                         IconButton(
                           onPressed: () {
                             Get.back();
                           },
-                          icon: Icon(Icons.close),
+                          icon: const Icon(Icons.close),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          visualDensity: VisualDensity.compact,
                         ),
                       ],
                     ),
