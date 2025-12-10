@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:flutter/material.dart';
+import 'package:upgrader/upgrader.dart';
+import 'package:version/version.dart';
 
 SharedPreferences? pref;
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -44,11 +46,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    const appCastURL = 'https://raw.githubusercontent.com/harsshh5/quickbill/main/appcast.xml';
+
+    final upgrader = Upgrader(
+      storeController: UpgraderStoreController(
+        onAndroid: () => UpgraderAppcastStore(appcastURL: appCastURL, osVersion: Version(1,0,0),),
+      ),
+      debugLogging: true, // Uncomment this while testing to see logs in console
+    );
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Quick Bill',
       theme: ThemeData(fontFamily: 'quicksand', useMaterial3: true, scaffoldBackgroundColor: AppColors.backGround),
-      home: SetPassword(),
+      home: UpgradeAlert(
+        upgrader: upgrader,
+        child: SetPassword(),
+      )
     );
   }
 }
