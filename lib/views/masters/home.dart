@@ -33,7 +33,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     Icons.note_add,
     Icons.person_add,
     Icons.auto_graph_rounded,
-    Icons.currency_rupee_rounded
+    Icons.currency_rupee_rounded,
   ];
 
   final List<String> boxTexts = <String>["Invoice", "Client", "Analysis", "Payments"];
@@ -186,23 +186,30 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   padding: const EdgeInsets.all(10),
                                   child: Row(
                                     children: [
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Bill No. ${invoices["invoiceNumber"]!}",
-                                            style: appTextStyle(fontSize: 16),
-                                          ),
-                                          Text(invoices["companyName"]!, style: appTextStyle(fontSize: 14)),
-                                        ],
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Bill No. ${invoices["invoiceNumber"]!}",
+                                              style: appTextStyle(fontSize: 14),
+                                            ),
+                                            Text(
+                                              invoices["companyName"]!,
+                                              style: appTextStyle(fontSize: 12),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                      const Spacer(),
-                                      Text(invoices["invoiceDate"]!, style: appTextStyle(fontSize: 16)),
+                                      const SizedBox(width: 15),
+                                      Text(invoices["invoiceDate"]!, style: appTextStyle(fontSize: 14)),
                                       const SizedBox(width: 15),
                                       Text(
                                         invoiceListController.formatIndianCurrency(invoices["totalAmount"]!),
-                                        style: appTextStyle(fontSize: 16, color: amountColor),
+                                        style: appTextStyle(fontSize: 14, color: amountColor),
                                       ),
                                       const SizedBox(width: 10),
                                       const Icon(Icons.chevron_right_rounded),

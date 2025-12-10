@@ -175,9 +175,7 @@ class _AnalysisState extends State<Analysis> with TickerProviderStateMixin {
                               Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.dark),
                               const SizedBox(width: 8),
                               Text(
-                                "${DateFormat('dd MMM').format(
-                                    controller.currentDateRange.value!.start)} - ${DateFormat('dd MMM').format(
-                                    controller.currentDateRange.value!.end)}",
+                                "${DateFormat('dd MMM').format(controller.currentDateRange.value!.start)} - ${DateFormat('dd MMM').format(controller.currentDateRange.value!.end)}",
                                 style: appTextStyle(fontSize: 14),
                               ),
                               const SizedBox(width: 10),
@@ -318,20 +316,27 @@ class _AnalysisState extends State<Analysis> with TickerProviderStateMixin {
       padding: const EdgeInsets.all(10),
       child: Row(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("Bill No. ${invoice["invoiceNumber"]}", style: appTextStyle(fontSize: 16)),
-              Text(invoice["companyName"] ?? "", style: appTextStyle(fontSize: 14)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Bill No. ${invoice["invoiceNumber"]}", style: appTextStyle(fontSize: 14)),
+                Text(
+                  invoice["companyName"] ?? "",
+                  style: appTextStyle(fontSize: 12),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
-          const Spacer(),
-          Text(invoice["invoiceDate"] ?? "", style: appTextStyle(fontSize: 16)),
+          const SizedBox(width: 15),
+          Text(invoice["invoiceDate"] ?? "", style: appTextStyle(fontSize: 14)),
           const SizedBox(width: 15),
           Text(
             controller.formatIndianCurrency(invoice["totalAmount"] ?? "0"),
-            style: appTextStyle(fontSize: 16, color: amountColor),
+            style: appTextStyle(fontSize: 14, color: amountColor),
           ),
         ],
       ),

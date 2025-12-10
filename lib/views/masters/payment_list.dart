@@ -42,7 +42,7 @@ class PaymentList extends StatelessWidget {
               const SizedBox(height: 20),
 
               CommonTextField(
-                hintText: "Search Client, Bank, Cheque No. or Amount",
+                hintText: "Search",
                 suffixIcon: const Icon(Icons.search, color: Colors.black),
                 onChanged: (val) {
                   cLC.filterItems(val);
@@ -63,11 +63,11 @@ class PaymentList extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.add_card_rounded, color: AppColors.dark, size: 24),
-                      Text("Add Payment", style: appTextStyle(fontSize: 18)),
+                      Icon(Icons.add_card_rounded, color: AppColors.dark, size: 20),
+                      Text("Add Payment", style: appTextStyle(fontSize: 16)),
                       Text(
                         "Add latest payment details, cash, online or cheque.",
-                        style: appTextStyle(fontSize: 14, color: Colors.grey),
+                        style: appTextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
                   ),

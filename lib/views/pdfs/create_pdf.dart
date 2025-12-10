@@ -44,8 +44,8 @@ class CreatePdf {
       contactDetails = "+91 9825654790 | dhirajratnaparkhi15@gmail.com";
     } else if (AppConstants.abbreviation == "LA") {
       address = "132, Neminath Nagar, Parvat Patiya, Dumbhal, Surat - 395010";
-      codes = "HSN CODE : 998821 | GST NO. 24CEVPR3580M1ZL";
-      contactDetails = "+91 9016079197 | harshratnaparkhi19@gmail.com";
+      codes = "SAC CODE : 998391 | GST NO. 24CEVPR3580M1ZL | Udhyam : GJ-22-0213504";
+      contactDetails = "+91 9016079197 | +91-9825654790 | harshratnaparkhi19@gmail.com";
     }
 
     final signatureImage = pw.MemoryImage((await rootBundle.load('assets/images/sign.png')).buffer.asUint8List());
@@ -275,7 +275,7 @@ class CreatePdf {
                             pw.Text("Bank Details for NEFT & RTGS", style: pw.TextStyle(font: ttf2, fontSize: 14)),
                             pw.Text("Acc. No. 2480111071399", style: pw.TextStyle(font: ttf, fontSize: 12)),
                             pw.Text("IFSC: SUTB0248011", style: pw.TextStyle(font: ttf, fontSize: 12)),
-                            pw.Text("THE SUTEX CO-OP BANK LTD", style: pw.TextStyle(font: ttf2, fontSize: 12)),
+                            pw.Text("THE SUTEX CO-OP BANK LTD", style: pw.TextStyle(font: ttf, fontSize: 12)),
                             pw.Text("Parvat Patiya, Surat-10", style: pw.TextStyle(font: ttf, fontSize: 12)),
                           ],
                         )
@@ -286,8 +286,10 @@ class CreatePdf {
                         pw.Text("Bank Details for NEFT & RTGS", style: pw.TextStyle(font: ttf2, fontSize: 14)),
                         pw.Text("Acc. No. 00111021001747", style: pw.TextStyle(font: ttf, fontSize: 12)),
                         pw.Text("IFSC: SUTB0248011", style: pw.TextStyle(font: ttf, fontSize: 12)),
-                        pw.Text("THE SUTEX CO-OP BANK LTD", style: pw.TextStyle(font: ttf2, fontSize: 12)),
+                        pw.Text("THE SUTEX CO-OP BANK LTD", style: pw.TextStyle(font: ttf, fontSize: 12)),
                         pw.Text("Parvat Patiya, Surat-10", style: pw.TextStyle(font: ttf, fontSize: 12)),
+                        pw.SizedBox(height: 5),
+                        pw.Text("Pan No: CEVPR3580M", style: pw.TextStyle(font: ttf, fontSize: 12)),
                       ],
                     ),
                     pw.Spacer(),
@@ -304,7 +306,21 @@ class CreatePdf {
                   ],
                 ),
 
-                pw.SizedBox(height: 20),
+                // pw.SizedBox(height: 10),
+
+                pw.Divider(),
+
+                pw.Column(
+                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text("Terms and Conditions : ", style: pw.TextStyle(font: ttf2, fontSize: 12)),
+                    pw.Text("~ Design once sold is not returned or taken back.", style: pw.TextStyle(font: ttf, fontSize: 12)),
+                    pw.Text("~ Payment within 30 days.", style: pw.TextStyle(font: ttf, fontSize: 12)),
+                    pw.Text("E. & O. E.", style: pw.TextStyle(font: ttf, fontSize: 12)),
+                    pw.SizedBox(height: 10),
+                  ],
+                ),
               ],
             ),
           );

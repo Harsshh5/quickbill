@@ -78,76 +78,80 @@ class _AllInvoicesState extends State<AllInvoices> with TickerProviderStateMixin
   Widget invoicesList() {
     return Expanded(
       child:
-          invoiceCount == 0
-              ? Center(child: Text("No Invoices Found", style: appTextStyle(color: Colors.grey)))
-              : RefreshIndicator(
-                backgroundColor: Colors.white,
-                color: AppColors.dark,
-                onRefresh: () {
-                  return invoiceListController.getInvoiceList();
-                },
-                child: Obx(() {
-                  return Skeletonizer(
-                    enabled: invoiceListController.isLoading.value,
-                    child: ListView.builder(
-                      itemCount: invoiceListController.filteredList.length,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        var invoices = invoiceListController.filteredList[index];
-                        var amountColor = (invoices["status"] == "paid") ? Colors.green : Colors.red;
+      invoiceCount == 0
+          ? Center(child: Text("No Invoices Found", style: appTextStyle(color: Colors.grey)))
+          : RefreshIndicator(
+        backgroundColor: Colors.white,
+        color: AppColors.dark,
+        onRefresh: () {
+          return invoiceListController.getInvoiceList();
+        },
+        child: Obx(() {
+          return Skeletonizer(
+            enabled: invoiceListController.isLoading.value,
+            child: ListView.builder(
+              itemCount: invoiceListController.filteredList.length,
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                var invoices = invoiceListController.filteredList[index];
+                var amountColor = (invoices["status"] == "paid") ? Colors.green : Colors.red;
 
-                        return SlideTransition(
-                          position: animController.listSlideAnimation[index],
-                          child: FadeTransition(
-                            opacity: animController.listFadeAnimation[index],
-                            child: ScaleTransition(
-                              scale: animController.listAnimations[index],
-                              child: GestureDetector(
-                                onTap: () {
-                                  handleTap(index);
-                                  Get.to(
-                                    () => InvoiceDetails(),
-                                    arguments: {"invoiceId": invoices["id"], "invoiceCount": invoiceCount},
-                                  );
-                                },
-                                child: CommonCardContainer(
-                                  height: 80,
-                                  width: Get.width,
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Bill No. ${invoices["invoiceNumber"]!}",
-                                            style: appTextStyle(fontSize: 16),
-                                          ),
-                                          Text(invoices["companyName"]!, style: appTextStyle(fontSize: 14)),
-                                        ],
-                                      ),
-                                      const Spacer(),
-                                      Text(invoices["invoiceDate"]!, style: appTextStyle(fontSize: 16)),
-                                      const SizedBox(width: 15),
-                                      Text(
-                                        invoiceListController.formatIndianCurrency(invoices["totalAmount"]!),
-                                        style: appTextStyle(fontSize: 16, color: amountColor),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      const Icon(Icons.chevron_right_rounded),
-                                    ],
-                                  ),
+                return SlideTransition(
+                  position: animController.listSlideAnimation[index],
+                  child: FadeTransition(
+                    opacity: animController.listFadeAnimation[index],
+                    child: ScaleTransition(
+                      scale: animController.listAnimations[index],
+                      child: GestureDetector(
+                        onTap: () {
+                          handleTap(index);
+                          Get.to(
+                                () => InvoiceDetails(),
+                            arguments: {"invoiceId": invoices["id"], "invoiceCount": invoiceCount},
+                          );
+                        },
+                        child: CommonCardContainer(
+                          height: 80,
+                          width: Get.width,
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "Bill No. ${invoices["invoiceNumber"]!}",
+                                      style: appTextStyle(fontSize: 14),
+                                    ),
+                                    Text(invoices["companyName"]!, style: appTextStyle(fontSize: 12),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,),
+                                  ],
                                 ),
                               ),
-                            ),
+                              const SizedBox(width: 15),
+                              Text(invoices["invoiceDate"]!, style: appTextStyle(fontSize: 14)),
+                              const SizedBox(width: 15),
+                              Text(
+                                invoiceListController.formatIndianCurrency(invoices["totalAmount"]!),
+                                style: appTextStyle(fontSize: 14, color: amountColor),
+                              ),
+                              const SizedBox(width: 10),
+                              const Icon(Icons.chevron_right_rounded),
+                            ],
                           ),
-                        );
-                      },
+                        ),
+                      ),
                     ),
-                  );
-                }),
-              ),
+                  ),
+                );
+              },
+            ),
+          );
+        }),
+      ),
     );
   }
 }

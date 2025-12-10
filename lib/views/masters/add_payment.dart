@@ -16,6 +16,7 @@ import '../commons/capitalize_text.dart';
 import '../commons/card_text_field.dart';
 import '../commons/snackbar.dart';
 import '../commons/submit_button.dart';
+import '../commons/text_style.dart';
 
 class AddPayment extends StatelessWidget {
   AddPayment({super.key});
@@ -792,205 +793,240 @@ class AddPayment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void showExitConfirmation() {
+      Get.defaultDialog(
+        radius: 22,
+        backgroundColor: Colors.white,
+        titlePadding: const EdgeInsets.only(top: 10),
+        title: "Discard Payment?",
+        titleStyle: appTextStyle(),
+        content: const Column(
+          children: [
+            Divider(),
+            SizedBox(height: 20),
+            Text("You have unsaved changes. Are you sure you want to discard them?", textAlign: TextAlign.center),
+            SizedBox(height: 10),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text("Keep Editing")),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              Get.back();
+            },
+            child: const Text("Discard", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      );
+    }
+
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(top: 10, left: 10, right: 10),
-          child: Column(
-            children: [
-              // Page Header
-              CommonPageHeader(
-                mainHeading: (tag == "add_payment") ? "Add Payment" : "Edit Payment",
-                subHeading: "Payments",
-                onTap: () => Get.back(),
-                icon: Icons.chevron_left_rounded,
-              ),
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          showExitConfirmation();
+        },
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(top: 10, left: 10, right: 10),
+            child: Column(
+              children: [
+                // Page Header
+                CommonPageHeader(
+                  mainHeading: (tag == "add_payment") ? "Add Payment" : "Edit Payment",
+                  subHeading: "Payments",
+                  onTap: () => showExitConfirmation(),
+                  icon: Icons.chevron_left_rounded,
+                ),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // Cheque details
-              Expanded(
-                child: SizedBox(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        CommonCardContainer(
-                          width: Get.width,
-                          padding: EdgeInsets.all(10),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CommonFromHeading(data: "Mode of Payment"),
-                              const SizedBox(height: 10),
+                // Cheque details
+                Expanded(
+                  child: SizedBox(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          CommonCardContainer(
+                            width: Get.width,
+                            padding: EdgeInsets.all(10),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CommonFromHeading(data: "Mode of Payment"),
+                                const SizedBox(height: 10),
 
-                              CommonCardContainer(
-                                child: CommonDropDown(
-                                  hintText: "Mode",
-                                  borderSideBorder: BorderSide.none,
-                                  borderSideEnable: BorderSide.none,
-                                  borderSideFocused: BorderSide.none,
-                                  dropdownMenuEntries: aCC.modeDropdownEntries,
-                                  initialSelection: aCC.selectedMode.value,
-                                  onSelected: (value) {
-                                    if (value != null) {
-                                      aCC.selectedMode.value = value.toString();
-                                    }
-                                  },
+                                CommonCardContainer(
+                                  child: CommonDropDown(
+                                    hintText: "Mode",
+                                    borderSideBorder: BorderSide.none,
+                                    borderSideEnable: BorderSide.none,
+                                    borderSideFocused: BorderSide.none,
+                                    dropdownMenuEntries: aCC.modeDropdownEntries,
+                                    initialSelection: aCC.selectedMode.value,
+                                    onSelected: (value) {
+                                      if (value != null) {
+                                        aCC.selectedMode.value = value.toString();
+                                      }
+                                    },
+                                  ),
                                 ),
-                              ),
 
-                              Obx(() {
-                                return generateModeDetailsBox(aCC.selectedMode.value);
-                              }),
-                            ],
+                                Obx(() {
+                                  return generateModeDetailsBox(aCC.selectedMode.value);
+                                }),
+                              ],
+                            ),
                           ),
-                        ),
 
-                        const SizedBox(height: 15),
+                          const SizedBox(height: 15),
 
-                        CommonCardContainer(
-                          padding: EdgeInsets.all(10),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 15),
+                          CommonCardContainer(
+                            padding: EdgeInsets.all(10),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 15),
 
-                              CommonFromHeading(data: "Client"),
+                                CommonFromHeading(data: "Client"),
 
-                              const SizedBox(height: 10),
-                              Obx(
-                                () => CommonTextField(
-                                  autofocus: false,
-                                  readOnly: true,
-                                  hintText: "Client Name",
-                                  controller: (tag == "add_payment") ? aCC.clientName : eCC.clientName,
-                                  focusNode: (tag == "add_payment") ? aCC.clientFocus : eCC.clientFocus,
-                                  errorText:
-                                      (tag == "add_payment")
-                                          ? (aCC.clientError.value.isEmpty ? null : aCC.clientError.value)
-                                          : (eCC.clientError.value.isEmpty ? null : eCC.clientError.value),
+                                const SizedBox(height: 10),
+                                Obx(
+                                  () => CommonTextField(
+                                    autofocus: false,
+                                    readOnly: true,
+                                    hintText: "Client Name",
+                                    controller: (tag == "add_payment") ? aCC.clientName : eCC.clientName,
+                                    focusNode: (tag == "add_payment") ? aCC.clientFocus : eCC.clientFocus,
+                                    errorText:
+                                        (tag == "add_payment")
+                                            ? (aCC.clientError.value.isEmpty ? null : aCC.clientError.value)
+                                            : (eCC.clientError.value.isEmpty ? null : eCC.clientError.value),
 
-                                  onChanged: (value) {
-                                    if (value.trim().isNotEmpty) {
-                                      if (tag == "add_payment") {
-                                        aCC.clientError.value = '';
-                                      } else {
-                                        eCC.clientError.value = '';
+                                    onChanged: (value) {
+                                      if (value.trim().isNotEmpty) {
+                                        if (tag == "add_payment") {
+                                          aCC.clientError.value = '';
+                                        } else {
+                                          eCC.clientError.value = '';
+                                        }
                                       }
-                                    }
-                                  },
-                                  onTap: () {
-                                    showCompanyList(tag);
+                                    },
+                                    onTap: () {
+                                      showCompanyList(tag);
 
-                                    clientListController.filterItems("");
-                                  },
+                                      clientListController.filterItems("");
+                                    },
+                                  ),
                                 ),
-                              ),
 
-                              const SizedBox(height: 15),
+                                const SizedBox(height: 15),
 
-                              CommonFromHeading(data: "Amount (₹)"),
+                                CommonFromHeading(data: "Amount (₹)"),
 
-                              const SizedBox(height: 10),
-                              Obx(
-                                () => CommonTextField(
-                                  autofocus: false,
-                                  hintText: "Amount",
-                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                  // Allow decimal keyboard
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                                const SizedBox(height: 10),
+                                Obx(
+                                  () => CommonTextField(
+                                    autofocus: false,
+                                    hintText: "Amount",
+                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    // Allow decimal keyboard
+                                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
 
-                                  readOnly:
-                                      (tag == "add_payment")
-                                          ? (aCC.selectedMode.value == "Cash")
-                                          : (eCC.selectedMode.value == "Cash"),
+                                    readOnly:
+                                        (tag == "add_payment")
+                                            ? (aCC.selectedMode.value == "Cash")
+                                            : (eCC.selectedMode.value == "Cash"),
 
-                                  controller: (tag == "add_payment") ? aCC.amount : eCC.amount,
-                                  focusNode: (tag == "add_payment") ? aCC.amountFocus : eCC.amountFocus,
+                                    controller: (tag == "add_payment") ? aCC.amount : eCC.amount,
+                                    focusNode: (tag == "add_payment") ? aCC.amountFocus : eCC.amountFocus,
 
-                                  errorText:
-                                      (tag == "add_payment")
-                                          ? (aCC.amountError.value.isEmpty ? null : aCC.amountError.value)
-                                          : (eCC.amountError.value.isEmpty ? null : eCC.amountError.value),
+                                    errorText:
+                                        (tag == "add_payment")
+                                            ? (aCC.amountError.value.isEmpty ? null : aCC.amountError.value)
+                                            : (eCC.amountError.value.isEmpty ? null : eCC.amountError.value),
 
-                                  onChanged: (value) {
-                                    if (value.trim().isNotEmpty) {
-                                      if (tag == "add_payment") {
-                                        aCC.amountError.value = '';
-                                      } else {
-                                        eCC.amountError.value = '';
+                                    onChanged: (value) {
+                                      if (value.trim().isNotEmpty) {
+                                        if (tag == "add_payment") {
+                                          aCC.amountError.value = '';
+                                        } else {
+                                          eCC.amountError.value = '';
+                                        }
                                       }
-                                    }
-                                  },
+                                    },
+                                  ),
                                 ),
-                              ),
 
-                              const SizedBox(height: 15),
+                                const SizedBox(height: 15),
 
-                              CommonFromHeading(data: "Bill Numbers"),
+                                CommonFromHeading(data: "Bill Numbers"),
 
-                              const SizedBox(height: 10),
-                              Obx(
-                                () => CommonTextField(
-                                  autofocus: false,
-                                  readOnly: true,
-                                  suffixIcon: const Icon(Icons.keyboard_arrow_down),
-                                  hintText: "Select Bill Numbers",
+                                const SizedBox(height: 10),
+                                Obx(
+                                  () => CommonTextField(
+                                    autofocus: false,
+                                    readOnly: true,
+                                    suffixIcon: const Icon(Icons.keyboard_arrow_down),
+                                    hintText: "Select Bill Numbers",
 
-                                  controller: (tag == "add_payment") ? aCC.billNo : eCC.billNo,
-                                  focusNode: (tag == "add_payment") ? aCC.billNoFocus : eCC.billNoFocus,
+                                    controller: (tag == "add_payment") ? aCC.billNo : eCC.billNo,
+                                    focusNode: (tag == "add_payment") ? aCC.billNoFocus : eCC.billNoFocus,
 
-                                  errorText:
-                                      (tag == "add_payment")
-                                          ? (aCC.billNoError.value.isEmpty ? null : aCC.billNoError.value)
-                                          : (eCC.billNoError.value.isEmpty ? null : eCC.billNoError.value),
+                                    errorText:
+                                        (tag == "add_payment")
+                                            ? (aCC.billNoError.value.isEmpty ? null : aCC.billNoError.value)
+                                            : (eCC.billNoError.value.isEmpty ? null : eCC.billNoError.value),
 
-                                  onChanged: (value) {
-                                    if (value.trim().isNotEmpty) {
-                                      if (tag == "add_payment") {
-                                        aCC.billNoError.value = '';
-                                      } else {
-                                        eCC.billNoError.value = '';
+                                    onChanged: (value) {
+                                      if (value.trim().isNotEmpty) {
+                                        if (tag == "add_payment") {
+                                          aCC.billNoError.value = '';
+                                        } else {
+                                          eCC.billNoError.value = '';
+                                        }
                                       }
-                                    }
-                                  },
+                                    },
 
-                                  onTap: () {
-                                    showInvoiceList(tag);
-                                  },
+                                    onTap: () {
+                                      showInvoiceList(tag);
+                                    },
+                                  ),
                                 ),
-                              ),
 
-                              const SizedBox(height: 15),
+                                const SizedBox(height: 15),
 
-                              CommonFromHeading(data: "Notes"),
+                                CommonFromHeading(data: "Notes"),
 
-                              const SizedBox(height: 10),
-                              CommonTextField(
-                                autofocus: false,
-                                hintText: "Notes",
-                                controller: (tag == "add_payment") ? aCC.notes : eCC.notes,
-                              ),
-                            ],
+                                const SizedBox(height: 10),
+                                CommonTextField(
+                                  autofocus: false,
+                                  hintText: "Notes",
+                                  controller: (tag == "add_payment") ? aCC.notes : eCC.notes,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
 
-                        SizedBox(height: 20),
+                          SizedBox(height: 20),
 
-                        CommonSubmit(
-                          data: (tag == "add_payment") ? "Submit" : "Update",
-                          onTap: (tag == "add_payment") ? _submitOnTap : _updateOnTap,
-                        ),
+                          CommonSubmit(
+                            data: (tag == "add_payment") ? "Submit" : "Update",
+                            onTap: (tag == "add_payment") ? _submitOnTap : _updateOnTap,
+                          ),
 
-                        const SizedBox(height: 20),
-                      ],
+                          const SizedBox(height: 20),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

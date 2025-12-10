@@ -303,236 +303,273 @@ class AddInvoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void showExitConfirmation() {
+      Get.defaultDialog(
+        radius: 22,
+        backgroundColor: Colors.white,
+        titlePadding: const EdgeInsets.only(top: 10),
+        title: "Discard Invoice?",
+        titleStyle: appTextStyle(),
+        content: const Column(
+          children: [
+            Divider(),
+            SizedBox(height: 20),
+            Text(
+              "You have unsaved changes. Are you sure you want to discard them?",
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 10),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text("Keep Editing")),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              Get.back();
+            },
+            child: const Text("Discard", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      );
+    }
 
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-          child: Column(
-            children: [
-              CommonPageHeader(
-                mainHeading: "Invoice",
-                subHeading: "Add New Invoice",
-                onTap: () => Get.back(),
-                icon: Icons.chevron_left_rounded,
-              ),
-              const SizedBox(height: 20),
-              Expanded(
-                child: Obx(
-                  () => SingleChildScrollView(
-                    controller: controller.scrollController,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CommonCardContainer(
-                          width: Get.width,
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const CommonFromHeading(data: "Invoice No."),
-                                  const Spacer(),
-                                  Obx(() {
-                                    return CommonFromHeading(
-                                      data: "${latestInvoiceNumberController.latestNumber.value}",
-                                    );
-                                  }),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          showExitConfirmation();
+        },
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+            child: Column(
+              children: [
+                CommonPageHeader(
+                  mainHeading: "Invoice",
+                  subHeading: "Add New Invoice",
+                  onTap: () => showExitConfirmation(),
+                  icon: Icons.chevron_left_rounded,
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: Obx(
+                    () => SingleChildScrollView(
+                      controller: controller.scrollController,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CommonCardContainer(
+                            width: Get.width,
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const CommonFromHeading(data: "Invoice No."),
+                                    const Spacer(),
+                                    Obx(() {
+                                      return CommonFromHeading(
+                                        data: "${latestInvoiceNumberController.latestNumber.value}",
+                                      );
+                                    }),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
 
-                              Row(
+                                Row(
+                                  children: [
+                                    const CommonFromHeading(data: "Invoice Date"),
+                                    const Spacer(),
+                                    InkWell(
+                                      onTap: () {
+                                        controller.selectDate(context);
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(color: Colors.grey.shade300),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.calendar_month, size: 16, color: Colors.grey),
+                                            const SizedBox(width: 5),
+                                            Obx(() {
+                                              // Formats date like "07-12-2025"
+                                              return CommonFromHeading(
+                                                data: DateFormat('dd-MM-yyyy').format(controller.invoiceDate.value),
+                                              );
+                                            }),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                // --- MODIFIED DATE PART ENDS HERE ---
+                                const SizedBox(height: 10),
+                                const Divider(),
+                                const SizedBox(height: 10),
+                                const CommonFromHeading(data: "Company"),
+                                const SizedBox(height: 10),
+                                CommonTextField(
+                                  autofocus: true,
+                                  hintText: "Company",
+                                  readOnly: true,
+                                  controller: controller.company,
+                                  onTap: () {
+                                    showCompanyList();
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // --- HEADER FOR DESIGN DETAILS ---
+                          Row(
+                            children: [
+                              Text("Design Details", style: appTextStyle(fontSize: 18)),
+                              const Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  controller.addDesignCard();
+
+                                  Future.delayed(const Duration(milliseconds: 100), () {
+                                    if (controller.pageController.hasClients) {
+                                      controller.pageController.animateToPage(
+                                        controller.designCardList.length - 1,
+                                        duration: const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    }
+                                  });
+                                },
+                                child: CommonIconCardContainer(
+                                  height: 40,
+                                  width: 40,
+                                  child: const Icon(Icons.add, color: Colors.black),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          // --- NAVIGATION ARROWS & COUNTER ---
+                          Obx(() {
+                            if (controller.designCardList.isEmpty) return const SizedBox.shrink();
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const CommonFromHeading(data: "Invoice Date"),
-                                  const Spacer(),
-                                  InkWell(
-                                    onTap: () {
-                                      controller.selectDate(context);
+                                  IconButton(
+                                    onPressed: () {
+                                      controller.pageController.previousPage(
+                                        duration: const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                      );
                                     },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: Colors.grey.shade300),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.calendar_month, size: 16, color: Colors.grey),
-                                          const SizedBox(width: 5),
-                                          Obx(() {
-                                            // Formats date like "07-12-2025"
-                                            return CommonFromHeading(
-                                              data: DateFormat('dd-MM-yyyy').format(controller.invoiceDate.value),
-                                            );
-                                          }),
-                                        ],
-                                      ),
+                                    icon: Icon(
+                                      Icons.chevron_left,
+                                      color: controller.currentCardIndex.value > 0 ? Colors.black : Colors.grey[400],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                    child: Text(
+                                      "${controller.currentCardIndex.value + 1} / ${controller.designCardList.length}",
+                                      style: appTextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      controller.pageController.nextPage(
+                                        duration: const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    },
+                                    icon: Icon(
+                                      Icons.chevron_right,
+                                      color:
+                                          controller.currentCardIndex.value < controller.designCardList.length - 1
+                                              ? Colors.black
+                                              : Colors.grey[400],
                                     ),
                                   ),
                                 ],
                               ),
-                              // --- MODIFIED DATE PART ENDS HERE ---
+                            );
+                          }),
 
-                              const SizedBox(height: 10),
-                              const Divider(),
-                              const SizedBox(height: 10),
-                              const CommonFromHeading(data: "Company"),
-                              const SizedBox(height: 10),
-                              CommonTextField(
-                                autofocus: true,
-                                hintText: "Company",
-                                readOnly: true,
-                                controller: controller.company,
-                                onTap: () {
-                                  showCompanyList();
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
+                          // --- HORIZONTAL LIST (ExpandablePageView) ---
+                          Obx(() {
+                            if (controller.designCardList.isEmpty) {
+                              return const Center(
+                                child: Padding(padding: EdgeInsets.all(20.0), child: Text("Click + to add items")),
+                              );
+                            }
 
-                        const SizedBox(height: 20),
-
-                        // --- HEADER FOR DESIGN DETAILS ---
-                        Row(
-                          children: [
-                            Text("Design Details", style: appTextStyle(fontSize: 18)),
-                            const Spacer(),
-                            GestureDetector(
-                              onTap: () {
-                                controller.addDesignCard();
-
-                                Future.delayed(const Duration(milliseconds: 100), () {
-                                  if (controller.pageController.hasClients) {
-                                    controller.pageController.animateToPage(
-                                      controller.designCardList.length - 1,
-                                      duration: const Duration(milliseconds: 300),
-                                      curve: Curves.easeInOut,
-                                    );
-                                  }
+                            return ExpandablePageView.builder(
+                              controller: controller.pageController,
+                              itemCount: controller.designCardList.length,
+                              onPageChanged: (index) {
+                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  controller.currentCardIndex.value = index;
                                 });
                               },
-                              child: CommonIconCardContainer(
-                                height: 40,
-                                width: 40,
-                                child: const Icon(Icons.add, color: Colors.black),
-                              ),
-                            ),
-                          ],
-                        ),
+                              itemBuilder: (context, index) {
+                                return buildDesignCard(index);
+                              },
+                            );
+                          }),
 
-                        // --- NAVIGATION ARROWS & COUNTER ---
-                        Obx(() {
-                          if (controller.designCardList.isEmpty) return const SizedBox.shrink();
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                          const SizedBox(height: 20),
+
+                          // --- SUMMARY SECTION ---
+                          CommonCardContainer(
+                            width: Get.width,
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                IconButton(
-                                  onPressed: () {
-                                    controller.pageController.previousPage(
-                                      duration: const Duration(milliseconds: 300),
-                                      curve: Curves.easeInOut,
-                                    );
-                                  },
-                                  icon: Icon(
-                                    Icons.chevron_left,
-                                    color: controller.currentCardIndex.value > 0 ? Colors.black : Colors.grey[400],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                  child: Text(
-                                    "${controller.currentCardIndex.value + 1} / ${controller.designCardList.length}",
-                                    style: appTextStyle(fontSize: 16),
-                                  ),
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    controller.pageController.nextPage(
-                                      duration: const Duration(milliseconds: 300),
-                                      curve: Curves.easeInOut,
-                                    );
-                                  },
-                                  icon: Icon(
-                                    Icons.chevron_right,
-                                    color:
-                                        controller.currentCardIndex.value < controller.designCardList.length - 1
-                                            ? Colors.black
-                                            : Colors.grey[400],
-                                  ),
-                                ),
+                                buildSummaryRow("Subtotal", controller.subtotal.value),
+                                (AppConstants.abbreviation == "AN")
+                                    ? buildSummaryRow("CGST (2.5%)", controller.cgst.value)
+                                    : (AppConstants.abbreviation == "LA")
+                                    ? buildSummaryRow("CGST (9%)", controller.cgst.value)
+                                    : const SizedBox.shrink(),
+                                (AppConstants.abbreviation == "AN")
+                                    ? buildSummaryRow("SGST (2.5%)", controller.sgst.value)
+                                    : (AppConstants.abbreviation == "LA")
+                                    ? buildSummaryRow("SGST (9%)", controller.sgst.value)
+                                    : const SizedBox.shrink(),
+                                const Divider(thickness: 1.5),
+                                buildSummaryRow("Final Total", controller.finalTotal.value, isBold: true),
                               ],
                             ),
-                          );
-                        }),
-
-                        // --- HORIZONTAL LIST (ExpandablePageView) ---
-                        Obx(() {
-                          if (controller.designCardList.isEmpty) {
-                            return const Center(
-                              child: Padding(padding: EdgeInsets.all(20.0), child: Text("Click + to add items")),
-                            );
-                          }
-
-                          return ExpandablePageView.builder(
-                            controller: controller.pageController,
-                            itemCount: controller.designCardList.length,
-                            onPageChanged: (index) {
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                controller.currentCardIndex.value = index;
-                              });
-                            },
-                            itemBuilder: (context, index) {
-                              return buildDesignCard(index);
-                            },
-                          );
-                        }),
-
-                        const SizedBox(height: 20),
-
-                        // --- SUMMARY SECTION ---
-                        CommonCardContainer(
-                          width: Get.width,
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildSummaryRow("Subtotal", controller.subtotal.value),
-                              (AppConstants.abbreviation == "AN")
-                                  ? buildSummaryRow("CGST (2.5%)", controller.cgst.value)
-                                  : (AppConstants.abbreviation == "LA")
-                                  ? buildSummaryRow("CGST (9%)", controller.cgst.value)
-                                  : const SizedBox.shrink(),
-                              (AppConstants.abbreviation == "AN")
-                                  ? buildSummaryRow("SGST (2.5%)", controller.sgst.value)
-                                  : (AppConstants.abbreviation == "LA")
-                                  ? buildSummaryRow("SGST (9%)", controller.sgst.value)
-                                  : const SizedBox.shrink(),
-                              const Divider(thickness: 1.5),
-                              buildSummaryRow("Final Total", controller.finalTotal.value, isBold: true),
-                            ],
                           ),
-                        ),
-                        const SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
-                        CommonSubmit(
-                          onTap: () {
-                            controller.createInvoice();
-                          },
-                          data: "Submit",
-                        ),
+                          CommonSubmit(
+                            onTap: () {
+                              controller.createInvoice();
+                            },
+                            data: "Submit",
+                          ),
 
-                        const SizedBox(height: 20),
-                      ],
+                          const SizedBox(height: 20),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
