@@ -74,7 +74,6 @@ class CreatePdf {
                   child: pw.Column(
                     mainAxisAlignment: pw.MainAxisAlignment.start,
                     children: [
-                      pw.Text("SUBJECT TO SURAT JURISDICTION", style: pw.TextStyle(font: ttf, fontSize: 8)),
                       pw.Text(AppConstants.businessName, style: pw.TextStyle(font: ttf2, fontSize: 22)),
                       pw.SizedBox(height: 5),
                       pw.Text(codes, textAlign: pw.TextAlign.end, style: pw.TextStyle(font: ttf2, fontSize: 10)),
@@ -317,6 +316,7 @@ class CreatePdf {
                     pw.Text("Terms and Conditions : ", style: pw.TextStyle(font: ttf2, fontSize: 12)),
                     pw.Text("~ Design once sold is not returned or taken back.", style: pw.TextStyle(font: ttf, fontSize: 12)),
                     pw.Text("~ Payment within 30 days.", style: pw.TextStyle(font: ttf, fontSize: 12)),
+                    pw.Text("~ Subject to surat jurisdiction.", style: pw.TextStyle(font: ttf, fontSize: 12)),
                     pw.Text("E. & O. E.", style: pw.TextStyle(font: ttf, fontSize: 12)),
                     pw.SizedBox(height: 10),
                   ],

@@ -59,6 +59,10 @@ class CustomDrawer extends StatelessWidget {
                 Get.offAll(() => SetPassword(), transition: Transition.fade);
               },
             ),
+
+            Spacer(),
+
+            Text("v10.12.2025", style: appTextStyle(fontSize: 12, color: Colors.black38))
           ],
         ),
       ),
