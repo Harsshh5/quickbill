@@ -55,6 +55,13 @@ class CreatePdf {
     final ttf = pw.Font.ttf(fontData);
     final ttf2 = pw.Font.ttf(fontData2);
 
+    final int subTotal = ctrl.subTotal.value;
+    final double cgst = ctrl.cgst.value;
+    final double sgst = ctrl.sgst.value;
+
+    final double totalWithTax = subTotal + cgst + sgst;
+
+
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -110,7 +117,7 @@ class CreatePdf {
                   children: [
                     pw.Text("Invoice To", style: pw.TextStyle(font: ttf2, fontSize: 16)),
                     pw.Text(
-                      "Invoice #${ctrl.invoiceNo.value}",
+                      "Invoice - G/${ctrl.invoiceNo.value}",
                       style: pw.TextStyle(font: ttf2, fontSize: 18, fontWeight: pw.FontWeight.bold),
                     ),
                   ],
@@ -190,33 +197,29 @@ class CreatePdf {
                           pw.Expanded(
                             flex: 1,
                             child: pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.end, // Aligns text to the right
+                              crossAxisAlignment: pw.CrossAxisAlignment.end,
                               children: [
 
-                                // Base Amount
                                 pw.Text(
                                   baseAmount.toStringAsFixed(2),
                                   style: pw.TextStyle(font: ttf, fontSize: 10),
                                 ),
 
-                                // Additional Charges (Only show if > 0)
                                 if (additional > 0)
                                   pw.Text(
                                     "₹ + ${additional.toStringAsFixed(2)}",
                                     style: pw.TextStyle(font: ttf, fontSize: 10, color: PdfColors.grey700),
                                   ),
 
-                                // Discount (Only show if > 0)
                                 if (discount > 0)
                                   pw.Text(
                                     "${isPercentage ? '%' : '₹'} - ${discount.toStringAsFixed(2)}",
                                     style: pw.TextStyle(font: ttf, fontSize: 10, color: PdfColors.grey700),
                                   ),
 
-                                // Final Total (Only show if logic was applied)
                                 if (additional > 0 || discount > 0) ...[
                                   pw.SizedBox(height: 2),
-                                  pw.Divider(height: 1, thickness: 0.5), // Adds a calculation line
+                                  pw.Divider(height: 1, thickness: 0.5),
                                   pw.SizedBox(height: 2),
                                   pw.Text(
                                     finalAmount.toStringAsFixed(2),
@@ -238,22 +241,22 @@ class CreatePdf {
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
-                    _pdfAmountRow(ttf, "Sub Total", ctrl.subTotal.value),
+                    _pdfAmountRow(ttf, "Sub Total", subTotal),
 
-                    // Check if abbreviation matches either condition
                     if (AppConstants.abbreviation == "AN" || AppConstants.abbreviation == "LA") ...[
                       _pdfAmountRow(
                           ttf,
                           "CGST ( ${AppConstants.abbreviation == "AN" ? "2.5%" : "9%"} )",
-                          ctrl.cgst.value
+                          cgst
                       ),
                       _pdfAmountRow(
                           ttf,
                           "SGST ( ${AppConstants.abbreviation == "AN" ? "2.5%" : "9%"} )",
-                          ctrl.sgst.value
+                          sgst
                       ),
                     ],
-
+                    _pdfAmountRow(ttf, "Total", totalWithTax),
+                    pw.Divider(color: PdfColors.grey),
                     _pdfAmountRow(ttf2, "Final Total", ctrl.finalTotal.value),
                     pw.SizedBox(height: 10),
                     pw.Text("[ ${converter.convertAmountToWords(ctrl.finalTotal.value.toDouble())} Only ]"),
