@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quickbill/controller/invoice_controller/invoice_list.dart';
 import 'package:quickbill/views/commons/snackbar.dart';
 
 import '../../model/payment_model/add_payment.dart';
@@ -9,6 +10,7 @@ import 'payment_list.dart';
 
 class AddPaymentController extends GetxController {
   final paymentsListController = Get.find<PaymentsListController>();
+  final invoiceListController = Get.find<InvoiceListController>();
 
   List<DropdownMenuEntry<String>> get modeDropdownEntries {
     return ["Cheque", "Cash", "Online"]
@@ -206,6 +208,7 @@ class AddPaymentController extends GetxController {
       if (res["success"] == true) {
         AppSnackBar.show(message: "Payment Added Successfully");
         paymentsListController.getPaymentsList();
+        invoiceListController.getInvoiceList();
 
         Get.back();
       } else if (res["success"] == false) {

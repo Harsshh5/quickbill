@@ -5,6 +5,7 @@ import 'package:quickbill/views/commons/text_style.dart';
 
 import '../../../config/app_colors.dart';
 import '../../passwords/enter_password.dart';
+import '../../pdfs/merge_pdfs.dart';
 import '../card_container.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -51,6 +52,15 @@ class CustomDrawer extends StatelessWidget {
             ),
 
             Divider(),
+
+            ListTile(
+              title: Text("Merge PDFs"),
+              leading: Icon(Icons.add_to_drive_rounded),
+              onTap: () {
+
+                Get.to(() => MergePdfs(), transition: Transition.fade);
+              },
+            ),
 
             ListTile(
               title: Text("Logout"),

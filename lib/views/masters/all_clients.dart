@@ -188,12 +188,12 @@ class _AllClientsState extends State<AllClients> with TickerProviderStateMixin {
                                   children: [
                                     Text(
                                       "${client["companyName"]}",
-                                      style: appTextStyle(fontSize: 16),
+                                      style: appTextStyle(fontSize: 14),
                                     ),
                                     Text(
                                       "${client["clientName"]}",
                                       style: appTextStyle(
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         color: Colors.black54,
                                       ),
                                     ),

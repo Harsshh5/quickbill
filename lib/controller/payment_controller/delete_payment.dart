@@ -4,10 +4,12 @@ import 'package:get/get.dart';
 
 import '../../model/payment_model/delete_payment.dart';
 import '../../views/commons/snackbar.dart';
+import '../invoice_controller/invoice_list.dart';
 import 'payment_list.dart';
 
 class DeletePaymentController extends GetxController {
   final paymentListController = Get.find<PaymentsListController>();
+  final invoiceListController = Get.find<InvoiceListController>();
 
   Future<void> removePayment(String chequeId) async {
     try {
@@ -16,6 +18,7 @@ class DeletePaymentController extends GetxController {
       if (res["success"] == true) {
         AppSnackBar.show(message: "Payment deleted successfully.");
         paymentListController.getPaymentsList();
+        invoiceListController.getInvoiceList();
 
         Get.back();
       } else if (res["success"] == false) {

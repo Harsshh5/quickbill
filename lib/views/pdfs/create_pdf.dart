@@ -184,7 +184,7 @@ class CreatePdf {
                                 pw.SizedBox(height: 2),
                                 pw.Text(
                                   item["notes"] ?? "",
-                                  style: pw.TextStyle(font: ttf, fontSize: 10, color: PdfColors.grey700),
+                                  style: pw.TextStyle(font: ttf, fontSize: 10, color: PdfColors.black),
                                 ),
                               ],
                             ),

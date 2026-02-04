@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:quickbill/config/app_constants.dart';
 import 'package:quickbill/views/pdfs/pdf_download_notification.dart';
+import 'package:share_plus/share_plus.dart';
 import 'create_pdf.dart';
-import 'package:file_saver/file_saver.dart'; // Add this package
-import 'package:device_info_plus/device_info_plus.dart'; // Add this package
+import 'package:file_saver/file_saver.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 Future<void> downloadPdf(String fileName) async {
   dynamic abb = AppConstants.abbreviation;
@@ -20,7 +21,7 @@ Future<void> downloadPdf(String fileName) async {
   }
 
   String cleanName = fileName.replaceAll('.pdf', '');
-  String finalName = '$abb-$cleanName';
+  String finalName = cleanName;
 
   // --- LOGIC FOR ANDROID 10+ (Scoped Storage) ---
   if (isModernAndroid) {
@@ -35,6 +36,11 @@ Future<void> downloadPdf(String fileName) async {
       debugPrint("File Saved at: $path");
 
       await showDownloadNotification(finalName, path);
+
+      await Share.shareXFiles(
+        [XFile(pdfFile.path, name: finalName)],
+        text: 'Here is your file: $finalName',
+      );
 
     } catch (e) {
       debugPrint("Error saving file: $e");
@@ -60,6 +66,11 @@ Future<void> downloadPdf(String fileName) async {
       await pdfFile.copy(filePath);
 
       await showDownloadNotification(fileName, filePath);
+
+      await Share.shareXFiles(
+        [XFile(pdfFile.path, name: finalName)],
+        text: 'Here is your file: $finalName',
+      );
     } else {
       debugPrint("Storage permission denied");
     }
