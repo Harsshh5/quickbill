@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'dart:math' as math;
 import 'package:quickbill/views/commons/gradient.dart';
 import 'package:quickbill/views/commons/page_header.dart';
 import 'package:quickbill/views/commons/text_style.dart';
@@ -145,9 +146,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   Widget invoicesList() {
     return Obx(() {
+      // Take a stable snapshot to avoid RangeError if the RxList changes
+      // between itemCount calculation and itemBuilder indexing.
+      final list = invoiceListController.filteredList.toList();
+      final visibleCount = math.min(10, list.length);
+
       return Expanded(
         child:
-            invoiceListController.filteredList.isEmpty
+            list.isEmpty
                 ? CommonCardContainer(
                   child: Center(child: Text("No Invoices Found", style: appTextStyle(color: Colors.grey))),
                 )
@@ -160,13 +166,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   child: Skeletonizer(
                     enabled: invoiceListController.isLoading.value,
                     child: ListView.builder(
-                      itemCount:
-                          (invoiceListController.filteredList.length) > 10
-                              ? 10
-                              : invoiceListController.filteredList.length,
+                      itemCount: visibleCount,
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
-                        var invoices = invoiceListController.filteredList[index];
+                        var invoices = list[index];
                         var amountColor = (invoices["status"] == "paid") ? Colors.green : Colors.red;
 
                         return SlideTransition(
@@ -192,11 +195,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              "Bill No. ${invoices["invoiceNumber"]!}",
+                                              "Bill No. ${invoices["invoiceNumber"] ?? ''}",
                                               style: appTextStyle(fontSize: 14),
                                             ),
                                             Text(
-                                              invoices["companyName"]!,
+                                              invoices["companyName"] ?? '',
                                               style: appTextStyle(fontSize: 12),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
@@ -205,10 +208,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         ),
                                       ),
                                       const SizedBox(width: 15),
-                                      Text(invoices["invoiceDate"]!, style: appTextStyle(fontSize: 14)),
+                                      Text(invoices["invoiceDate"] ?? '', style: appTextStyle(fontSize: 14)),
                                       const SizedBox(width: 15),
                                       Text(
-                                        invoiceListController.formatIndianCurrency(invoices["totalAmount"]!),
+                                        invoiceListController.formatIndianCurrency(invoices["totalAmount"] ?? ''),
                                         style: appTextStyle(fontSize: 14, color: amountColor),
                                       ),
                                       const SizedBox(width: 10),

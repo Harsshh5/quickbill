@@ -13,6 +13,9 @@ class InvoiceListController extends GetxController {
 
   var currentStatusFilter = 'unpaid'.obs;
   var currentSearchQuery = ''.obs;
+  var isFinancialYearFilterEnabled = false.obs;
+  var selectedFinancialYear = ''.obs;
+  RxList<String> financialYears = <String>[].obs;
 
   RxDouble pendingTotal = 0.0.obs;
   RxDouble receivedTotal = 0.0.obs;
@@ -27,7 +30,11 @@ class InvoiceListController extends GetxController {
     try {
       // Handle both String and Double input
       double number = (amount is String) ? double.parse(amount) : amount;
-      final format = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 1);
+      final format = NumberFormat.currency(
+        locale: 'en_IN',
+        symbol: '₹',
+        decimalDigits: 1,
+      );
       return format.format(number);
     } catch (e) {
       return "₹0.00";
@@ -49,49 +56,119 @@ class InvoiceListController extends GetxController {
     return double.tryParse(clean) ?? 0.0;
   }
 
-  void filterItems(String query) {
-    if (query.isEmpty) {
-      filteredList.assignAll(allInvoices);
-    } else {
-      filteredList.assignAll(
-        allInvoices.where(
-              (item) =>
-          item["invoiceNumber"]!.toLowerCase().contains(query.toLowerCase()) ||
-              item["companyName"]!.toLowerCase().contains(query.toLowerCase()) ||
-              item["totalAmount"]!.toLowerCase().contains(query.toLowerCase()) ||
-              item["invoiceDate"]!.toLowerCase().contains(query.toLowerCase()),
-        ),
-      );
+  DateTime? _parseDisplayDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty || dateStr == 'Invalid date') {
+      return null;
     }
+    try {
+      return DateFormat('dd-MM-yyyy').parse(dateStr);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  int _financialYearStart(DateTime date) {
+    return date.month >= 4 ? date.year : date.year - 1;
+  }
+
+  String _financialYearLabel(DateTime date) {
+    final startYear = _financialYearStart(date);
+    return "$startYear-${startYear + 1}";
+  }
+
+  int _financialYearStartFromLabel(String financialYear) {
+    return int.tryParse(financialYear.split('-').first) ?? 0;
+  }
+
+  bool _isInvoiceInSelectedFinancialYear(Map<String, String> item) {
+    if (!isFinancialYearFilterEnabled.value ||
+        selectedFinancialYear.value.isEmpty) {
+      return true;
+    }
+
+    final invoiceDate = _parseDisplayDate(item["invoiceDate"]);
+    if (invoiceDate == null) return false;
+
+    return _financialYearLabel(invoiceDate) == selectedFinancialYear.value;
+  }
+
+  void _updateFinancialYears(List<Map<String, String>> invoices) {
+    final yearSet = <String>{};
+
+    for (var invoice in invoices) {
+      final invoiceDate = _parseDisplayDate(invoice["invoiceDate"]);
+      if (invoiceDate != null) {
+        yearSet.add(_financialYearLabel(invoiceDate));
+      }
+    }
+
+    final sortedYears =
+        yearSet.toList()..sort(
+          (a, b) => _financialYearStartFromLabel(
+            b,
+          ).compareTo(_financialYearStartFromLabel(a)),
+        );
+
+    financialYears.assignAll(sortedYears);
+
+    if (!isFinancialYearFilterEnabled.value) return;
+
+    if (financialYears.isEmpty) {
+      selectedFinancialYear.value = '';
+    } else if (selectedFinancialYear.value.isEmpty ||
+        !financialYears.contains(selectedFinancialYear.value)) {
+      selectedFinancialYear.value = financialYears.first;
+    }
+  }
+
+  List<DropdownMenuEntry<String>> get financialYearDropdownEntries {
+    return financialYears
+        .map((item) => DropdownMenuEntry(value: item, label: item))
+        .toList();
+  }
+
+  void filterItems(String query) {
+    setSearchQuery(query);
   }
 
   void _applyFilters() {
     List<Map<String, String>> tempBaseList = List.from(allInvoices);
 
+    tempBaseList =
+        tempBaseList.where(_isInvoiceInSelectedFinancialYear).toList();
+
     if (currentSearchQuery.value.isNotEmpty) {
       String query = currentSearchQuery.value.toLowerCase();
-      tempBaseList = tempBaseList.where((item) =>
-      (item["invoiceNumber"] ?? "").toLowerCase().contains(query) ||
-          (item["companyName"] ?? "").toLowerCase().contains(query) ||
-          (item["totalAmount"] ?? "").toLowerCase().contains(query)
-      ).toList();
+      tempBaseList =
+          tempBaseList
+              .where(
+                (item) =>
+                    (item["invoiceNumber"] ?? "").toLowerCase().contains(
+                      query,
+                    ) ||
+                    (item["companyName"] ?? "").toLowerCase().contains(query) ||
+                    (item["totalAmount"] ?? "").toLowerCase().contains(query),
+              )
+              .toList();
     }
 
     if (currentDateRange.value != null) {
       DateTime start = currentDateRange.value!.start;
       DateTime end = currentDateRange.value!.end;
 
-      tempBaseList = tempBaseList.where((item) {
-        String dateStr = item['date'] ?? '';
-        if (dateStr.isEmpty || dateStr == 'Invalid date') return false;
-        try {
-          DateTime itemDate = DateFormat('dd-MM-yyyy').parse(dateStr);
-          return (itemDate.isAtSameMomentAs(start) || itemDate.isAfter(start)) &&
-              (itemDate.isAtSameMomentAs(end) || itemDate.isBefore(end));
-        } catch (e) {
-          return false;
-        }
-      }).toList();
+      tempBaseList =
+          tempBaseList.where((item) {
+            String dateStr = item['date'] ?? '';
+            if (dateStr.isEmpty || dateStr == 'Invalid date') return false;
+            try {
+              DateTime itemDate = DateFormat('dd-MM-yyyy').parse(dateStr);
+              return (itemDate.isAtSameMomentAs(start) ||
+                      itemDate.isAfter(start)) &&
+                  (itemDate.isAtSameMomentAs(end) || itemDate.isBefore(end));
+            } catch (e) {
+              return false;
+            }
+          }).toList();
     }
 
     double pTotal = 0.0;
@@ -110,11 +187,16 @@ class InvoiceListController extends GetxController {
 
     pendingTotal.value = pTotal;
     receivedTotal.value = rTotal;
-    
+
     if (currentStatusFilter.value.isNotEmpty) {
-      tempBaseList = tempBaseList
-          .where((item) => (item['status'] ?? '').toLowerCase() == currentStatusFilter.value.toLowerCase())
-          .toList();
+      tempBaseList =
+          tempBaseList
+              .where(
+                (item) =>
+                    (item['status'] ?? '').toLowerCase() ==
+                    currentStatusFilter.value.toLowerCase(),
+              )
+              .toList();
     }
 
     filteredList.assignAll(tempBaseList);
@@ -135,6 +217,23 @@ class InvoiceListController extends GetxController {
     _applyFilters();
   }
 
+  void enableFinancialYearFilter() {
+    isFinancialYearFilterEnabled.value = true;
+    _updateFinancialYears(allInvoices);
+    _applyFilters();
+  }
+
+  void setFinancialYearFilter(String financialYear) {
+    selectedFinancialYear.value = financialYear;
+    _applyFilters();
+  }
+
+  void disableFinancialYearFilter() {
+    isFinancialYearFilterEnabled.value = false;
+    selectedFinancialYear.value = '';
+    _applyFilters();
+  }
+
   Future<void> getInvoiceList() async {
     isLoading.value = true;
     try {
@@ -145,7 +244,8 @@ class InvoiceListController extends GetxController {
           tempList.add({
             "id": item["_id"] ?? "",
             "companyName": item["clientId"]?["companyName"] ?? "",
-            "totalAmount": item["amountDetails"]?["totalAmount"]?.toString() ?? "",
+            "totalAmount":
+                item["amountDetails"]?["totalAmount"]?.toString() ?? "",
             "invoiceNumber": item["invoiceNumber"]?.toString() ?? "",
             "invoiceDate": formatDateToDMY(item["invoiceDate"]),
             "status": item["status"] ?? "",
@@ -153,10 +253,13 @@ class InvoiceListController extends GetxController {
           });
         }
         allInvoices.assignAll(tempList);
+        _updateFinancialYears(tempList);
         _applyFilters();
       } else {
         allInvoices.clear();
         filteredList.clear();
+        financialYears.clear();
+        selectedFinancialYear.value = '';
         pendingTotal.value = 0.0;
         receivedTotal.value = 0.0;
       }
@@ -164,10 +267,10 @@ class InvoiceListController extends GetxController {
       log("Error: $e");
       allInvoices.clear();
       filteredList.clear();
+      financialYears.clear();
+      selectedFinancialYear.value = '';
     } finally {
       isLoading.value = false;
     }
   }
 }
-
-

@@ -5,6 +5,7 @@ import 'package:quickbill/config/app_constants.dart';
 import 'package:quickbill/views/commons/card_container.dart';
 import 'package:quickbill/views/commons/page_header.dart';
 import 'package:quickbill/views/commons/text_style.dart';
+import 'package:quickbill/views/masters/edit_invoice.dart';
 import 'package:quickbill/views/masters/preview_pdf.dart';
 import 'package:quickbill/views/pdfs/create_pdf.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -29,10 +30,19 @@ class InvoiceDetails extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Text("$label: ", style: TextStyle(fontSize: 14, fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
+          Text(
+            "$label: ",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
           Text(
             "₹${double.tryParse(amount.toString())?.toStringAsFixed(2) ?? amount}",
-            style: TextStyle(fontSize: 14, fontWeight: isBold ? FontWeight.bold : FontWeight.normal),
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            ),
           ),
         ],
       ),
@@ -71,7 +81,11 @@ class InvoiceDetails extends StatelessWidget {
                       height: 60,
                       width: Get.width / 3.5,
                       alignment: Alignment.center,
-                      child: Text("Download\nPDF", textAlign: TextAlign.center, style: appTextStyle(fontSize: 14)),
+                      child: Text(
+                        "Download\nPDF",
+                        textAlign: TextAlign.center,
+                        style: appTextStyle(fontSize: 14),
+                      ),
                     ),
                   ),
                   InkWell(
@@ -86,19 +100,32 @@ class InvoiceDetails extends StatelessWidget {
                       height: 60,
                       width: Get.width / 3.5,
                       alignment: Alignment.center,
-                      child: Text("Preview\nPDF", textAlign: TextAlign.center, style: appTextStyle(fontSize: 14)),
+                      child: Text(
+                        "Preview\nPDF",
+                        textAlign: TextAlign.center,
+                        style: appTextStyle(fontSize: 14),
+                      ),
                     ),
                   ),
                   InkWell(
                     splashColor: Colors.deepPurpleAccent.shade100,
                     radius: 50,
                     borderRadius: BorderRadius.circular(24),
-                    onTap: () {},
+                    onTap: () {
+                      Get.to(
+                        () => EditInvoice(),
+                        arguments: {"invoiceId": ctrl.invId.value},
+                      );
+                    },
                     child: CommonCardContainer(
                       height: 60,
                       width: Get.width / 3.5,
                       alignment: Alignment.center,
-                      child: Text("Edit\nInvoice", textAlign: TextAlign.center, style: appTextStyle(fontSize: 14)),
+                      child: Text(
+                        "Edit\nInvoice",
+                        textAlign: TextAlign.center,
+                        style: appTextStyle(fontSize: 14),
+                      ),
                     ),
                   ),
                 ],
@@ -133,7 +160,10 @@ class InvoiceDetails extends StatelessWidget {
                                     ctrl.status.value.capitalizeFirst!,
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: ctrl.status.value == "paid" ? Colors.green : Colors.red,
+                                      color:
+                                          ctrl.status.value == "paid"
+                                              ? Colors.green
+                                              : Colors.red,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -141,23 +171,54 @@ class InvoiceDetails extends StatelessWidget {
                                 const Spacer(),
                                 Text(
                                   "Invoice #${ctrl.invoiceNo.value}",
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ],
                             ),
 
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
-                              children: [Text("${ctrl.createDate}", style: const TextStyle(fontSize: 14))],
+                              children: [
+                                Text(
+                                  "${ctrl.createDate}",
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ],
                             ),
 
-                            const Text("Invoice To", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                            Text("${ctrl.companyName}", style: const TextStyle(fontSize: 14)),
-                            Text("${ctrl.clientName}", style: const TextStyle(fontSize: 14)),
+                            const Text(
+                              "Invoice To",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              "${ctrl.companyName}",
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              "${ctrl.clientName}",
+                              style: const TextStyle(fontSize: 14),
+                            ),
                             if (ctrl.contact.isNotEmpty)
-                              Text("+91-${ctrl.contact}", style: const TextStyle(fontSize: 14)),
-                            if (ctrl.address.isNotEmpty) Text("${ctrl.address}", style: const TextStyle(fontSize: 14)),
-                            if (ctrl.gstNo.isNotEmpty) Text("GST: ${ctrl.gstNo}", style: const TextStyle(fontSize: 14)),
+                              Text(
+                                "+91-${ctrl.contact}",
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            if (ctrl.address.isNotEmpty)
+                              Text(
+                                "${ctrl.address}",
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            if (ctrl.gstNo.isNotEmpty)
+                              Text(
+                                "GST: ${ctrl.gstNo}",
+                                style: const TextStyle(fontSize: 14),
+                              ),
 
                             const SizedBox(height: 20),
                             const Divider(),
@@ -169,25 +230,43 @@ class InvoiceDetails extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: const [
                                       SizedBox(
                                         width: 110,
-                                        child: Text("Item", style: TextStyle(fontWeight: FontWeight.bold)),
+                                        child: Text(
+                                          "Item",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
                                       SizedBox(
                                         width: 60,
-                                        child: Text("Qty", style: TextStyle(fontWeight: FontWeight.bold)),
+                                        child: Text(
+                                          "Qty",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
                                       SizedBox(
                                         width: 80,
-                                        child: Text("Rate", style: TextStyle(fontWeight: FontWeight.bold)),
+                                        child: Text(
+                                          "Rate",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
                                       SizedBox(
                                         width: 100,
                                         child: Text(
                                           "Amount",
-                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                           textAlign: TextAlign.right,
                                         ),
                                       ),
@@ -197,70 +276,119 @@ class InvoiceDetails extends StatelessWidget {
 
                                   ...ctrl.designList.map((item) {
                                     // Parse values for display logic
-                                    final double additional = double.tryParse(item["additionalCharges"] ?? "0") ?? 0;
-                                    final double discount = double.tryParse(item["discount"] ?? "0") ?? 0;
-                                    final bool isPercentage = item["discountMode"] == "percentage";
+                                    final double additional =
+                                        double.tryParse(
+                                          item["additionalCharges"] ?? "0",
+                                        ) ??
+                                        0;
+                                    final double discount =
+                                        double.tryParse(
+                                          item["discount"] ?? "0",
+                                        ) ??
+                                        0;
+                                    final bool isPercentage =
+                                        item["discountMode"] == "percentage";
                                     final String amountBefore =
-                                        double.tryParse(item["amountBeforeDiscount"] ?? "0")?.toStringAsFixed(2) ?? "0";
+                                        double.tryParse(
+                                          item["amountBeforeDiscount"] ?? "0",
+                                        )?.toStringAsFixed(2) ??
+                                        "0";
                                     final String finalAmt =
-                                        double.tryParse(item["amount"] ?? "0")?.toStringAsFixed(2) ?? "0";
+                                        double.tryParse(
+                                          item["amount"] ?? "0",
+                                        )?.toStringAsFixed(2) ??
+                                        "0";
 
                                     return Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0,
+                                      ),
                                       child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           // Column 1: Item & Notes
                                           SizedBox(
                                             width: 110,
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   "${item["designCategory"]}",
-                                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
                                                 ),
-                                                if ((item["notes"] ?? "").isNotEmpty)
+                                                if ((item["notes"] ?? "")
+                                                    .isNotEmpty)
                                                   Text(
                                                     "(${item["notes"]})",
                                                     style: TextStyle(
                                                       fontSize: 10,
                                                       color: Colors.grey[600],
-                                                      fontStyle: FontStyle.italic,
+                                                      fontStyle:
+                                                          FontStyle.italic,
                                                     ),
                                                   ),
                                               ],
                                             ),
                                           ),
                                           // Column 2: Qty
-                                          SizedBox(width: 60, child: Text("${item["quantity"]}")),
+                                          SizedBox(
+                                            width: 60,
+                                            child: Text("${item["quantity"]}"),
+                                          ),
                                           // Column 3: Rate
-                                          SizedBox(width: 80, child: Text("₹${item["rate"]}")),
+                                          SizedBox(
+                                            width: 80,
+                                            child: Text("₹${item["rate"]}"),
+                                          ),
                                           // Column 4: Amount Calculation
                                           SizedBox(
                                             width: 100,
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
                                               children: [
-                                                Text(amountBefore, style: const TextStyle(fontSize: 12)),
+                                                Text(
+                                                  amountBefore,
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
 
                                                 if (additional > 0)
                                                   Text(
                                                     "+ $additional",
-                                                    style: TextStyle(fontSize: 10, color: Colors.grey[700]),
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      color: Colors.grey[700],
+                                                    ),
                                                   ),
 
                                                 if (discount > 0)
                                                   Text(
                                                     "- ${discount.toStringAsFixed(2)}${isPercentage ? '%' : ''}",
-                                                    style: TextStyle(fontSize: 10, color: Colors.grey[700]),
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      color: Colors.grey[700],
+                                                    ),
                                                   ),
 
-                                                if (additional > 0 || discount > 0) ...[
-                                                  const Divider(height: 4, thickness: 0.5),
+                                                if (additional > 0 ||
+                                                    discount > 0) ...[
+                                                  const Divider(
+                                                    height: 4,
+                                                    thickness: 0.5,
+                                                  ),
                                                   Text(
                                                     finalAmt,
-                                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 13,
+                                                    ),
                                                   ),
                                                 ],
                                               ],
@@ -281,19 +409,36 @@ class InvoiceDetails extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                _buildAmountRow("Sub Total", ctrl.subTotal.value),
+                                _buildAmountRow(
+                                  "Sub Total",
+                                  ctrl.subTotal.value,
+                                ),
 
                                 // Show Tax for BOTH "AN" and "LA"
                                 if (abb == "AN" || abb == "LA") ...[
-                                  _buildAmountRow("CGST (${abb == "AN" ? "2.5%" : "9%"})", ctrl.cgst.value),
-                                  _buildAmountRow("SGST (${abb == "AN" ? "2.5%" : "9%"})", ctrl.sgst.value),
+                                  _buildAmountRow(
+                                    "CGST (${abb == "AN" ? "2.5%" : "9%"})",
+                                    ctrl.cgst.value,
+                                  ),
+                                  _buildAmountRow(
+                                    "SGST (${abb == "AN" ? "2.5%" : "9%"})",
+                                    ctrl.sgst.value,
+                                  ),
                                 ],
 
                                 const SizedBox(height: 5),
-                                Container(height: 1, width: 200, color: Colors.black12),
+                                Container(
+                                  height: 1,
+                                  width: 200,
+                                  color: Colors.black12,
+                                ),
                                 const SizedBox(height: 5),
 
-                                _buildAmountRow("Final Total", ctrl.finalTotal.value, isBold: true),
+                                _buildAmountRow(
+                                  "Final Total",
+                                  ctrl.finalTotal.value,
+                                  isBold: true,
+                                ),
                               ],
                             ),
 
@@ -301,7 +446,9 @@ class InvoiceDetails extends StatelessWidget {
 
                             Obx(() {
                               return Visibility(
-                                visible: (ctrl.invoiceNo.value == iCC.count.value && ctrl.status.value == "unpaid"),
+                                visible:
+                                    (ctrl.invoiceNo.value == iCC.count.value &&
+                                        ctrl.status.value == "unpaid"),
                                 child: InkWell(
                                   onLongPress: () {
                                     HapticFeedback.heavyImpact();
@@ -309,7 +456,9 @@ class InvoiceDetails extends StatelessWidget {
                                     Get.defaultDialog(
                                       radius: 22,
                                       backgroundColor: Colors.white,
-                                      titlePadding: const EdgeInsets.only(top: 10),
+                                      titlePadding: const EdgeInsets.only(
+                                        top: 10,
+                                      ),
                                       title: "Delete Invoice?",
                                       titleStyle: appTextStyle(),
                                       content: const Column(
@@ -324,13 +473,19 @@ class InvoiceDetails extends StatelessWidget {
                                         ],
                                       ),
                                       actions: [
-                                        TextButton(onPressed: () => Get.back(), child: const Text("Cancel")),
+                                        TextButton(
+                                          onPressed: () => Get.back(),
+                                          child: const Text("Cancel"),
+                                        ),
                                         TextButton(
                                           onPressed: () {
                                             dIC.removeInvoice(ctrl.invId.value);
                                             Get.back();
                                           },
-                                          child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                                          child: const Text(
+                                            "Delete",
+                                            style: TextStyle(color: Colors.red),
+                                          ),
                                         ),
                                       ],
                                     );
@@ -341,7 +496,10 @@ class InvoiceDetails extends StatelessWidget {
                                     alignment: Alignment.center,
                                     child: const Text(
                                       "Delete Invoice",
-                                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),

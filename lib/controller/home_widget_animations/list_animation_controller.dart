@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 class ListAnimationControllerHelper {
   final TickerProvider vsync;
   final int itemCount;
+
+  final List<Timer> _timers = <Timer>[];
 
   late final List<AnimationController> listControllers;
   late final List<Animation<double>> listAnimations;
@@ -56,13 +59,21 @@ class ListAnimationControllerHelper {
     }).toList();
 
     for (int i = 0; i < itemCount; i++) {
-      Future.delayed(Duration(milliseconds: 100 * i), () {
-        entranceControllers[i].forward();
-      });
+      _timers.add(
+        Timer(Duration(milliseconds: 100 * i), () {
+          if (entranceControllers[i].isAnimating) return;
+          // If disposed, this will throw; timers are cancelled in dispose().
+          entranceControllers[i].forward();
+        }),
+      );
     }
   }
 
   void dispose() {
+    for (final t in _timers) {
+      t.cancel();
+    }
+    _timers.clear();
     for (final controller in listControllers) {
       controller.dispose();
     }

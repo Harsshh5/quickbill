@@ -7,6 +7,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../config/app_colors.dart';
 import '../commons/card_container.dart';
+import '../commons/drop_down.dart';
 import '../commons/page_header.dart';
 import '../commons/text_style.dart';
 import '../../../controller/home_widget_animations/list_animation_controller.dart';
@@ -19,22 +20,56 @@ class AllInvoices extends StatefulWidget {
   State<AllInvoices> createState() => _AllInvoicesState();
 }
 
-class _AllInvoicesState extends State<AllInvoices> with TickerProviderStateMixin {
-  late ListAnimationControllerHelper animController;
+class _AllInvoicesState extends State<AllInvoices>
+    with TickerProviderStateMixin {
+  ListAnimationControllerHelper? animController;
+  int _animCount = 0;
 
-  var invoiceCount = Get.arguments["invoiceCount"];
-
-  final InvoiceListController invoiceListController = Get.put(InvoiceListController());
+  final InvoiceListController invoiceListController = Get.put(
+    InvoiceListController(),
+  );
 
   @override
   void initState() {
     super.initState();
-    animController = ListAnimationControllerHelper(vsync: this, itemCount: invoiceCount);
+
+    // initialize with at least 1 to avoid zero-sized controllers
+    _animCount = 1;
+    animController = ListAnimationControllerHelper(
+      vsync: this,
+      itemCount: _animCount,
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || invoiceListController.isClosed) return;
+      invoiceListController.setStatusFilter('');
+      invoiceListController.setDateRangeFilter(null);
+      invoiceListController.setSearchQuery('');
+      invoiceListController.enableFinancialYearFilter();
+    });
+  }
+
+  @override
+  void dispose() {
+    // IMPORTANT: don't mutate Rx state synchronously in dispose().
+    // It can trigger Obx rebuilds while Flutter is finalizing the tree
+    // ("widget tree was locked" assertion). Defer to next frame.
+    final ctrl = invoiceListController;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ctrl.isClosed) return;
+      ctrl.disableFinancialYearFilter();
+      ctrl.setSearchQuery('');
+    });
+    animController?.dispose();
+    super.dispose();
   }
 
   void handleTap(int index) async {
-    await animController.listControllers[index].forward();
-    await animController.listControllers[index].reverse();
+    if (animController == null) return;
+    if (index < animController!.listControllers.length) {
+      await animController!.listControllers[index].forward();
+      await animController!.listControllers[index].reverse();
+    }
   }
 
   @override
@@ -59,10 +94,59 @@ class _AllInvoicesState extends State<AllInvoices> with TickerProviderStateMixin
                   CommonTextField(
                     hintText: "Search",
                     onChanged: (p0) {
-                      invoiceListController.filterItems(p0);
+                      invoiceListController.setSearchQuery(p0);
                     },
                     suffixIcon: Icon(Icons.search, color: Colors.black),
                   ),
+
+                  const SizedBox(height: 15),
+
+                  Obx(() {
+                    final years = invoiceListController.financialYears;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const CommonFromHeading(data: "Financial Year"),
+                        const SizedBox(height: 8),
+                        Card(
+                          elevation: 5,
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          child: CommonDropDown<String>(
+                            key: ValueKey(
+                              invoiceListController.selectedFinancialYear.value,
+                            ),
+                            hintText: "Financial Year",
+                            isEnable: years.isNotEmpty,
+                            initialSelection:
+                                invoiceListController
+                                        .selectedFinancialYear
+                                        .value
+                                        .isEmpty
+                                    ? null
+                                    : invoiceListController
+                                        .selectedFinancialYear
+                                        .value,
+                            dropdownMenuEntries:
+                                invoiceListController
+                                    .financialYearDropdownEntries,
+                            borderSideBorder: BorderSide.none,
+                            borderSideEnable: BorderSide.none,
+                            borderSideFocused: BorderSide.none,
+                            onSelected: (value) {
+                              if (value != null) {
+                                invoiceListController.setFinancialYearFilter(
+                                  value,
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
 
                   const SizedBox(height: 20),
 
@@ -78,40 +162,68 @@ class _AllInvoicesState extends State<AllInvoices> with TickerProviderStateMixin
 
   Widget invoicesList() {
     return Expanded(
-      child:
-          invoiceCount == 0
-              ? Center(child: Text("No Invoices Found", style: appTextStyle(color: Colors.grey)))
-              : RefreshIndicator(
-                backgroundColor: Colors.white,
-                color: AppColors.dark,
-                onRefresh: () {
-                  return invoiceListController.getInvoiceList();
-                },
-                child: Obx(() {
-                  var list = invoiceListController.filteredList.toList();
+      child: RefreshIndicator(
+        backgroundColor: Colors.white,
+        color: AppColors.dark,
+        onRefresh: () {
+          return invoiceListController.getInvoiceList();
+        },
+        child: Obx(() {
+          var list = invoiceListController.filteredList.toList();
 
-                  return Skeletonizer(
-                    enabled: invoiceListController.isLoading.value,
-                    child: ListView.builder(
-                      itemCount: list.length,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        var invoices = list[index];
-                        var amountColor = (invoices["status"] == "paid") ? Colors.green : Colors.red;
+                  // Ensure animation controller matches current list length
+                  int needed = list.isEmpty ? 1 : list.length;
+                  if (animController == null || _animCount != needed) {
+                    // dispose previous
+                    try {
+                      animController?.dispose();
+                    } catch (_) {}
+                    _animCount = needed;
+                    animController = ListAnimationControllerHelper(vsync: this, itemCount: _animCount);
+                  }
+
+          if (!invoiceListController.isLoading.value && list.isEmpty) {
+            return Center(
+              child: Text(
+                "No Invoices Found",
+                style: appTextStyle(color: Colors.grey),
+              ),
+            );
+          }
+
+          return Skeletonizer(
+            enabled: invoiceListController.isLoading.value,
+            child: ListView.builder(
+              itemCount: list.length,
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                var invoices = list[index];
+                var amountColor =
+                    (invoices["status"] == "paid") ? Colors.green : Colors.red;
 
                         bool showHeader = false;
                         String headerText = "";
 
                         try {
-                          DateTime currentDate = DateFormat("dd-MM-yyyy").parse(invoices["invoiceDate"]!);
+                          String currentDateStr = invoices["invoiceDate"] ?? '';
+                          DateTime currentDate = DateFormat(
+                            "dd-MM-yyyy",
+                          ).parse(currentDateStr);
 
-                          headerText = DateFormat("MMMM yyyy").format(currentDate);
+                          headerText = DateFormat(
+                            "MMMM yyyy",
+                          ).format(currentDate);
 
                           if (index == 0) {
                             showHeader = true;
                           } else {
-                            DateTime prevDate = DateFormat("dd-MM-yyyy").parse(list[index - 1]["invoiceDate"]!);
-                            String prevHeader = DateFormat("MMMM yyyy").format(prevDate);
+                            String prevDateStr = list[index - 1]["invoiceDate"] ?? '';
+                            DateTime prevDate = DateFormat(
+                              "dd-MM-yyyy",
+                            ).parse(prevDateStr);
+                            String prevHeader = DateFormat(
+                              "MMMM yyyy",
+                            ).format(prevDate);
 
                             if (headerText != prevHeader) {
                               showHeader = true;
@@ -126,7 +238,12 @@ class _AllInvoicesState extends State<AllInvoices> with TickerProviderStateMixin
                           children: [
                             if (showHeader) ...[
                               Padding(
-                                padding: const EdgeInsets.only(top: 20, bottom: 8, left: 5, right: 5),
+                                padding: const EdgeInsets.only(
+                                  top: 20,
+                                  bottom: 8,
+                                  left: 5,
+                                  right: 5,
+                                ),
                                 child: Row(
                                   children: [
                                     Text(
@@ -138,24 +255,34 @@ class _AllInvoicesState extends State<AllInvoices> with TickerProviderStateMixin
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    const Expanded(child: Divider(thickness: 1, color: Colors.grey)),
+                                    const Expanded(
+                                      child: Divider(
+                                        thickness: 1,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
                             ],
 
                             SlideTransition(
-                              position: animController.listSlideAnimation[index],
+                              position: animController?.listSlideAnimation[index] ??
+                                  AlwaysStoppedAnimation(const Offset(0, 0)),
                               child: FadeTransition(
-                                opacity: animController.listFadeAnimation[index],
+                                opacity: animController?.listFadeAnimation[index] ??
+                                    AlwaysStoppedAnimation(1.0),
                                 child: ScaleTransition(
-                                  scale: animController.listAnimations[index],
+                                  scale: animController?.listAnimations[index] ??
+                                      AlwaysStoppedAnimation(1.0),
                                   child: GestureDetector(
                                     onTap: () {
                                       handleTap(index);
                                       Get.to(
                                         () => InvoiceDetails(),
-                                        arguments: {"invoiceId": invoices["id"], "invoiceCount": invoiceCount},
+                                        arguments: {
+                                          "invoiceId": invoices["id"],
+                                        },
                                       );
                                     },
                                     child: CommonCardContainer(
@@ -166,16 +293,22 @@ class _AllInvoicesState extends State<AllInvoices> with TickerProviderStateMixin
                                         children: [
                                           Expanded(
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 Text(
-                                                  "Bill No. ${invoices["invoiceNumber"]!}",
-                                                  style: appTextStyle(fontSize: 14),
+                                                  "Bill No. ${invoices["invoiceNumber"] ?? ''}",
+                                                  style: appTextStyle(
+                                                    fontSize: 14,
+                                                  ),
                                                 ),
                                                 Text(
-                                                  invoices["companyName"]!,
-                                                  style: appTextStyle(fontSize: 12),
+                                                  invoices["companyName"] ?? '',
+                                                  style: appTextStyle(
+                                                    fontSize: 12,
+                                                  ),
                                                   maxLines: 1,
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
@@ -183,14 +316,22 @@ class _AllInvoicesState extends State<AllInvoices> with TickerProviderStateMixin
                                             ),
                                           ),
                                           const SizedBox(width: 15),
-                                          Text(invoices["invoiceDate"]!, style: appTextStyle(fontSize: 14)),
+                                          Text(
+                                            invoices["invoiceDate"] ?? '',
+                                            style: appTextStyle(fontSize: 14),
+                                          ),
                                           const SizedBox(width: 15),
                                           Text(
-                                            invoiceListController.formatIndianCurrency(invoices["totalAmount"]!),
-                                            style: appTextStyle(fontSize: 14, color: amountColor),
+                                            invoiceListController.formatIndianCurrency(invoices["totalAmount"] ?? ''),
+                                            style: appTextStyle(
+                                              fontSize: 14,
+                                              color: amountColor,
+                                            ),
                                           ),
                                           const SizedBox(width: 10),
-                                          const Icon(Icons.chevron_right_rounded),
+                                          const Icon(
+                                            Icons.chevron_right_rounded,
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -200,11 +341,11 @@ class _AllInvoicesState extends State<AllInvoices> with TickerProviderStateMixin
                             ),
                           ],
                         );
-                      },
-                    ),
-                  );
-                }),
-              ),
+              },
+            ),
+          );
+        }),
+      ),
     );
   }
 }
