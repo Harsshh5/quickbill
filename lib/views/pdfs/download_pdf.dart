@@ -10,7 +10,9 @@ import 'package:device_info_plus/device_info_plus.dart';
 
 Future<void> downloadPdf(String fileName) async {
   dynamic abb = AppConstants.abbreviation;
-  final pdfFile = await CreatePdf().createPdf();
+  final pdfCreator = CreatePdf();
+  final finalName = pdfCreator.invoiceFileName;
+  final pdfFile = await pdfCreator.createPdf(fileName: finalName);
   final bytes = await pdfFile.readAsBytes();
 
   bool isModernAndroid = false;
@@ -19,9 +21,6 @@ Future<void> downloadPdf(String fileName) async {
     final androidInfo = await DeviceInfoPlugin().androidInfo;
     isModernAndroid = androidInfo.version.sdkInt >= 29;
   }
-
-  String cleanName = fileName.replaceAll('.pdf', '');
-  String finalName = cleanName;
 
   // --- LOGIC FOR ANDROID 10+ (Scoped Storage) ---
   if (isModernAndroid) {
@@ -37,11 +36,13 @@ Future<void> downloadPdf(String fileName) async {
 
       await showDownloadNotification(finalName, path);
 
-      await Share.shareXFiles(
-        [XFile(pdfFile.path, name: finalName)],
-        text: 'Here is your file: $finalName',
-      );
-
+      await Share.shareXFiles([
+        XFile(
+          pdfFile.path,
+          name: '$finalName.pdf',
+          mimeType: 'application/pdf',
+        ),
+      ], text: 'Here is your file: $finalName.pdf');
     } catch (e) {
       debugPrint("Error saving file: $e");
     }
@@ -61,16 +62,19 @@ Future<void> downloadPdf(String fileName) async {
         await subFolder.create(recursive: true);
       }
 
-      String filePath = '${subFolder.path}/$fileName.pdf';
+      String filePath = '${subFolder.path}/$finalName.pdf';
 
       await pdfFile.copy(filePath);
 
-      await showDownloadNotification(fileName, filePath);
+      await showDownloadNotification(finalName, filePath);
 
-      await Share.shareXFiles(
-        [XFile(pdfFile.path, name: finalName)],
-        text: 'Here is your file: $finalName',
-      );
+      await Share.shareXFiles([
+        XFile(
+          pdfFile.path,
+          name: '$finalName.pdf',
+          mimeType: 'application/pdf',
+        ),
+      ], text: 'Here is your file: $finalName.pdf');
     } else {
       debugPrint("Storage permission denied");
     }
