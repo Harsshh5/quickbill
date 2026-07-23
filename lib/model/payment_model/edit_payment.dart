@@ -2,12 +2,27 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 import '../../config/app_url.dart';
 
 class EditPaymentModel {
   final headers = {'Content-Type': 'application/json'};
   final url = AppUrl.updatePayment;
+
+  String? _formatDateForApi(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) return null;
+
+    for (final pattern in ['dd-MM-yyyy', 'd-M-yyyy', 'yyyy-MM-dd']) {
+      try {
+        final parsed = DateFormat(pattern).parseStrict(trimmed);
+        return DateFormat('yyyy-MM-dd').format(parsed);
+      } catch (_) {}
+    }
+
+    return trimmed;
+  }
 
   Future<Map<String, dynamic>> updatePayment({
     required String id,
@@ -39,19 +54,28 @@ class EditPaymentModel {
       if (paymentMode == "Cheque") {
         if (bankName != null) body["bankName"] = bankName;
         if (chequeNumber != null) body["chequeNumber"] = chequeNumber;
-        if (issueDate != null) body["issueDate"] = issueDate;
-        if (clearanceDate != null) body["clearanceDate"] = clearanceDate;
-      }
-      else if (paymentMode == "Online") {
+        if (issueDate != null) body["issueDate"] = _formatDateForApi(issueDate);
+        if (clearanceDate != null) {
+          body["clearanceDate"] = _formatDateForApi(clearanceDate);
+        }
+      } else if (paymentMode == "Online") {
         if (transactionId != null) body["transactionId"] = transactionId;
-        if (transactionDate != null) body["transactionDate"] = transactionDate;
-      }
-      else if (paymentMode == "Cash") {
-        if (cashDate != null) body["cashDate"] = cashDate;
-        if (cashDenominations != null) body["cashDenominations"] = cashDenominations;
+        if (transactionDate != null) {
+          body["transactionDate"] = _formatDateForApi(transactionDate);
+        }
+      } else if (paymentMode == "Cash") {
+        if (cashDate != null) body["cashDate"] = _formatDateForApi(cashDate);
+        if (cashDenominations != null) {
+          body["cashDenominations"] = cashDenominations;
+        }
       }
 
-      var response = await http.put(Uri.parse(url), headers: headers, body: json.encode(body));
+      var response = await http.put(
+        Uri.parse(url),
+        headers: headers,
+        body: json.encode(body),
+      );
+      log("Update Payment Response: ${response.statusCode} - ${response.body}");
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

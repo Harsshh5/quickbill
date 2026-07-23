@@ -25,8 +25,12 @@ class AddPayment extends StatelessWidget {
 
   final AddPaymentController aCC = Get.put(AddPaymentController());
   final EditPaymentController eCC = Get.put(EditPaymentController());
-  final ClientListController clientListController = Get.put(ClientListController());
-  final InvoiceListController invoiceListController = Get.put(InvoiceListController());
+  final ClientListController clientListController = Get.put(
+    ClientListController(),
+  );
+  final InvoiceListController invoiceListController = Get.put(
+    InvoiceListController(),
+  );
 
   final String businessName = AppConstants.abbreviation;
 
@@ -122,20 +126,29 @@ class AddPayment extends StatelessWidget {
       businessName: businessName,
       notes: notes,
 
-      bankName: (mode == "Cheque") ? capitalizeEachWord(aCC.bankName.text.trim()) : null,
+      bankName:
+          (mode == "Cheque")
+              ? capitalizeEachWord(aCC.bankName.text.trim())
+              : null,
       chequeNumber: (mode == "Cheque") ? aCC.chqNo.text.trim() : null,
       issueDate: (mode == "Cheque") ? aCC.chqDt.text.trim() : null,
       clearanceDate: (mode == "Cheque") ? aCC.clearDt.text.trim() : null,
 
       transactionId: (mode == "Online") ? aCC.transactionId.text.trim() : null,
-      transactionDate: (mode == "Online") ? aCC.transactionDt.text.trim() : null,
+      transactionDate:
+          (mode == "Online") ? aCC.transactionDt.text.trim() : null,
 
       cashDate: (mode == "Cash") ? aCC.cashDt.text.trim() : null,
       cashDenominations:
           (mode == "Cash")
               ? Map.fromEntries(
                 aCC.denomControllers.entries
-                    .map((e) => MapEntry(e.key.toString(), int.tryParse(e.value.text) ?? 0))
+                    .map(
+                      (e) => MapEntry(
+                        e.key.toString(),
+                        int.tryParse(e.value.text) ?? 0,
+                      ),
+                    )
                     .where((e) => e.value > 0),
               )
               : null,
@@ -201,16 +214,31 @@ class AddPayment extends StatelessWidget {
       }
     } else if (mode == "Online") {
       if (eCC.transactionId.text.trim().isEmpty) {
-        Get.snackbar("Error", "Enter Transaction ID", backgroundColor: Colors.redAccent, colorText: Colors.white);
+        Get.snackbar(
+          "Error",
+          "Enter Transaction ID",
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
         return;
       }
       if (eCC.transactionDt.text.trim().isEmpty) {
-        Get.snackbar("Error", "Select Transaction Date", backgroundColor: Colors.redAccent, colorText: Colors.white);
+        Get.snackbar(
+          "Error",
+          "Select Transaction Date",
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
         return;
       }
     } else if (mode == "Cash") {
       if (eCC.cashDt.text.trim().isEmpty) {
-        Get.snackbar("Error", "Select Cash Date", backgroundColor: Colors.redAccent, colorText: Colors.white);
+        Get.snackbar(
+          "Error",
+          "Select Cash Date",
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
         return;
       }
     }
@@ -224,22 +252,31 @@ class AddPayment extends StatelessWidget {
       clientId: aCC.clientId.text,
 
       // Cheque
-      bankName: (mode == "Cheque") ? capitalizeEachWord(eCC.bankName.text.trim()) : null,
+      bankName:
+          (mode == "Cheque")
+              ? capitalizeEachWord(eCC.bankName.text.trim())
+              : null,
       chequeNumber: (mode == "Cheque") ? eCC.chqNo.text.trim() : null,
       issueDate: (mode == "Cheque") ? eCC.chqDt.text.trim() : null,
       clearanceDate: (mode == "Cheque") ? eCC.clearDt.text.trim() : null,
 
       // Online
       transactionId: (mode == "Online") ? eCC.transactionId.text.trim() : null,
-      transactionDate: (mode == "Online") ? eCC.transactionDt.text.trim() : null,
+      transactionDate:
+          (mode == "Online") ? eCC.transactionDt.text.trim() : null,
 
       // Cash
       cashDate: (mode == "Cash") ? eCC.cashDt.text.trim() : null,
       cashDenominations:
           (mode == "Cash")
               ? Map.fromEntries(
-                aCC.denomControllers.entries
-                    .map((e) => MapEntry(e.key.toString(), int.tryParse(e.value.text) ?? 0))
+                eCC.denomControllers.entries
+                    .map(
+                      (e) => MapEntry(
+                        e.key.toString(),
+                        int.tryParse(e.value.text) ?? 0,
+                      ),
+                    )
                     .where((e) => e.value > 0),
               )
               : null,
@@ -250,7 +287,9 @@ class AddPayment extends StatelessWidget {
     return showModalBottomSheet(
       backgroundColor: Colors.white,
       context: Get.context!,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       isScrollControlled: true,
       builder: (context) {
         return Container(
@@ -259,7 +298,10 @@ class AddPayment extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Company", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text(
+                "Company",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 10),
 
               CommonTextField(
@@ -272,19 +314,26 @@ class AddPayment extends StatelessWidget {
 
               Expanded(
                 child: Obx(() {
-                  if (clientListController.filteredList.isEmpty && !clientListController.isLoading.value) {
+                  if (clientListController.filteredList.isEmpty &&
+                      !clientListController.isLoading.value) {
                     return const Center(child: Text("No clients found"));
                   }
 
                   return Skeletonizer(
                     enabled: clientListController.isLoading.value,
                     child: ListView.builder(
-                      itemCount: clientListController.isLoading.value ? 5 : clientListController.filteredList.length,
+                      itemCount:
+                          clientListController.isLoading.value
+                              ? 5
+                              : clientListController.filteredList.length,
                       shrinkWrap: true,
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         if (clientListController.isLoading.value) {
-                          return const ListTile(title: Text("Loading..."), subtitle: Text("Loading..."));
+                          return const ListTile(
+                            title: Text("Loading..."),
+                            subtitle: Text("Loading..."),
+                          );
                         }
 
                         final item = clientListController.filteredList[index];
@@ -324,7 +373,9 @@ class AddPayment extends StatelessWidget {
     return showModalBottomSheet(
       backgroundColor: Colors.white,
       context: Get.context!,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       isScrollControlled: true,
       builder: (context) {
         return Container(
@@ -333,7 +384,10 @@ class AddPayment extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Banks", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text(
+                "Banks",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 10),
 
               CommonTextField(
@@ -344,7 +398,10 @@ class AddPayment extends StatelessWidget {
                     filteredList.assignAll(aCC.bankNameList);
                   } else {
                     filteredList.assignAll(
-                      aCC.bankNameList.where((bank) => bank.toLowerCase().contains(val.toLowerCase())),
+                      aCC.bankNameList.where(
+                        (bank) =>
+                            bank.toLowerCase().contains(val.toLowerCase()),
+                      ),
                     );
                   }
                 },
@@ -389,7 +446,10 @@ class AddPayment extends StatelessWidget {
   }
 
   Future showInvoiceList(String tag) async {
-    String selectedClientName = (tag == "add_payment") ? aCC.clientName.text.trim() : eCC.clientName.text.trim();
+    String selectedClientName =
+        (tag == "add_payment")
+            ? aCC.clientName.text.trim()
+            : eCC.clientName.text.trim();
 
     if (selectedClientName.isEmpty) {
       AppSnackBar.show(message: "Select Client.");
@@ -400,19 +460,30 @@ class AddPayment extends StatelessWidget {
       await invoiceListController.getInvoiceList();
     }
 
-    RxList<String> currentSelectionIds = (tag == "add_payment") ? aCC.selectedBillIds : eCC.selectedBillIds;
-    RxList<String> currentSelectionNumbers = (tag == "add_payment") ? aCC.selectedBillNumbers : eCC.selectedBillNumbers;
-    TextEditingController currentTextController = (tag == "add_payment") ? aCC.billNo : eCC.billNo;
+    RxList<String> currentSelectionIds =
+        (tag == "add_payment") ? aCC.selectedBillIds : eCC.selectedBillIds;
+    RxList<String> currentSelectionNumbers =
+        (tag == "add_payment")
+            ? aCC.selectedBillNumbers
+            : eCC.selectedBillNumbers;
+    TextEditingController currentTextController =
+        (tag == "add_payment") ? aCC.billNo : eCC.billNo;
 
     List<String> existingBills = [];
     if (currentTextController.text.trim().isNotEmpty) {
-      existingBills = currentTextController.text.trim().split(',').map((e) => e.trim()).toList();
+      existingBills =
+          currentTextController.text
+              .trim()
+              .split(',')
+              .map((e) => e.trim())
+              .toList();
     }
 
     List<dynamic> clientSpecificInvoices =
         invoiceListController.filteredList.where((invoice) {
           String invoiceClient = invoice["companyName"]?.toString() ?? "";
-          bool isClientMatch = invoiceClient.toLowerCase() == selectedClientName.toLowerCase();
+          bool isClientMatch =
+              invoiceClient.toLowerCase() == selectedClientName.toLowerCase();
 
           String status = invoice["status"]?.toString().toLowerCase() ?? "";
           String invoiceNo = invoice["invoiceNumber"].toString();
@@ -447,7 +518,9 @@ class AddPayment extends StatelessWidget {
       backgroundColor: Colors.white,
       context: Get.context!,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (context) {
         return Container(
           height: Get.height / 1.5,
@@ -461,8 +534,20 @@ class AddPayment extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("Select Bills", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                      Text("For: $selectedClientName", style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      const Text(
+                        "Select Bills",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "For: $selectedClientName",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ],
                   ),
                   TextButton(
@@ -486,7 +571,12 @@ class AddPayment extends StatelessWidget {
                     filteredInvoices.assignAll(clientSpecificInvoices);
                   } else {
                     filteredInvoices.assignAll(
-                      clientSpecificInvoices.where((inv) => inv["invoiceNumber"].toString().contains(val)).toList(),
+                      clientSpecificInvoices
+                          .where(
+                            (inv) =>
+                                inv["invoiceNumber"].toString().contains(val),
+                          )
+                          .toList(),
                     );
                   }
                 },
@@ -497,7 +587,12 @@ class AddPayment extends StatelessWidget {
               Expanded(
                 child: Obx(() {
                   if (filteredInvoices.isEmpty) {
-                    return Center(child: Text("No unpaid bills found.", style: TextStyle(color: Colors.grey[600])));
+                    return Center(
+                      child: Text(
+                        "No unpaid bills found.",
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    );
                   }
 
                   return ListView.builder(
@@ -506,18 +601,25 @@ class AddPayment extends StatelessWidget {
                     physics: const AlwaysScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
                       final invoice = filteredInvoices[index];
-                      final String invoiceNo = invoice["invoiceNumber"].toString();
+                      final String invoiceNo =
+                          invoice["invoiceNumber"].toString();
                       final String invoiceId = invoice["id"].toString();
 
                       return Obx(() {
-                        bool isSelected = currentSelectionIds.contains(invoiceId);
+                        bool isSelected = currentSelectionIds.contains(
+                          invoiceId,
+                        );
 
                         return CheckboxListTile(
                           contentPadding: EdgeInsets.zero,
                           title: Row(
-                            children: [Text("Bill No: $invoiceNo"), const Spacer(), Text("₹${invoice["totalAmount"]}")],
+                            children: [
+                              Text("Bill No: $invoiceNo"),
+                              const Spacer(),
+                              Text("₹${invoice["totalAmount"]}"),
+                            ],
                           ),
-                          subtitle: Text("${invoice["date"]}"),
+                          subtitle: Text("${invoice["invoiceDate"]}"),
                           activeColor: Colors.deepPurple,
                           value: isSelected,
                           onChanged: (bool? value) {
@@ -525,7 +627,9 @@ class AddPayment extends StatelessWidget {
                               if (!currentSelectionIds.contains(invoiceId)) {
                                 currentSelectionIds.add(invoiceId);
                               }
-                              if (!currentSelectionNumbers.contains(invoiceNo)) {
+                              if (!currentSelectionNumbers.contains(
+                                invoiceNo,
+                              )) {
                                 currentSelectionNumbers.add(invoiceNo);
                               }
                             } else {
@@ -533,7 +637,8 @@ class AddPayment extends StatelessWidget {
                               currentSelectionNumbers.remove(invoiceNo);
                             }
 
-                            currentTextController.text = currentSelectionNumbers.join(', ');
+                            currentTextController.text = currentSelectionNumbers
+                                .join(', ');
 
                             if (currentSelectionIds.isNotEmpty) {
                               if (tag == "add_payment") {
@@ -553,7 +658,10 @@ class AddPayment extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                  ),
                   onPressed: () => Get.back(),
                   child: const Text("Done"),
                 ),
@@ -566,7 +674,10 @@ class AddPayment extends StatelessWidget {
   }
 
   Widget _buildDenomRow(int amount, String tag) {
-    final controller = (tag == "add_payment") ? aCC.denomControllers[amount] : eCC.denomControllers[amount];
+    final controller =
+        (tag == "add_payment")
+            ? aCC.denomControllers[amount]
+            : eCC.denomControllers[amount];
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -574,7 +685,10 @@ class AddPayment extends StatelessWidget {
         children: [
           SizedBox(
             width: 60,
-            child: Text("$amount  x ", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            child: Text(
+              "$amount  x ",
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
           ),
 
           Expanded(
@@ -591,7 +705,9 @@ class AddPayment extends StatelessWidget {
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(vertical: 5),
                   hintText: "0",
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
@@ -602,11 +718,23 @@ class AddPayment extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const Text(" =  ", style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  " =  ",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 Obx(() {
-                  int total = (tag == "add_payment") ? (aCC.denomTotals[amount] ?? 0) : (eCC.denomTotals[amount] ?? 0);
+                  int total =
+                      (tag == "add_payment")
+                          ? (aCC.denomTotals[amount] ?? 0)
+                          : (eCC.denomTotals[amount] ?? 0);
 
-                  return Text("$total", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500));
+                  return Text(
+                    "$total",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  );
                 }),
               ],
             ),
@@ -636,8 +764,12 @@ class AddPayment extends StatelessWidget {
               focusNode: (tag == "add_payment") ? aCC.bankFocus : eCC.bankFocus,
               errorText:
                   (tag == "add_payment")
-                      ? (aCC.bankError.value.isEmpty ? null : aCC.bankError.value)
-                      : (eCC.bankError.value.isEmpty ? null : eCC.bankError.value),
+                      ? (aCC.bankError.value.isEmpty
+                          ? null
+                          : aCC.bankError.value)
+                      : (eCC.bankError.value.isEmpty
+                          ? null
+                          : eCC.bankError.value),
               onTap: () => showBankList(tag),
             ),
           ),
@@ -652,11 +784,16 @@ class AddPayment extends StatelessWidget {
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               controller: (tag == "add_payment") ? aCC.chqNo : eCC.chqNo,
-              focusNode: (tag == "add_payment") ? aCC.chqNoFocus : eCC.chqNoFocus,
+              focusNode:
+                  (tag == "add_payment") ? aCC.chqNoFocus : eCC.chqNoFocus,
               errorText:
                   (tag == "add_payment")
-                      ? (aCC.chqNoError.value.isEmpty ? null : aCC.chqNoError.value)
-                      : (eCC.chqNoError.value.isEmpty ? null : eCC.chqNoError.value),
+                      ? (aCC.chqNoError.value.isEmpty
+                          ? null
+                          : aCC.chqNoError.value)
+                      : (eCC.chqNoError.value.isEmpty
+                          ? null
+                          : eCC.chqNoError.value),
               onChanged: (value) {
                 if (value.trim().isNotEmpty) {
                   if (tag == "add_payment") {
@@ -679,7 +816,11 @@ class AddPayment extends StatelessWidget {
             hintText: "Cheque Date",
             controller: (tag == "add_payment") ? aCC.chqDt : eCC.chqDt,
             focusNode: (tag == "add_payment") ? aCC.chqDtFocus : eCC.chqDtFocus,
-            onTap: () => selectDate(Get.context!, (tag == "add_payment") ? aCC.chqDt : eCC.chqDt),
+            onTap:
+                () => selectDate(
+                  Get.context!,
+                  (tag == "add_payment") ? aCC.chqDt : eCC.chqDt,
+                ),
           ),
 
           const SizedBox(height: 15),
@@ -691,7 +832,11 @@ class AddPayment extends StatelessWidget {
             suffixIcon: const Icon(Icons.calendar_month),
             hintText: "Clearance Date",
             controller: (tag == "add_payment") ? aCC.clearDt : eCC.clearDt,
-            onTap: () => selectDate(Get.context!, (tag == "add_payment") ? aCC.clearDt : eCC.clearDt),
+            onTap:
+                () => selectDate(
+                  Get.context!,
+                  (tag == "add_payment") ? aCC.clearDt : eCC.clearDt,
+                ),
           ),
         ],
       );
@@ -708,7 +853,8 @@ class AddPayment extends StatelessWidget {
 
           CommonTextField(
             hintText: "Enter Transaction ID",
-            controller: (tag == "add_payment") ? aCC.transactionId : eCC.transactionId,
+            controller:
+                (tag == "add_payment") ? aCC.transactionId : eCC.transactionId,
           ),
 
           const SizedBox(height: 15),
@@ -719,8 +865,15 @@ class AddPayment extends StatelessWidget {
             readOnly: true,
             hintText: "Select Date",
             suffixIcon: const Icon(Icons.calendar_month),
-            controller: (tag == "add_payment") ? aCC.transactionDt : eCC.transactionDt,
-            onTap: () => selectDate(Get.context!, (tag == "add_payment") ? aCC.transactionDt : eCC.transactionDt),
+            controller:
+                (tag == "add_payment") ? aCC.transactionDt : eCC.transactionDt,
+            onTap:
+                () => selectDate(
+                  Get.context!,
+                  (tag == "add_payment")
+                      ? aCC.transactionDt
+                      : eCC.transactionDt,
+                ),
           ),
         ],
       );
@@ -740,7 +893,11 @@ class AddPayment extends StatelessWidget {
             hintText: "Select Date",
             suffixIcon: const Icon(Icons.calendar_month),
             controller: (tag == "add_payment") ? aCC.cashDt : eCC.cashDt,
-            onTap: () => selectDate(Get.context!, (tag == "add_payment") ? aCC.cashDt : eCC.cashDt),
+            onTap:
+                () => selectDate(
+                  Get.context!,
+                  (tag == "add_payment") ? aCC.cashDt : eCC.cashDt,
+                ),
           ),
 
           const SizedBox(height: 20),
@@ -750,9 +907,11 @@ class AddPayment extends StatelessWidget {
 
           Column(
             children:
-                aCC.denominations.map((denom) {
-                  return _buildDenomRow(denom, tag);
-                }).toList(),
+                ((tag == "add_payment") ? aCC.denominations : eCC.denominations)
+                    .map((denom) {
+                      return _buildDenomRow(denom, tag);
+                    })
+                    .toList(),
           ),
 
           const Divider(),
@@ -762,11 +921,18 @@ class AddPayment extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Total Cash:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text(
+                  "Total Cash:",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
                 Obx(
                   () => Text(
-                    "₹ ${aCC.grandCashTotal.value}",
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.green),
+                    "₹ ${((tag == "add_payment") ? aCC.grandCashTotal.value : eCC.grandCashTotal.value)}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.green,
+                    ),
                   ),
                 ),
               ],
@@ -779,7 +945,10 @@ class AddPayment extends StatelessWidget {
     return const SizedBox.shrink();
   }
 
-  Future<void> selectDate(BuildContext context, TextEditingController controller) async {
+  Future<void> selectDate(
+    BuildContext context,
+    TextEditingController controller,
+  ) async {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -804,12 +973,18 @@ class AddPayment extends StatelessWidget {
           children: [
             Divider(),
             SizedBox(height: 20),
-            Text("You have unsaved changes. Are you sure you want to discard them?", textAlign: TextAlign.center),
+            Text(
+              "You have unsaved changes. Are you sure you want to discard them?",
+              textAlign: TextAlign.center,
+            ),
             SizedBox(height: 10),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text("Keep Editing")),
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text("Keep Editing"),
+          ),
           TextButton(
             onPressed: () {
               Get.back();
@@ -835,7 +1010,8 @@ class AddPayment extends StatelessWidget {
               children: [
                 // Page Header
                 CommonPageHeader(
-                  mainHeading: (tag == "add_payment") ? "Add Payment" : "Edit Payment",
+                  mainHeading:
+                      (tag == "add_payment") ? "Add Payment" : "Edit Payment",
                   subHeading: "Payments",
                   onTap: () => showExitConfirmation(),
                   icon: Icons.chevron_left_rounded,
@@ -865,18 +1041,32 @@ class AddPayment extends StatelessWidget {
                                     borderSideBorder: BorderSide.none,
                                     borderSideEnable: BorderSide.none,
                                     borderSideFocused: BorderSide.none,
-                                    dropdownMenuEntries: aCC.modeDropdownEntries,
-                                    initialSelection: aCC.selectedMode.value,
+                                    dropdownMenuEntries:
+                                        aCC.modeDropdownEntries,
+                                    initialSelection:
+                                        (tag == "add_payment")
+                                            ? aCC.selectedMode.value
+                                            : eCC.selectedMode.value,
                                     onSelected: (value) {
                                       if (value != null) {
-                                        aCC.selectedMode.value = value.toString();
+                                        if (tag == "add_payment") {
+                                          aCC.selectedMode.value =
+                                              value.toString();
+                                        } else {
+                                          eCC.selectedMode.value =
+                                              value.toString();
+                                        }
                                       }
                                     },
                                   ),
                                 ),
 
                                 Obx(() {
-                                  return generateModeDetailsBox(aCC.selectedMode.value);
+                                  return generateModeDetailsBox(
+                                    (tag == "add_payment")
+                                        ? aCC.selectedMode.value
+                                        : eCC.selectedMode.value,
+                                  );
                                 }),
                               ],
                             ),
@@ -900,12 +1090,22 @@ class AddPayment extends StatelessWidget {
                                     autofocus: false,
                                     readOnly: true,
                                     hintText: "Client Name",
-                                    controller: (tag == "add_payment") ? aCC.clientName : eCC.clientName,
-                                    focusNode: (tag == "add_payment") ? aCC.clientFocus : eCC.clientFocus,
+                                    controller:
+                                        (tag == "add_payment")
+                                            ? aCC.clientName
+                                            : eCC.clientName,
+                                    focusNode:
+                                        (tag == "add_payment")
+                                            ? aCC.clientFocus
+                                            : eCC.clientFocus,
                                     errorText:
                                         (tag == "add_payment")
-                                            ? (aCC.clientError.value.isEmpty ? null : aCC.clientError.value)
-                                            : (eCC.clientError.value.isEmpty ? null : eCC.clientError.value),
+                                            ? (aCC.clientError.value.isEmpty
+                                                ? null
+                                                : aCC.clientError.value)
+                                            : (eCC.clientError.value.isEmpty
+                                                ? null
+                                                : eCC.clientError.value),
 
                                     onChanged: (value) {
                                       if (value.trim().isNotEmpty) {
@@ -933,22 +1133,40 @@ class AddPayment extends StatelessWidget {
                                   () => CommonTextField(
                                     autofocus: false,
                                     hintText: "Amount",
-                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                          decimal: true,
+                                        ),
                                     // Allow decimal keyboard
-                                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d+\.?\d{0,2}'),
+                                      ),
+                                    ],
 
                                     readOnly:
                                         (tag == "add_payment")
                                             ? (aCC.selectedMode.value == "Cash")
-                                            : (eCC.selectedMode.value == "Cash"),
+                                            : (eCC.selectedMode.value ==
+                                                "Cash"),
 
-                                    controller: (tag == "add_payment") ? aCC.amount : eCC.amount,
-                                    focusNode: (tag == "add_payment") ? aCC.amountFocus : eCC.amountFocus,
+                                    controller:
+                                        (tag == "add_payment")
+                                            ? aCC.amount
+                                            : eCC.amount,
+                                    focusNode:
+                                        (tag == "add_payment")
+                                            ? aCC.amountFocus
+                                            : eCC.amountFocus,
 
                                     errorText:
                                         (tag == "add_payment")
-                                            ? (aCC.amountError.value.isEmpty ? null : aCC.amountError.value)
-                                            : (eCC.amountError.value.isEmpty ? null : eCC.amountError.value),
+                                            ? (aCC.amountError.value.isEmpty
+                                                ? null
+                                                : aCC.amountError.value)
+                                            : (eCC.amountError.value.isEmpty
+                                                ? null
+                                                : eCC.amountError.value),
 
                                     onChanged: (value) {
                                       if (value.trim().isNotEmpty) {
@@ -971,16 +1189,28 @@ class AddPayment extends StatelessWidget {
                                   () => CommonTextField(
                                     autofocus: false,
                                     readOnly: true,
-                                    suffixIcon: const Icon(Icons.keyboard_arrow_down),
+                                    suffixIcon: const Icon(
+                                      Icons.keyboard_arrow_down,
+                                    ),
                                     hintText: "Select Bill Numbers",
 
-                                    controller: (tag == "add_payment") ? aCC.billNo : eCC.billNo,
-                                    focusNode: (tag == "add_payment") ? aCC.billNoFocus : eCC.billNoFocus,
+                                    controller:
+                                        (tag == "add_payment")
+                                            ? aCC.billNo
+                                            : eCC.billNo,
+                                    focusNode:
+                                        (tag == "add_payment")
+                                            ? aCC.billNoFocus
+                                            : eCC.billNoFocus,
 
                                     errorText:
                                         (tag == "add_payment")
-                                            ? (aCC.billNoError.value.isEmpty ? null : aCC.billNoError.value)
-                                            : (eCC.billNoError.value.isEmpty ? null : eCC.billNoError.value),
+                                            ? (aCC.billNoError.value.isEmpty
+                                                ? null
+                                                : aCC.billNoError.value)
+                                            : (eCC.billNoError.value.isEmpty
+                                                ? null
+                                                : eCC.billNoError.value),
 
                                     onChanged: (value) {
                                       if (value.trim().isNotEmpty) {
@@ -1006,7 +1236,10 @@ class AddPayment extends StatelessWidget {
                                 CommonTextField(
                                   autofocus: false,
                                   hintText: "Notes",
-                                  controller: (tag == "add_payment") ? aCC.notes : eCC.notes,
+                                  controller:
+                                      (tag == "add_payment")
+                                          ? aCC.notes
+                                          : eCC.notes,
                                 ),
                               ],
                             ),
@@ -1016,7 +1249,10 @@ class AddPayment extends StatelessWidget {
 
                           CommonSubmit(
                             data: (tag == "add_payment") ? "Submit" : "Update",
-                            onTap: (tag == "add_payment") ? _submitOnTap : _updateOnTap,
+                            onTap:
+                                (tag == "add_payment")
+                                    ? _submitOnTap
+                                    : _updateOnTap,
                           ),
 
                           const SizedBox(height: 20),

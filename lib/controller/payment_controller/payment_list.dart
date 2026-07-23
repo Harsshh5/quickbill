@@ -37,6 +37,7 @@ class PaymentsListController extends GetxController {
       );
     }
   }
+
   Future<void> getPaymentsList() async {
     isLoading.value = true;
     final String businessName = AppConstants.abbreviation;
@@ -45,20 +46,21 @@ class PaymentsListController extends GetxController {
       var res = await PaymentListModel().fetchPayments(businessName);
 
       if (res["success"] == true && res["payments"] != null) {
-
         List<Map<String, dynamic>> richList = [];
 
         List<dynamic> serverData = res["payments"];
 
         for (var item in serverData) {
           String billNosString = "";
-          if (item["billNos"] != null && item["billNos"] is List) {
-            billNosString = (item["billNos"] as List).join(", ");
+          final displayBillNos = item["billNumbers"] ?? item["billNos"];
+          if (displayBillNos != null && displayBillNos is List) {
+            billNosString = displayBillNos.join(", ");
           } else {
-            billNosString = item["billNos"]?.toString() ?? "";
+            billNosString = displayBillNos?.toString() ?? "";
           }
 
-          String mode = (item["payment_mode"] ?? "cheque").toString().toLowerCase();
+          String mode =
+              (item["payment_mode"] ?? "cheque").toString().toLowerCase();
 
           String primaryDate = "";
           String secondaryDate = "";
@@ -69,13 +71,11 @@ class PaymentsListController extends GetxController {
             referenceNumber = item["transactionId"] ?? "";
             primaryDate = item["transactionDate"] ?? "";
             bankOrMode = "Online Transfer";
-          }
-          else if (mode == "cash") {
+          } else if (mode == "cash") {
             referenceNumber = "CASH";
             primaryDate = item["cashDate"] ?? "";
             bankOrMode = "Cash Payment";
-          }
-          else {
+          } else {
             referenceNumber = item["chequeNumber"] ?? "";
             primaryDate = item["issueDate"] ?? "";
             secondaryDate = item["clearanceDate"] ?? "";
@@ -85,7 +85,8 @@ class PaymentsListController extends GetxController {
           String formattedPrimaryDate = _safeDateFormat(primaryDate);
           String formattedSecondaryDate = _safeDateFormat(secondaryDate);
 
-          String displayClient = item["companyName"] ?? item["clientName"] ?? "Unknown Client";
+          String displayClient =
+              item["companyName"] ?? item["clientName"] ?? "Unknown Client";
 
           richList.add({
             "id": item["_id"] ?? "",
@@ -100,7 +101,7 @@ class PaymentsListController extends GetxController {
             "notes": item["notes"] ?? "",
             "cashDenominations": item["cashDenominations"],
             "realBankName": item["bankName"],
-            "rawBillIds": item["billNos"],
+            "rawBillIds": item["billIds"] ?? item["billNos"],
           });
         }
 
@@ -123,7 +124,9 @@ class PaymentsListController extends GetxController {
     if (dateString == null || dateString.isEmpty) return "";
     try {
       DateTime parsedDate = DateTime.parse(dateString);
-      return "${parsedDate.day}-${parsedDate.month}-${parsedDate.year}";
+      final day = parsedDate.day.toString().padLeft(2, '0');
+      final month = parsedDate.month.toString().padLeft(2, '0');
+      return "$day-$month-${parsedDate.year}";
     } catch (e) {
       return dateString;
     }

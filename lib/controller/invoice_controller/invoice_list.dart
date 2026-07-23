@@ -249,7 +249,7 @@ class InvoiceListController extends GetxController {
             "invoiceNumber": item["invoiceNumber"]?.toString() ?? "",
             "invoiceDate": formatDateToDMY(item["invoiceDate"]),
             "status": item["status"] ?? "",
-            "date": formatDateToDMY(item["createdAt"]),
+            "date": formatDateToDMY(item["invoiceDate"]),
           });
         }
         allInvoices.assignAll(tempList);

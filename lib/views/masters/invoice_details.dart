@@ -183,7 +183,7 @@ class InvoiceDetails extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 Text(
-                                  "${ctrl.createDate}",
+                                  "${ctrl.invoiceDate}",
                                   style: const TextStyle(fontSize: 14),
                                 ),
                               ],

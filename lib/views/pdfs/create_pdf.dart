@@ -181,7 +181,7 @@ class CreatePdf {
         pw.Align(
           alignment: pw.Alignment.centerRight,
           child: pw.Text(
-            ctrl.createDate.value,
+            ctrl.invoiceDate.value,
             style: _regular(regularFont, size: _bodySize),
           ),
         ),
