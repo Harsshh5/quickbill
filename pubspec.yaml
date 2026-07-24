@@ -49,6 +49,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/images/quickbill-design2.png
     - assets/images/
   #   - images/a_dot_ham.jpeg
 
